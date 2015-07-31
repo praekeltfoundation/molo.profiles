@@ -14,17 +14,27 @@ from django.utils.translation import ugettext_lazy as _
 
 @csrf_protect
 def register(request):
+    print 'register'
     if request.method == 'POST':
+        print 'post'
         form = RegistrationForm(request.POST)
+        print 'form'
         if form.is_valid():
+            print 'is valid'
             user = User.objects.create_user(
                 username=form.cleaned_data['username'],
                 password=form.cleaned_data['password'],
             )
+            print 'creating user'
             user.profile.date_of_birth = form.cleaned_data['date_of_birth']
+            print 'set dob'
             user.profile.save()
-            return HttpResponseRedirect(reverse('home_page'))
+            print 'saved'
+            print 'redirecting to', form.cleaned_data.get('next', '/')
+            return HttpResponseRedirect(form.cleaned_data.get('next', '/'))
+        print 'not valid'
         return render(request, 'registration/register.html', {'form': form})
+    print 'get?'
     form = RegistrationForm()
     return render(request, 'registration/register.html', {'form': form})
 

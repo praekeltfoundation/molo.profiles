@@ -15,7 +15,7 @@ install:
   - pip install -e git+git://github.com/praekelt/molo@feature/issue-33-profiles#egg=molo
 script:
   - flake8 molo
-  - molo scaffold testapp --include molo.profiles ^profile/
+  - molo scaffold testapp --include molo.profiles ^profiles/
   - flake8 testapp
   - pip install -e testapp
   - py.test --ds=testapp.settings ./molo/

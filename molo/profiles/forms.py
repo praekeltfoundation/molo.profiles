@@ -1,12 +1,11 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
-import datetime
+from datetime import datetime
 from django.forms.extras.widgets import SelectDateWidget
 
 
 class RegistrationForm(forms.Form):
-    this_year = datetime.date.today().year
     username = forms.RegexField(
         regex=r'^[\w.@+-]+$',
         widget=forms.TextInput(
@@ -30,10 +29,11 @@ class RegistrationForm(forms.Form):
          numbers.")},
         label=_("PIN")
     )
+    next = forms.CharField(required=False)
 
     date_of_birth = forms.DateField(
         widget=SelectDateWidget(
-            years=[y for y in range(1930, this_year)]
+            years=[y for y in range(1930, datetime.now().year)]
         )
     )
 
