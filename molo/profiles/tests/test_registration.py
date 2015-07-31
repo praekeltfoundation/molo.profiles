@@ -65,6 +65,5 @@ class RegisterTestCase(TestCase):
             'date_of_birth': '1980-01-01',
         })
         self.assertEqual(response.status_code, 302)
-        print response
-        # user = User.objects.get(username='testing')
-        # self.assertEqual(user.profile.date_of_birth, date(1980, 1, 1))
+        user = User.objects.get(username='testing')
+        self.assertEqual(user.profile.date_of_birth, date(1980, 1, 1))
