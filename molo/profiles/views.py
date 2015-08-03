@@ -31,7 +31,7 @@ def register(request):
 
 def logout_page(request):
     logout(request)
-    return HttpResponseRedirect(request.REQUESET.get('next', '/'))
+    return HttpResponseRedirect(request.REQUEST.get('next', '/'))
 
 
 class MyProfileView(TemplateView):
