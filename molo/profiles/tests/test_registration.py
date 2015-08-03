@@ -1,9 +1,4 @@
-from datetime import date
-
-from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse
 from django.test import TestCase
-from django.test.client import Client
 
 from molo.profiles.forms import RegistrationForm, ProfilePasswordChangeForm
 
@@ -54,16 +49,3 @@ class RegisterTestCase(TestCase):
         }
         form = ProfilePasswordChangeForm(data=form_data)
         self.assertEqual(form.is_valid(), True)
-
-    def test_register_sets_dob(self):
-        self.assertFalse(User.objects.filter(username='testing').exists())
-        client = Client()
-        print reverse('molo.profiles:user_register')
-        response = client.post(reverse('molo.profiles:user_register'), {
-            'username': 'testing',
-            'password': '1234',
-            'date_of_birth': '1980-01-01',
-        })
-        self.assertEqual(response.status_code, 302)
-        user = User.objects.get(username='testing')
-        self.assertEqual(user.profile.date_of_birth, date(1980, 1, 1))
