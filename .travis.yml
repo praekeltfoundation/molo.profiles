@@ -18,7 +18,7 @@ script:
   - molo scaffold testapp --include molo.profiles ^profiles/
   - flake8 testapp
   - pip install -e testapp
-  - py.test --ds=testapp.settings ./molo/
+  - py.test --cov=molo
 after_success:
   - coveralls
 deploy:
