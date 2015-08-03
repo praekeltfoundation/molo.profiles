@@ -12,7 +12,7 @@
 {% endif %}
 
 <div class="form-wrap">
-    <form method="post" action="{% url 'user_register' %}">{% csrf_token %}
+    <form method="post" action="{% url 'molo.profiles:user_register' %}">{% csrf_token %}
         <table border="0">
             {{ form.as_table }}
         </table>
