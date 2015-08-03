@@ -45,7 +45,7 @@ class RegistrationForm(forms.Form):
         if User.objects.filter(
             username__iexact=self.cleaned_data['username']
         ).exists():
-            raise forms.ValidationError(_("Username is already exists."))
+            raise forms.ValidationError(_("Username already exists."))
         return self.cleaned_data['username']
 
 

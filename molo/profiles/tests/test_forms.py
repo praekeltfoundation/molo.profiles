@@ -1,4 +1,5 @@
 from django.test import TestCase
+from django.contrib.auth.models import User
 
 from molo.profiles.forms import RegistrationForm, ProfilePasswordChangeForm
 
@@ -49,3 +50,17 @@ class RegisterTestCase(TestCase):
         }
         form = ProfilePasswordChangeForm(data=form_data)
         self.assertEqual(form.is_valid(), True)
+
+    def test_username_exists(self):
+        User.objects.create_user(
+            'testing', 'testing@example.com', 'testing')
+        form_data = {
+            'username': 'testing',
+            'password': '12345',
+            'date_of_birth': '1989-03-10',
+        }
+        form = RegistrationForm(data=form_data)
+        self.assertFalse(form.is_valid())
+        [validation_error] = form.errors.as_data()['username']
+        self.assertEqual(
+            'Username already exists.', validation_error.message)
