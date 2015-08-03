@@ -11,8 +11,6 @@ install:
   - pip install flake8 --cache-dir $HOME/.pip-cache/
   - pip install -r requirements-dev.txt --cache-dir $HOME/.pip-cache/
   - pip install -e . --cache-dir $HOME/.pip-cache/
-  # install latest from git feature branch because that hasn't landed yet.
-  - pip install -e git+git://github.com/praekelt/molo@feature/issue-33-profiles#egg=molo
 script:
   - flake8 molo
   - molo scaffold testapp --include molo.profiles ^profiles/
