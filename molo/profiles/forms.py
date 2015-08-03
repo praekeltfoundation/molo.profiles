@@ -12,8 +12,11 @@ class RegistrationForm(forms.Form):
             attrs=dict(required=True, max_length=30)
         ),
         label=_("Username"),
-        error_messages={'invalid': _("This value must contain only letters, \
-         numbers and underscores.")})
+        error_messages={
+            'invalid': _("This value must contain only letters, "
+                         "numbers and underscores."),
+        }
+    )
     password = forms.RegexField(
         regex=r'^\d{4}$',
         widget=forms.PasswordInput(
@@ -25,8 +28,9 @@ class RegistrationForm(forms.Form):
         ),
         max_length=4,
         min_length=4,
-        error_messages={'invalid': _("This value must contain only  \
-         numbers.")},
+        error_messages={
+            'invalid': _("This value must contain only numbers."),
+        },
         label=_("PIN")
     )
     next = forms.CharField(required=False)
@@ -93,8 +97,9 @@ class ProfilePasswordChangeForm(forms.Form):
         ),
         max_length=4,
         min_length=4,
-        error_messages={'invalid': _("This value must contain only  \
-         numbers.")},
+        error_messages={
+            'invalid': _("This value must contain only numbers."),
+        },
         label=_("Confirm Password")
     )
 
@@ -105,5 +110,4 @@ class ProfilePasswordChangeForm(forms.Form):
                 (new_password == confirm_password)):
             return self.cleaned_data
         else:
-            raise forms.ValidationError(_('New passwords \
-                does not match'))
+            raise forms.ValidationError(_('New passwords do not match.'))

@@ -29,17 +29,9 @@ def register(request):
     return render(request, 'registration/register.html', {'form': form})
 
 
-def register_success(request):
-    return HttpResponseRedirect(reverse('home_page'))
-
-
 def logout_page(request):
     logout(request)
-    return HttpResponseRedirect(reverse('home_page'))
-
-
-def home(request):
-    return render(request, 'core/main.html')
+    return HttpResponseRedirect(request.REQUESET.get('next', '/'))
 
 
 class MyProfileView(TemplateView):
@@ -62,7 +54,7 @@ class MyProfileEdit(FormView):
         profile = user.profile
         profile.alias = form.cleaned_data['alias']
         profile.save()
-        return HttpResponseRedirect(reverse('view_my_profile'))
+        return HttpResponseRedirect(reverse('molo.profiles:view_my_profile'))
 
 
 class ProfilePasswordChangeView(FormView):
@@ -74,10 +66,11 @@ class ProfilePasswordChangeView(FormView):
         if user.check_password(form.cleaned_data['old_password']):
             user.set_password(form.cleaned_data['new_password'])
             user.save()
-            return HttpResponseRedirect(reverse('view_my_profile'))
+            return HttpResponseRedirect(
+                reverse('molo.profiles:view_my_profile'))
         messages.error(
             self.request,
-            _('The Old password is incorrect.')
+            _('The old password is incorrect.')
         )
         return render(self.request, 'templates/change_password.html',
                       {'form': form})
