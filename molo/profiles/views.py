@@ -39,7 +39,7 @@ class MyProfileView(TemplateView):
     Enables viewing of the user's profile in the HTML site, by the profile
     owner.
     """
-    template_name = 'templates/viewprofile.html'
+    template_name = 'profiles/viewprofile.html'
 
 
 class MyProfileEdit(FormView):
@@ -47,7 +47,7 @@ class MyProfileEdit(FormView):
     Enables editing of the user's profile in the HTML site
     """
     form_class = EditProfileForm
-    template_name = 'templates/editprofile.html'
+    template_name = 'profiles/editprofile.html'
 
     def form_valid(self, form):
         user = self.request.user
@@ -59,7 +59,7 @@ class MyProfileEdit(FormView):
 
 class ProfilePasswordChangeView(FormView):
     form_class = ProfilePasswordChangeForm
-    template_name = 'templates/change_password.html'
+    template_name = 'profiles/change_password.html'
 
     def form_valid(self, form):
         user = self.request.user
@@ -72,5 +72,5 @@ class ProfilePasswordChangeView(FormView):
             self.request,
             _('The old password is incorrect.')
         )
-        return render(self.request, 'templates/change_password.html',
+        return render(self.request, self.template_name,
                       {'form': form})
