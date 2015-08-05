@@ -9,10 +9,6 @@ Molo Profiles
     :target: https://coveralls.io/r/praekelt/molo.profiles?branch=develop
     :alt: Code Coverage
 
-.. image:: https://badge.fury.io/py/molo.profles.svg
-    :target: http://badge.fury.io/py/molo.profiles
-    :alt: Pypi Package
-
 Provides code to help with User profiles in a project using the Molo code base.
 
 .. note::   This library does not provide a Django user model, it provides a
