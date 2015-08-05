@@ -5,3 +5,6 @@
 dist
 build
 
+/testapp/
+htmlcov/
+.coverage*
