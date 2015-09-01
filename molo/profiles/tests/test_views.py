@@ -41,9 +41,39 @@ class RegistrationViewTest(TestCase):
         self.assertFormError(
             response, 'form', 'date_of_birth', ['This field is required.'])
 
+    def test_logout(self):
+        response = self.client.get('%s?next=%s' % (
+            reverse('molo.profiles:auth_logout'),
+            reverse('molo.profiles:user_register')))
+        self.assertRedirects(response, reverse('molo.profiles:user_register'))
+
+
+@override_settings(ROOT_URLCONF='molo.profiles.tests.test_views')
+class RegistrationWithDateOfBirthViewTest(TestCase):
+
+    def setUp(self):
+        self.client = Client()
+
+    def test_register_view(self):
+        response = self.client.get(reverse(
+            'molo.profiles:user_register_with_date_of_birth'))
+        self.assertTrue(isinstance(response.context['form'], RegistrationForm))
+
+    def test_register_view_invalid_form(self):
+        # NOTE: empty form submission
+        response = self.client.post(reverse(
+            'molo.profiles:user_register_with_date_of_birth'), {})
+        self.assertFormError(
+            response, 'form', 'username', ['This field is required.'])
+        self.assertFormError(
+            response, 'form', 'password', ['This field is required.'])
+        self.assertFormError(
+            response, 'form', 'date_of_birth', ['This field is required.'])
+
     def test_register_sets_dob(self):
         self.assertFalse(User.objects.filter(username='testing').exists())
-        response = self.client.post(reverse('molo.profiles:user_register'), {
+        response = self.client.post(reverse(
+            'molo.profiles:user_register_with_date_of_birth'), {
             'username': 'testing',
             'password': '1234',
             'date_of_birth': '1980-01-01',
@@ -55,8 +85,9 @@ class RegistrationViewTest(TestCase):
     def test_logout(self):
         response = self.client.get('%s?next=%s' % (
             reverse('molo.profiles:auth_logout'),
-            reverse('molo.profiles:user_register')))
-        self.assertRedirects(response, reverse('molo.profiles:user_register'))
+            reverse('molo.profiles:user_register_with_date_of_birth')))
+        self.assertRedirects(response, reverse(
+            'molo.profiles:user_register_with_date_of_birth'))
 
 
 @override_settings(
