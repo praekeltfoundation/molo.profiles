@@ -21,6 +21,22 @@ def register(request):
                 username=form.cleaned_data['username'],
                 password=form.cleaned_data['password'],
             )
+            user.profile.save()
+            return HttpResponseRedirect(form.cleaned_data.get('next', '/'))
+        return render(request, 'profiles/register.html', {'form': form})
+    form = RegistrationForm()
+    return render(request, 'profiles/register.html', {'form': form})
+
+
+@csrf_protect
+def registerwdob(request):
+    if request.method == 'POST':
+        form = RegistrationForm(request.POST)
+        if form.is_valid():
+            user = User.objects.create_user(
+                username=form.cleaned_data['username'],
+                password=form.cleaned_data['password'],
+            )
             user.profile.date_of_birth = form.cleaned_data['date_of_birth']
             user.profile.save()
             return HttpResponseRedirect(form.cleaned_data.get('next', '/'))

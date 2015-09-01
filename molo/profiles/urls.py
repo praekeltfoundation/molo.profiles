@@ -1,4 +1,4 @@
-from molo.profiles.views import logout_page, register
+from molo.profiles.views import logout_page, register, registerwdob
 from molo.profiles.views import MyProfileView, MyProfileEdit
 from molo.profiles.views import ProfilePasswordChangeView
 
@@ -12,6 +12,11 @@ urlpatterns = patterns(
     # If user is not login it will redirect to login page
     url(r'^login/$', 'django.contrib.auth.views.login', name='auth_login'),
     url(r'^register/$', register, name='user_register'),
+    url(
+        r'^registerwdob/$',
+        registerwdob,
+        name='user_register_with_date_of_birth'
+    ),
     url(
         r'^view/myprofile/$',
         login_required(MyProfileView.as_view()),
