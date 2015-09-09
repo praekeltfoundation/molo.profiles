@@ -40,18 +40,20 @@ class RegistrationForm(forms.Form):
     )
     next = forms.CharField(required=False)
 
-    date_of_birth = forms.DateField(
-        widget=SelectDateWidget(
-            years=[y for y in range(1930, datetime.now().year)]
-        )
-    )
-
     def clean_username(self):
         if User.objects.filter(
             username__iexact=self.cleaned_data['username']
         ).exists():
             raise forms.ValidationError(_("Username already exists."))
         return self.cleaned_data['username']
+
+
+class DateOfBirth(forms.Form):
+    date_of_birth = forms.DateField(
+        widget=SelectDateWidget(
+            years=[y for y in range(1930, datetime.now().year)]
+        )
+    )
 
 
 class EditProfileForm(forms.Form):
