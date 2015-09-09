@@ -1,4 +1,4 @@
-from molo.profiles.forms import RegistrationForm
+from molo.profiles.forms import RegistrationForm, DateOfBirthForm
 from molo.profiles.forms import EditProfileForm, ProfilePasswordChangeForm
 from django.contrib.auth import logout
 from django.http import HttpResponseRedirect
@@ -31,18 +31,19 @@ class RegistrationView(FormView):
         return HttpResponseRedirect(form.cleaned_data.get('next', '/'))
 
 
-@csrf_protect
-def register_done(request):
-    if request.method == 'POST':
-        form = RegistrationForm(request.POST)
-        if form.is_valid():
-            user = request.user
-            user.profile.date_of_birth = form.cleaned_data['date_of_birth']
-            user.profile.save()
-            return HttpResponseRedirect(form.cleaned_data.get('/'))
-        return render(request, 'profiles/done.html', {'form': form})
-    form = RegistrationForm()
-    return render(request, 'profiles/done.html', {'form': form})
+class RegistrationDone(FormView):
+    """
+    Enables updating of the user's date of birth
+    """
+    form_class = DateOfBirthForm
+    template_name = 'profiles/done.html'
+
+    def form_valid(self, form):
+        user = self.request.user
+        profile = user.profile
+        profile.date_of_birth = form.cleaned_data['date_of_birth']
+        profile.save()
+        return HttpResponseRedirect(form.cleaned_data.get('next', '/'))
 
 
 def logout_page(request):

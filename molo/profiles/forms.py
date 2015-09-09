@@ -48,10 +48,10 @@ class RegistrationForm(forms.Form):
         return self.cleaned_data['username']
 
 
-class DateOfBirth(forms.Form):
+class DateOfBirthForm(forms.Form):
     date_of_birth = forms.DateField(
         widget=SelectDateWidget(
-            years=[y for y in range(1930, datetime.now().year)]
+            years=[y for y in range(2000, datetime.now().year)]
         )
     )
 
