@@ -12,6 +12,15 @@ urlpatterns = patterns(
     # If user is not login it will redirect to login page
     url(r'^login/$', 'django.contrib.auth.views.login', name='auth_login'),
     url(r'^register/$', register, name='user_register'),
+
+    url(
+        r'^register/done/',
+        login_required(TemplateView.as_view(
+            template_name="profiles/done.html"
+        )),
+        name='registration_done'
+    ),
+
     url(
         r'^view/myprofile/$',
         login_required(MyProfileView.as_view()),
