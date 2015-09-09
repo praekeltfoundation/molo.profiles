@@ -1,7 +1,6 @@
 from molo.profiles.forms import RegistrationForm
 from molo.profiles.forms import EditProfileForm, ProfilePasswordChangeForm
 from django.contrib.auth import logout
-from django.views.decorators.csrf import csrf_protect
 from django.http import HttpResponseRedirect
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import FormView
@@ -9,24 +8,27 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import render
 from django.contrib import messages
 from django.contrib.auth.models import User
+from django.contrib.auth import authenticate, login
 from django.utils.translation import ugettext_lazy as _
 
 
-@csrf_protect
-def register(request):
-    if request.method == 'POST':
-        form = RegistrationForm(request.POST)
-        if form.is_valid():
-            user = User.objects.create_user(
-                username=form.cleaned_data['username'],
-                password=form.cleaned_data['password'],
-            )
-            user.profile.save()
-            return HttpResponseRedirect(form.cleaned_data.get(
-                                        'molo.profiles:registration_done'))
-        return render(request, 'profiles/register.html', {'form': form})
-    form = RegistrationForm()
-    return render(request, 'profiles/register.html', {'form': form})
+class RegistrationView(FormView):
+    """
+    Handles user registration
+    """
+    form_class = RegistrationForm
+    template_name = 'profiles/editprofile.html'
+
+    def form_valid(self, form):
+        username = form.cleaned_data['username']
+        password = form.cleaned_data['password']
+        user = User.objects.create_user(username=username, password=password)
+        user.profile.date_of_birth = form.cleaned_data['date_of_birth']
+        user.profile.save()
+
+        authed_user = authenticate(username=username, password=password)
+        login(self.request, authed_user)
+        return HttpResponseRedirect(form.cleaned_data.get('next', '/'))
 
 
 @csrf_protect

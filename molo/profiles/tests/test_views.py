@@ -20,7 +20,8 @@ urlpatterns = patterns(
 )
 
 
-@override_settings(ROOT_URLCONF='molo.profiles.tests.test_views')
+@override_settings(
+    ROOT_URLCONF='molo.profiles.tests.test_views', LOGIN_URL='/login/')
 class RegistrationViewTest(TestCase):
 
     def setUp(self):
@@ -40,6 +41,24 @@ class RegistrationViewTest(TestCase):
             response, 'form', 'password', ['This field is required.'])
         self.assertFormError(
             response, 'form', 'date_of_birth', ['This field is required.'])
+
+    def test_register_auto_login(self):
+        # Not logged in, redirects to login page
+        response = self.client.get(reverse('molo.profiles:edit_my_profile'))
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(
+            response['Location'],
+            'http://testserver/login/?next=/profiles/edit/myprofile/')
+
+        response = self.client.post(reverse('molo.profiles:user_register'), {
+            'username': 'testing',
+            'password': '1234',
+            'date_of_birth': '1980-01-01',
+        })
+
+        # After registration, doesn't redirect
+        response = self.client.get(reverse('molo.profiles:edit_my_profile'))
+        self.assertEqual(response.status_code, 200)
 
     def test_register_sets_dob(self):
         self.assertFalse(User.objects.filter(username='testing').exists())
