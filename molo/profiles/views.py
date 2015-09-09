@@ -1,7 +1,6 @@
 from molo.profiles.forms import RegistrationForm
 from molo.profiles.forms import EditProfileForm, ProfilePasswordChangeForm
 from django.contrib.auth import logout
-from django.views.decorators.csrf import csrf_protect
 from django.http import HttpResponseRedirect
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import FormView
