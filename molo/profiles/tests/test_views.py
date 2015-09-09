@@ -39,8 +39,6 @@ class RegistrationViewTest(TestCase):
             response, 'form', 'username', ['This field is required.'])
         self.assertFormError(
             response, 'form', 'password', ['This field is required.'])
-        self.assertFormError(
-            response, 'form', 'date_of_birth', ['This field is required.'])
 
     def test_register_auto_login(self):
         # Not logged in, redirects to login page
@@ -53,29 +51,39 @@ class RegistrationViewTest(TestCase):
         response = self.client.post(reverse('molo.profiles:user_register'), {
             'username': 'testing',
             'password': '1234',
-            'date_of_birth': '1980-01-01',
         })
 
         # After registration, doesn't redirect
         response = self.client.get(reverse('molo.profiles:edit_my_profile'))
         self.assertEqual(response.status_code, 200)
 
-    def test_register_sets_dob(self):
-        self.assertFalse(User.objects.filter(username='testing').exists())
-        response = self.client.post(reverse('molo.profiles:user_register'), {
-            'username': 'testing',
-            'password': '1234',
-            'date_of_birth': '1980-01-01',
-        })
-        self.assertEqual(response.status_code, 302)
-        user = User.objects.get(username='testing')
-        self.assertEqual(user.profile.date_of_birth, date(1980, 1, 1))
-
     def test_logout(self):
         response = self.client.get('%s?next=%s' % (
             reverse('molo.profiles:auth_logout'),
             reverse('molo.profiles:user_register')))
         self.assertRedirects(response, reverse('molo.profiles:user_register'))
+
+
+@override_settings(
+    ROOT_URLCONF='molo.profiles.tests.test_views')
+class RegistrationDone(TestCase):
+
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username='tester',
+            email='tester@example.com',
+            password='tester')
+        self.client = Client()
+        self.client.login(username='tester', password='tester')
+
+    def test_date_of_birth(self):
+        response = self.client.post(reverse(
+            'molo.profiles:registration_done'), {
+            'date_of_birth': '2000-01-01',
+        })
+        self.assertEqual(response.status_code, 302)
+        user = User.objects.get(username='tester')
+        self.assertEqual(user.profile.date_of_birth, date(2000, 1, 1))
 
 
 @override_settings(

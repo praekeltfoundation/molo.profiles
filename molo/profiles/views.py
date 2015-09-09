@@ -23,7 +23,6 @@ class RegistrationView(FormView):
         username = form.cleaned_data['username']
         password = form.cleaned_data['password']
         user = User.objects.create_user(username=username, password=password)
-        user.profile.date_of_birth = form.cleaned_data['date_of_birth']
         user.profile.save()
 
         authed_user = authenticate(username=username, password=password)
