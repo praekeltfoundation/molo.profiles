@@ -21,12 +21,26 @@ def register(request):
                 username=form.cleaned_data['username'],
                 password=form.cleaned_data['password'],
             )
-            user.profile.date_of_birth = form.cleaned_data['date_of_birth']
             user.profile.save()
-            return HttpResponseRedirect(form.cleaned_data.get('next', '/'))
+            return HttpResponseRedirect(form.cleaned_data.get(
+                                        'molo.profiles:registration_done'))
         return render(request, 'profiles/register.html', {'form': form})
     form = RegistrationForm()
     return render(request, 'profiles/register.html', {'form': form})
+
+
+@csrf_protect
+def register_done(request):
+    if request.method == 'POST':
+        form = RegistrationForm(request.POST)
+        if form.is_valid():
+            user = request.user
+            user.profile.date_of_birth = form.cleaned_data['date_of_birth']
+            user.profile.save()
+            return HttpResponseRedirect(form.cleaned_data.get('/'))
+        return render(request, 'profiles/done.html', {'form': form})
+    form = RegistrationForm()
+    return render(request, 'profiles/done.html', {'form': form})
 
 
 def logout_page(request):
