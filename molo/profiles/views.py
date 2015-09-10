@@ -17,7 +17,7 @@ class RegistrationView(FormView):
     Handles user registration
     """
     form_class = RegistrationForm
-    template_name = 'profiles/editprofile.html'
+    template_name = 'profiles/register.html'
 
     def form_valid(self, form):
         username = form.cleaned_data['username']
