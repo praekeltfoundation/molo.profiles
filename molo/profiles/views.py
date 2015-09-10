@@ -38,8 +38,7 @@ class RegistrationDone(FormView):
     template_name = 'profiles/done.html'
 
     def form_valid(self, form):
-        user = self.request.user
-        profile = user.profile
+        profile = self.request.user.profile
         profile.date_of_birth = form.cleaned_data['date_of_birth']
         profile.save()
         return HttpResponseRedirect(form.cleaned_data.get('next', '/'))
