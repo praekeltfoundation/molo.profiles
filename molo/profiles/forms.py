@@ -12,7 +12,6 @@ class RegistrationForm(forms.Form):
             attrs=dict(
                 required=True,
                 max_length=30,
-                placeholder=_('Username')
             )
         ),
         label=_("Username"),
@@ -28,7 +27,6 @@ class RegistrationForm(forms.Form):
                 required=True,
                 render_value=False,
                 type='password',
-                placeholder=_('4 Digit PIN')
             )
         ),
         max_length=4,
@@ -40,12 +38,6 @@ class RegistrationForm(forms.Form):
     )
     next = forms.CharField(required=False)
 
-    date_of_birth = forms.DateField(
-        widget=SelectDateWidget(
-            years=[y for y in range(1930, datetime.now().year)]
-        )
-    )
-
     def clean_username(self):
         if User.objects.filter(
             username__iexact=self.cleaned_data['username']
@@ -54,9 +46,16 @@ class RegistrationForm(forms.Form):
         return self.cleaned_data['username']
 
 
+class DateOfBirthForm(forms.Form):
+    date_of_birth = forms.DateField(
+        widget=SelectDateWidget(
+            years=list(reversed([y for y in range(1930, datetime.now().year)]))
+        )
+    )
+
+
 class EditProfileForm(forms.Form):
     alias = forms.CharField(
-        widget=forms.TextInput(attrs=dict(placeholder=_('Display Name'))),
         label=_("Display Name"),
         required=False
     )
@@ -70,7 +69,6 @@ class ProfilePasswordChangeForm(forms.Form):
                 required=True,
                 render_value=False,
                 type='password',
-                placeholder=_('Old Password')
             )
         ),
         max_length=4, min_length=4,
@@ -85,7 +83,6 @@ class ProfilePasswordChangeForm(forms.Form):
                 required=True,
                 render_value=False,
                 type='password',
-                placeholder=_('New Password')
             )
         ),
         max_length=4,
@@ -101,7 +98,6 @@ class ProfilePasswordChangeForm(forms.Form):
                 required=True,
                 render_value=False,
                 type='password',
-                placeholder=_('Confirm Password')
             )
         ),
         max_length=4,

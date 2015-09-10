@@ -10,7 +10,6 @@ class RegisterTestCase(TestCase):
         form_data = {
             'username': 'Jeyabal@-1',
             'password': '1234',
-            'date_of_birth': '1989-03-10',
         }
         form = RegistrationForm(data=form_data)
         self.assertEqual(form.is_valid(), True)
@@ -19,7 +18,6 @@ class RegisterTestCase(TestCase):
         form_data = {
             'username': 'Jeyabal#',
             'password': '1234',
-            'date_of_birth': '1989-03-10',
         }
         form = RegistrationForm(data=form_data)
         self.assertEqual(form.is_valid(), False)
@@ -28,7 +26,6 @@ class RegisterTestCase(TestCase):
         form_data = {
             'username': 'Jeyabal#',
             'password': '12345',
-            'date_of_birth': '1989-03-10',
         }
         form = RegistrationForm(data=form_data)
         self.assertEqual(form.is_valid(), False)
@@ -57,7 +54,6 @@ class RegisterTestCase(TestCase):
         form_data = {
             'username': 'testing',
             'password': '12345',
-            'date_of_birth': '1989-03-10',
         }
         form = RegistrationForm(data=form_data)
         self.assertFalse(form.is_valid())

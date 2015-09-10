@@ -14,6 +14,13 @@ urlpatterns = patterns(
         views.RegistrationView.as_view(),
         name='user_register'),
     url(
+        r'^register/done/',
+        login_required(views.RegistrationDone.as_view(
+            template_name="profiles/done.html"
+        )),
+        name='registration_done'
+    ),
+    url(
         r'^view/myprofile/$',
         login_required(views.MyProfileView.as_view()),
         name='view_my_profile'
