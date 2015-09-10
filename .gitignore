@@ -1,0 +1,10 @@
+*.pyc
+/ve/
+*.egg
+*.egg-info
+dist
+build
+
+/testapp/
+htmlcov/
+.coverage*
