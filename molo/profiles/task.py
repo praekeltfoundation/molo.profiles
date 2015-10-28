@@ -50,8 +50,6 @@ def send_announcement():
         data = {
             "text": get_message_text()
         }
-        print"HELLO!"
         requests.post(url, data=data, headers=headers)
-        print"GOODBYE!"
     except AttributeError:
         pass
