@@ -3,8 +3,7 @@ from django.contrib.auth.models import User
 from django.conf import settings
 from celery.task import periodic_task
 from celery.schedules import crontab
-import urllib2
-import json
+import requests
 
 
 def get_count_of_new_users():
@@ -26,10 +25,15 @@ def get_count_of_all_users():
 
 
 def get_message_text():
-    return ("Daily Update On User Data\n"
+    return ("DAILY UPDATE ON USER DATA\n"
+            "New User - joined in the last 24 hours\n"
+            "Returning User - joined longer than 24 hours ago"
+            "and visited the site in the last 24 hours\n"
+            "```"
             "Total Users: {0}\n"
             "New Users: {1}\n"
             "Returning Users: {2}"
+            "```"
             .format(get_count_of_all_users(),
                     get_count_of_new_users(),
                     get_count_of_returning_users()))
@@ -39,12 +43,15 @@ def get_message_text():
 def send_announcement():
     try:
         url = settings.SLACK_INCOMING_WEBHOOK_URL
+        headers = {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+        }
         data = {
             "text": get_message_text()
         }
-        opener = urllib2.build_opener(urllib2.HTTPHandler)
-        request = urllib2.Request(url, data=json.dumps(data))
-        request.add_header("Content-Type", "application/json")
-        opener.open(request)
+        print"HELLO!"
+        requests.post(url, data=data, headers=headers)
+        print"GOODBYE!"
     except AttributeError:
         pass

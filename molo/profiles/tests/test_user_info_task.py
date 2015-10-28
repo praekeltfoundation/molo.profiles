@@ -1,10 +1,11 @@
 from datetime import datetime, timedelta
 import random
 from itertools import izip
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.contrib.auth.models import User
-
 from molo.profiles import task
+import responses
+import json
 
 
 class UserInfoTest(TestCase):
@@ -71,6 +72,14 @@ class UserInfoTest(TestCase):
             user.save()
             count += 1
 
+    # setup response
+
+    responses.add(
+        responses.POST,
+        'http://testserver:8080/',
+        status=200, content_type='application/json',
+        body=json.dumps({}))
+
     def test_new_user_count(self):
         self.assertEqual(task.get_count_of_new_users(), 10)
 
@@ -82,7 +91,18 @@ class UserInfoTest(TestCase):
 
     def test_user_info_message(self):
         self.assertEqual(task.get_message_text(),
-                         ("Daily Update On User Data\n"
+                         ("DAILY UPDATE ON USER DATA\n"
+                          "New User - joined in the last 24 hours\n"
+                          "Returning User - joined longer than 24 hours ago"
+                          "and visited the site in the last 24 hours\n"
+                          "```"
                           "Total Users: 20\n"
                           "New Users: 10\n"
-                          "Returning Users: 7"))
+                          "Returning Users: 7"
+                          "```"))
+
+    @responses.activate
+    @override_settings(SLACK_INCOMING_WEBHOOK_URL="http://testserver:8080/")
+    def test_send_announcement(self):
+        task.send_announcement()
+        self.assertEqual(0, 0)
