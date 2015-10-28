@@ -1,8 +1,7 @@
 from datetime import datetime, timedelta
 from django.contrib.auth.models import User
 from django.conf import settings
-from celery.task import periodic_task
-from celery.schedules import crontab
+from celery import task
 import requests
 
 
@@ -39,8 +38,8 @@ def get_message_text():
                     get_count_of_returning_users()))
 
 
-@periodic_task(run_every=crontab(hour='8'))
-def send_announcement():
+@task(serializer='json')
+def send_user_data_to_slack():
     try:
         url = settings.SLACK_INCOMING_WEBHOOK_URL
         headers = {
