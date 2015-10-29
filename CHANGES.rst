@@ -1,5 +1,9 @@
 HANGE LOG
 ==========
+0.2.1
+-----
+- Updated celery task and readme for posting user statistics to a Slack Channel
+
 0.2.0
 -----
-Added a task to post user information to a Slack Channel
+- Added a task to post user statistics to a Slack Channel
