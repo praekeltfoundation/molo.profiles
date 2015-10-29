@@ -103,6 +103,5 @@ class UserInfoTest(TestCase):
 
     @responses.activate
     @override_settings(SLACK_INCOMING_WEBHOOK_URL="http://testserver:8080/")
-    def test_send_announcement(self):
-        task.send_announcement()
-        self.assertEqual(0, 0)
+    def test_send_user_data_to_slack(self):
+        task.send_user_data_to_slack()
