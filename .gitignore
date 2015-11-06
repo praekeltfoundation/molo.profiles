@@ -7,5 +7,5 @@ build
 
 /testapp/
 htmlcov/
-.coverage*
+.coverage
 .cache
