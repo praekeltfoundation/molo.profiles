@@ -1,5 +1,9 @@
 HANGE LOG
 ==========
+0.2.2
+-----
+- Add missing migrations
+
 0.2.1
 -----
 - Updated celery task and readme for posting user statistics to a Slack Channel
