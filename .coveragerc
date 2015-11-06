@@ -1,0 +1,3 @@
+[run]
+omit = molo/profiles/migrations/*
+source= molo/profile/
