@@ -7,7 +7,8 @@ from django.core.urlresolvers import reverse
 from django.test import TestCase, override_settings, Client
 
 from molo.profiles.forms import (
-    RegistrationForm, EditDisplayNameForm, ProfilePasswordChangeForm)
+    RegistrationForm, DateOfBirthForm,
+    EditDisplayNameForm, ProfilePasswordChangeForm)
 from molo.profiles.models import UserProfile
 
 
@@ -111,7 +112,7 @@ class MyProfileViewTest(TestCase):
 
 @override_settings(
     ROOT_URLCONF='molo.profiles.tests.test_views')
-class MyProfileEditTest(TestCase):
+class MyDisplayNameEditTest(TestCase):
 
     def setUp(self):
         self.user = User.objects.create_user(
@@ -135,6 +136,35 @@ class MyProfileEditTest(TestCase):
             response, reverse('molo.profiles:view_my_profile'))
         self.assertEqual(UserProfile.objects.get(user=self.user).alias,
                          'foo')
+
+
+@override_settings(
+    ROOT_URLCONF='molo.profiles.tests.test_views')
+class ProfileDateOfBirthEditTest(TestCase):
+
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username='tester',
+            email='tester@example.com',
+            password='tester')
+        self.client = Client()
+        self.client.login(username='tester', password='tester')
+
+    def test_view(self):
+        response = self.client.get(
+            reverse('molo.profiles:edit_my_date_of_birth'))
+        form = response.context['form']
+        self.assertTrue(isinstance(form, DateOfBirthForm))
+
+    def test_update_date_of_birth(self):
+        response = self.client.post(reverse(
+            'molo.profiles:edit_my_date_of_birth'), {
+            'date_of_birth': '2000-01-01',
+        })
+        self.assertRedirects(
+            response, reverse('molo.profiles:view_my_profile'))
+        self.assertEqual(UserProfile.objects.get(user=self.user).date_of_birth,
+                         date(2000, 1, 1))
 
 
 @override_settings(
