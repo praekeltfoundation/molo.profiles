@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block content %}
+<div class="signin-form">
+	<div class="block">
+		<form method="post" action="{% url 'molo.profiles:edit_my_date_of_birth' %}">{% csrf_token %}
+      <p>{% trans "Your date of birth is:" %}</p>
+      <h5>{{ date_of_birth }}</h5>
+      <p>{% trans "Update your date of birth:" %}</p>
+	      {{ form.date_of_birth }}
+	      <input type="submit" value='{% trans "Update" %}' />
+	  </form>
+	</div>
+</div>
+
+{% endblock %}

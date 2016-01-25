@@ -54,7 +54,7 @@ class DateOfBirthForm(forms.Form):
     )
 
 
-class EditProfileForm(forms.Form):
+class EditDisplayNameForm(forms.Form):
     alias = forms.CharField(
         label=_("Display Name"),
         required=False

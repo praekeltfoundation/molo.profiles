@@ -26,9 +26,14 @@ urlpatterns = patterns(
         name='view_my_profile'
     ),
     url(
-        r'^edit/myprofile/$',
-        login_required(views.MyProfileEdit.as_view()),
-        name='edit_my_profile'
+        r'^edit/mydisplayname/$',
+        login_required(views.MyDisplayNameEdit.as_view()),
+        name='edit_display_name'
+    ),
+    url(
+        r'^edit/mydateofbirth/$',
+        login_required(views.ProfileDateOfBirthEdit.as_view()),
+        name='edit_my_date_of_birth'
     ),
     url(
         r'^password-reset/$',

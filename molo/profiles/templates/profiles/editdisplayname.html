@@ -4,7 +4,7 @@
 {% block content %}
 <div class="signin-form">
 	<div class="block turq">
-		<form method="post" id="frmProfileEdit" action="{% url 'molo.profiles:edit_my_profile' %}">{% csrf_token %}
+		<form method="post" id="frmProfileEdit" action="{% url 'molo.profiles:edit_display_name' %}">{% csrf_token %}
 			<p>{% trans "Your display name is:" %}</p>
 			<h5>{{ alias }}</h5>
 			<p>{% trans "Type new display name:" %}</p>

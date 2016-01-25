@@ -7,7 +7,7 @@ from django.core.urlresolvers import reverse
 from django.test import TestCase, override_settings, Client
 
 from molo.profiles.forms import (
-    RegistrationForm, EditProfileForm, ProfilePasswordChangeForm)
+    RegistrationForm, EditDisplayNameForm, ProfilePasswordChangeForm)
 from molo.profiles.models import UserProfile
 
 
@@ -42,7 +42,7 @@ class RegistrationViewTest(TestCase):
 
     def test_register_auto_login(self):
         # Not logged in, redirects to login page
-        response = self.client.get(reverse('molo.profiles:edit_my_profile'))
+        response = self.client.get(reverse('molo.profiles:edit_display_name'))
         self.assertEqual(response.status_code, 302)
         self.assertEqual(
             response['Location'],
@@ -122,12 +122,13 @@ class MyProfileEditTest(TestCase):
         self.client.login(username='tester', password='tester')
 
     def test_view(self):
-        response = self.client.get(reverse('molo.profiles:edit_my_profile'))
+        response = self.client.get(reverse('molo.profiles:edit_display_name'))
         form = response.context['form']
-        self.assertTrue(isinstance(form, EditProfileForm))
+        self.assertTrue(isinstance(form, EditDisplayNameForm))
 
     def test_update(self):
-        response = self.client.post(reverse('molo.profiles:edit_my_profile'), {
+        response = self.client.post(reverse('molo.profiles:edit_display_name'),
+                                    {
             'alias': 'foo'
         })
         self.assertRedirects(

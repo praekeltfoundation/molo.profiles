@@ -1,5 +1,5 @@
 from molo.profiles.forms import RegistrationForm, DateOfBirthForm
-from molo.profiles.forms import EditProfileForm, ProfilePasswordChangeForm
+from molo.profiles.forms import EditDisplayNameForm, ProfilePasswordChangeForm
 from django.contrib.auth import logout
 from django.http import HttpResponseRedirect
 from django.views.generic.base import TemplateView
@@ -57,17 +57,31 @@ class MyProfileView(TemplateView):
     template_name = 'profiles/viewprofile.html'
 
 
-class MyProfileEdit(FormView):
+class MyDisplayNameEdit(FormView):
     """
     Enables editing of the user's profile in the HTML site
     """
-    form_class = EditProfileForm
-    template_name = 'profiles/editprofile.html'
+    form_class = EditDisplayNameForm
+    template_name = 'profiles/editdisplayname.html'
 
     def form_valid(self, form):
         user = self.request.user
         profile = user.profile
         profile.alias = form.cleaned_data['alias']
+        profile.save()
+        return HttpResponseRedirect(reverse('molo.profiles:view_my_profile'))
+
+
+class ProfileDateOfBirthEdit(FormView):
+    """
+    Enables editing of the user's profile in the HTML site
+    """
+    form_class = DateOfBirthForm
+    template_name = 'profiles/editdateofbirth.html'
+
+    def form_valid(self, form):
+        profile = self.request.user.profile
+        profile.date_of_birth = form.cleaned_data['date_of_birth']
         profile.save()
         return HttpResponseRedirect(reverse('molo.profiles:view_my_profile'))
 
