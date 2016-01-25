@@ -46,7 +46,7 @@ class RegistrationViewTest(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(
             response['Location'],
-            'http://testserver/login/?next=/profiles/edit/myprofile/')
+            'http://testserver/login/?next=/profiles/edit/mydisplayname/')
 
         response = self.client.post(reverse('molo.profiles:user_register'), {
             'username': 'testing',
