@@ -54,7 +54,7 @@ class RegistrationViewTest(TestCase):
         })
 
         # After registration, doesn't redirect
-        response = self.client.get(reverse('molo.profiles:edit_my_profile'))
+        response = self.client.get(reverse('molo.profiles:edit_display_name'))
         self.assertEqual(response.status_code, 200)
 
     def test_logout(self):
