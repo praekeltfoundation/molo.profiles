@@ -1,10 +1,11 @@
 from molo.profiles.forms import RegistrationForm, DateOfBirthForm
-from molo.profiles.forms import EditDisplayNameForm, ProfilePasswordChangeForm
+from molo.profiles.forms import EditProfileForm, ProfilePasswordChangeForm
+from molo.profiles.models import UserProfile
 from django.contrib.auth import logout
 from django.http import HttpResponseRedirect
 from django.views.generic.base import TemplateView
-from django.views.generic.edit import FormView
-from django.core.urlresolvers import reverse
+from django.views.generic.edit import FormView, UpdateView
+from django.core.urlresolvers import reverse, reverse_lazy
 from django.shortcuts import render
 from django.contrib import messages
 from django.contrib.auth.models import User
@@ -57,33 +58,17 @@ class MyProfileView(TemplateView):
     template_name = 'profiles/viewprofile.html'
 
 
-class MyDisplayNameEdit(FormView):
+class MyProfileEdit(UpdateView):
     """
     Enables editing of the user's profile in the HTML site
     """
-    form_class = EditDisplayNameForm
-    template_name = 'profiles/editdisplayname.html'
+    model = UserProfile
+    form_class = EditProfileForm
+    template_name = 'profiles/editprofile.html'
+    success_url = reverse_lazy('molo.profiles:view_my_profile')
 
-    def form_valid(self, form):
-        user = self.request.user
-        profile = user.profile
-        profile.alias = form.cleaned_data['alias']
-        profile.save()
-        return HttpResponseRedirect(reverse('molo.profiles:view_my_profile'))
-
-
-class ProfileDateOfBirthEdit(FormView):
-    """
-    Enables editing of the user's profile in the HTML site
-    """
-    form_class = DateOfBirthForm
-    template_name = 'profiles/editdateofbirth.html'
-
-    def form_valid(self, form):
-        profile = self.request.user.profile
-        profile.date_of_birth = form.cleaned_data['date_of_birth']
-        profile.save()
-        return HttpResponseRedirect(reverse('molo.profiles:view_my_profile'))
+    def get_object(self, queryset=None):
+        return self.request.user.profile
 
 
 class ProfilePasswordChangeView(FormView):

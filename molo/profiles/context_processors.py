@@ -1,4 +1,4 @@
-from molo.profiles.forms import EditDisplayNameForm
+from molo.profiles.forms import EditProfileForm
 
 
 def get_profile_data(request):
@@ -14,7 +14,7 @@ def get_profile_data(request):
         else:
             alias = 'Anonymous'
         date_of_birth = profile.date_of_birth
-    edit_profile_form = EditDisplayNameForm(
+    edit_profile_form = EditProfileForm(
         initial={
             'username': username,
             'alias': alias,

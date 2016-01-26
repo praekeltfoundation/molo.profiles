@@ -7,8 +7,7 @@ from django.core.urlresolvers import reverse
 from django.test import TestCase, override_settings, Client
 
 from molo.profiles.forms import (
-    RegistrationForm, DateOfBirthForm,
-    EditDisplayNameForm, ProfilePasswordChangeForm)
+    RegistrationForm, EditProfileForm, ProfilePasswordChangeForm)
 from molo.profiles.models import UserProfile
 
 
@@ -43,11 +42,11 @@ class RegistrationViewTest(TestCase):
 
     def test_register_auto_login(self):
         # Not logged in, redirects to login page
-        response = self.client.get(reverse('molo.profiles:edit_display_name'))
+        response = self.client.get(reverse('molo.profiles:edit_my_profile'))
         self.assertEqual(response.status_code, 302)
         self.assertEqual(
             response['Location'],
-            'http://testserver/login/?next=/profiles/edit/mydisplayname/')
+            'http://testserver/login/?next=/profiles/edit/myprofile/')
 
         response = self.client.post(reverse('molo.profiles:user_register'), {
             'username': 'testing',
@@ -55,7 +54,7 @@ class RegistrationViewTest(TestCase):
         })
 
         # After registration, doesn't redirect
-        response = self.client.get(reverse('molo.profiles:edit_display_name'))
+        response = self.client.get(reverse('molo.profiles:edit_my_profile'))
         self.assertEqual(response.status_code, 200)
 
     def test_logout(self):
@@ -112,7 +111,7 @@ class MyProfileViewTest(TestCase):
 
 @override_settings(
     ROOT_URLCONF='molo.profiles.tests.test_views')
-class MyDisplayNameEditTest(TestCase):
+class MyProfileEditTest(TestCase):
 
     def setUp(self):
         self.user = User.objects.create_user(
@@ -123,14 +122,15 @@ class MyDisplayNameEditTest(TestCase):
         self.client.login(username='tester', password='tester')
 
     def test_view(self):
-        response = self.client.get(reverse('molo.profiles:edit_display_name'))
+        response = self.client.get(reverse('molo.profiles:edit_my_profile'))
         form = response.context['form']
-        self.assertTrue(isinstance(form, EditDisplayNameForm))
+        self.assertTrue(isinstance(form, EditProfileForm))
 
     def test_update(self):
-        response = self.client.post(reverse('molo.profiles:edit_display_name'),
+        response = self.client.post(reverse('molo.profiles:edit_my_profile'),
                                     {
-            'alias': 'foo'
+            'alias': 'foo',
+            'date_of_birth': '2000-01-01'
         })
         self.assertRedirects(
             response, reverse('molo.profiles:view_my_profile'))
@@ -152,13 +152,13 @@ class ProfileDateOfBirthEditTest(TestCase):
 
     def test_view(self):
         response = self.client.get(
-            reverse('molo.profiles:edit_my_date_of_birth'))
+            reverse('molo.profiles:edit_my_profile'))
         form = response.context['form']
-        self.assertTrue(isinstance(form, DateOfBirthForm))
+        self.assertTrue(isinstance(form, EditProfileForm))
 
     def test_update_date_of_birth(self):
         response = self.client.post(reverse(
-            'molo.profiles:edit_my_date_of_birth'), {
+            'molo.profiles:edit_my_profile'), {
             'date_of_birth': '2000-01-01',
         })
         self.assertRedirects(
