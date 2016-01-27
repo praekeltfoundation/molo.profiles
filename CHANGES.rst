@@ -1,4 +1,4 @@
-HANGE LOG
+CHANGE LOG
 ==========
 0.2.2
 -----

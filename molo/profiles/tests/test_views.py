@@ -127,13 +127,44 @@ class MyProfileEditTest(TestCase):
         self.assertTrue(isinstance(form, EditProfileForm))
 
     def test_update(self):
-        response = self.client.post(reverse('molo.profiles:edit_my_profile'), {
-            'alias': 'foo'
+        response = self.client.post(reverse('molo.profiles:edit_my_profile'),
+                                    {
+            'alias': 'foo',
+            'date_of_birth': '2000-01-01'
         })
         self.assertRedirects(
             response, reverse('molo.profiles:view_my_profile'))
         self.assertEqual(UserProfile.objects.get(user=self.user).alias,
                          'foo')
+
+
+@override_settings(
+    ROOT_URLCONF='molo.profiles.tests.test_views')
+class ProfileDateOfBirthEditTest(TestCase):
+
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username='tester',
+            email='tester@example.com',
+            password='tester')
+        self.client = Client()
+        self.client.login(username='tester', password='tester')
+
+    def test_view(self):
+        response = self.client.get(
+            reverse('molo.profiles:edit_my_profile'))
+        form = response.context['form']
+        self.assertTrue(isinstance(form, EditProfileForm))
+
+    def test_update_date_of_birth(self):
+        response = self.client.post(reverse(
+            'molo.profiles:edit_my_profile'), {
+            'date_of_birth': '2000-01-01',
+        })
+        self.assertRedirects(
+            response, reverse('molo.profiles:view_my_profile'))
+        self.assertEqual(UserProfile.objects.get(user=self.user).date_of_birth,
+                         date(2000, 1, 1))
 
 
 @override_settings(
