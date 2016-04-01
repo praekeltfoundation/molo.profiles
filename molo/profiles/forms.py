@@ -63,7 +63,8 @@ class EditProfileForm(forms.ModelForm):
     date_of_birth = forms.DateField(
         widget=SelectDateWidget(
             years=list(reversed([y for y in range(1930, datetime.now().year)]))
-        )
+        ),
+        required=False
     )
 
     class Meta:
