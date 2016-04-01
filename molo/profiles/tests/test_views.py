@@ -141,8 +141,8 @@ class MyProfileEditTest(TestCase):
     def test_update_no_input(self):
         response = self.client.post(reverse('molo.profiles:edit_my_profile'),
                                     {})
-        self.assertRedirects(
-            response, reverse('molo.profiles:edit_my_profile'))
+        self.assertFormError(
+            response, 'form', None, ['Please enter a new value.'])
 
     def test_update_alias_and_dob(self):
         response = self.client.post(reverse('molo.profiles:edit_my_profile'),
