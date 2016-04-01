@@ -71,6 +71,14 @@ class EditProfileForm(forms.ModelForm):
         model = UserProfile
         fields = ['alias', 'date_of_birth']
 
+    def clean(self):
+        alias = self.cleaned_data.get('alias', None)
+        date_of_birth = self.cleaned_data.get('date_of_birth', None)
+        if (alias or date_of_birth):
+            return self.cleaned_data
+        else:
+            raise forms.ValidationError(_('Please enter a new value.'))
+
 
 class ProfilePasswordChangeForm(forms.Form):
     old_password = forms.RegexField(
