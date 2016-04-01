@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
 from datetime import datetime
 from django.forms.extras.widgets import SelectDateWidget
+from molo.profiles.models import UserProfile
 
 
 class RegistrationForm(forms.Form):
@@ -54,11 +55,29 @@ class DateOfBirthForm(forms.Form):
     )
 
 
-class EditProfileForm(forms.Form):
+class EditProfileForm(forms.ModelForm):
     alias = forms.CharField(
         label=_("Display Name"),
         required=False
     )
+    date_of_birth = forms.DateField(
+        widget=SelectDateWidget(
+            years=list(reversed([y for y in range(1930, datetime.now().year)]))
+        ),
+        required=False
+    )
+
+    class Meta:
+        model = UserProfile
+        fields = ['alias', 'date_of_birth']
+
+    def clean(self):
+        alias = self.cleaned_data.get('alias', None)
+        date_of_birth = self.cleaned_data.get('date_of_birth', None)
+        if (alias or date_of_birth):
+            return self.cleaned_data
+        else:
+            raise forms.ValidationError(_('Please enter a new value.'))
 
 
 class ProfilePasswordChangeForm(forms.Form):
