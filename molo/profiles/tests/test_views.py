@@ -126,7 +126,25 @@ class MyProfileEditTest(TestCase):
         form = response.context['form']
         self.assertTrue(isinstance(form, EditProfileForm))
 
-    def test_update(self):
+    def test_update_alias_only(self):
+        response = self.client.post(reverse('molo.profiles:edit_my_profile'),
+                                    {
+            'alias': 'foo'
+        })
+        self.assertRedirects(
+            response, reverse('molo.profiles:view_my_profile'))
+        self.assertEqual(UserProfile.objects.get(user=self.user).alias,
+                         'foo')
+
+    # Test for update with dob only is in ProfileDateOfBirthEditTest
+
+    def test_update_no_input(self):
+        response = self.client.post(reverse('molo.profiles:edit_my_profile'),
+                                    {})
+        self.assertFormError(
+            response, 'form', None, ['Please enter a new value.'])
+
+    def test_update_alias_and_dob(self):
         response = self.client.post(reverse('molo.profiles:edit_my_profile'),
                                     {
             'alias': 'foo',
@@ -136,6 +154,8 @@ class MyProfileEditTest(TestCase):
             response, reverse('molo.profiles:view_my_profile'))
         self.assertEqual(UserProfile.objects.get(user=self.user).alias,
                          'foo')
+        self.assertEqual(UserProfile.objects.get(user=self.user).date_of_birth,
+                         date(2000, 1, 1))
 
 
 @override_settings(
