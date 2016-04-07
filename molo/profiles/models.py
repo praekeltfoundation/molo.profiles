@@ -2,6 +2,23 @@ from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.contrib.auth.models import User
+from phonenumber_field.modelfields import PhoneNumberField
+from wagtail.contrib.settings.models import BaseSetting, register_setting
+from django.utils.translation import ugettext_lazy as _
+
+
+@register_setting
+class UserProfilesSettings(BaseSetting):
+    show_mobile_number_filed = models.BooleanField(
+        default=True,
+        editable=True,
+        verbose_name=_("Ask user's mobile number"),
+    )
+    mobile_number_required = models.BooleanField(
+        default=True,
+        editable=True,
+        verbose_name=_('Mobile number required'),
+    )
 
 
 class UserProfile(models.Model):
@@ -17,6 +34,8 @@ class UserProfile(models.Model):
         upload_to='users/profile',
         blank=True,
         null=True)
+
+    mobile_number = PhoneNumberField(blank=True, null=True, unique=True)
 
 
 @receiver(post_save, sender=User)
