@@ -3,7 +3,8 @@ from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
 from datetime import datetime
 from django.forms.extras.widgets import SelectDateWidget
-from molo.profiles.models import UserProfile
+from molo.profiles.models import UserProfile, UserProfilesSettings
+from phonenumber_field.formfields import PhoneNumberField
 
 
 class RegistrationForm(forms.Form):
@@ -37,7 +38,16 @@ class RegistrationForm(forms.Form):
         },
         label=_("PIN")
     )
+    mobile_number = PhoneNumberField(required=False)
+    terms_and_conditions = forms.BooleanField(required=True)
     next = forms.CharField(required=False)
+
+    def __init__(self, *args, **kwargs):
+        super(RegistrationForm, self).__init__(*args, **kwargs)
+        site_settings = UserProfilesSettings.objects.get(
+            site__is_default_site=True)
+        self.fields['mobile_number'].required = (
+            site_settings.mobile_number_required)
 
     def clean_username(self):
         if User.objects.filter(
@@ -66,10 +76,18 @@ class EditProfileForm(forms.ModelForm):
         ),
         required=False
     )
+    mobile_number = PhoneNumberField(required=False)
+
+    def __init__(self, *args, **kwargs):
+        super(EditProfileForm, self).__init__(*args, **kwargs)
+        site_settings = UserProfilesSettings.objects.get(
+            site__is_default_site=True)
+        self.fields['mobile_number'].required = (
+            site_settings.mobile_number_required)
 
     class Meta:
         model = UserProfile
-        fields = ['alias', 'date_of_birth']
+        fields = ['alias', 'date_of_birth', 'mobile_number']
 
     def clean(self):
         alias = self.cleaned_data.get('alias', None)
