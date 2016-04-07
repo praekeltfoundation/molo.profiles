@@ -9,6 +9,10 @@
 			{{ form.alias }}
       <p>{% trans "Update your date of birth:" %}</p>
 	      {{ form.date_of_birth }}
+
+      <p>{% trans "Update your mobile number:" %}</p>
+	      {{ form.mobile_number.errors }}
+	      {{ form.mobile_number }}
 				<br>
 				<br>
 			<input type="submit" value='{% trans "Update profile" %}' class="btn">
