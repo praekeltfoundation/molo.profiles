@@ -1,9 +1,15 @@
+from datetime import datetime
+
 from django import forms
+from django.forms.extras.widgets import SelectDateWidget
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
-from datetime import datetime
-from django.forms.extras.widgets import SelectDateWidget
-from molo.profiles.models import UserProfile, UserProfilesSettings
+
+from wagtail.wagtailcore.models import Site
+from wagtail.contrib.settings.context_processors import SettingsProxy
+
+from molo.profiles.models import UserProfile
+
 from phonenumber_field.formfields import PhoneNumberField
 
 
@@ -44,10 +50,11 @@ class RegistrationForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         super(RegistrationForm, self).__init__(*args, **kwargs)
-        site_settings = UserProfilesSettings.objects.get(
-            site__is_default_site=True)
+        site = Site.objects.get(is_default_site=True)
+        settings = SettingsProxy(site)
+        profile_settings = settings['profiles']['UserProfilesSettings']
         self.fields['mobile_number'].required = (
-            site_settings.mobile_number_required)
+            profile_settings.mobile_number_required)
 
     def clean_username(self):
         if User.objects.filter(
@@ -80,10 +87,11 @@ class EditProfileForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(EditProfileForm, self).__init__(*args, **kwargs)
-        site_settings = UserProfilesSettings.objects.get(
-            site__is_default_site=True)
+        site = Site.objects.get(is_default_site=True)
+        settings = SettingsProxy(site)
+        profile_settings = settings['profiles']['UserProfilesSettings']
         self.fields['mobile_number'].required = (
-            site_settings.mobile_number_required)
+            profile_settings.mobile_number_required)
 
     class Meta:
         model = UserProfile
