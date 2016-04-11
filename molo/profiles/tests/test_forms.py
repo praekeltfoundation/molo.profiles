@@ -2,9 +2,13 @@ from django.test import TestCase
 from django.contrib.auth.models import User
 
 from molo.profiles.forms import RegistrationForm, ProfilePasswordChangeForm
+from molo.core.tests.base import MoloTestCaseMixin
 
 
-class RegisterTestCase(TestCase):
+class RegisterTestCase(TestCase, MoloTestCaseMixin):
+
+    def setUp(self):
+        self.mk_main()
 
     def test_register_username_correct(self):
         form_data = {

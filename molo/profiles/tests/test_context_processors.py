@@ -4,9 +4,10 @@ from django.test import TestCase, RequestFactory
 from django.contrib.auth.models import User, AnonymousUser
 
 from molo.profiles.context_processors import get_profile_data
+from molo.core.tests.base import MoloTestCaseMixin
 
 
-class ContextProcessorsTest(TestCase):
+class ContextProcessorsTest(TestCase, MoloTestCaseMixin):
 
     def setUp(self):
         self.factory = RequestFactory()
@@ -14,6 +15,8 @@ class ContextProcessorsTest(TestCase):
             username='tester',
             email='tester@example.com',
             password='tester')
+
+        self.mk_main()
 
     def test_get_profile_data_authenticated_anonymous(self):
         request = self.factory.get('/')

@@ -9,7 +9,7 @@ from django.test import TestCase, override_settings, Client
 from molo.profiles.forms import (
     RegistrationForm, EditProfileForm, ProfilePasswordChangeForm)
 from molo.profiles.models import UserProfile
-
+from molo.core.tests.base import MoloTestCaseMixin
 
 urlpatterns = patterns(
     '',
@@ -22,10 +22,11 @@ urlpatterns = patterns(
 
 @override_settings(
     ROOT_URLCONF='molo.profiles.tests.test_views', LOGIN_URL='/login/')
-class RegistrationViewTest(TestCase):
+class RegistrationViewTest(TestCase, MoloTestCaseMixin):
 
     def setUp(self):
         self.client = Client()
+        self.mk_main()
 
     def test_register_view(self):
         response = self.client.get(reverse('molo.profiles:user_register'))
@@ -66,7 +67,7 @@ class RegistrationViewTest(TestCase):
 
 @override_settings(
     ROOT_URLCONF='molo.profiles.tests.test_views')
-class RegistrationDone(TestCase):
+class RegistrationDone(TestCase, MoloTestCaseMixin):
 
     def setUp(self):
         self.user = User.objects.create_user(
@@ -75,6 +76,7 @@ class RegistrationDone(TestCase):
             password='tester')
         self.client = Client()
         self.client.login(username='tester', password='tester')
+        self.mk_main()
 
     def test_date_of_birth(self):
         response = self.client.post(reverse(
@@ -91,7 +93,7 @@ class RegistrationDone(TestCase):
     TEMPLATE_CONTEXT_PROCESSORS=settings.TEMPLATE_CONTEXT_PROCESSORS + (
         'molo.profiles.context_processors.get_profile_data',
     ))
-class MyProfileViewTest(TestCase):
+class MyProfileViewTest(TestCase, MoloTestCaseMixin):
 
     def setUp(self):
         self.user = User.objects.create_user(
@@ -101,6 +103,7 @@ class MyProfileViewTest(TestCase):
         # Update the userprofile without touching (and caching) user.profile
         UserProfile.objects.filter(user=self.user).update(alias='The Alias')
         self.client = Client()
+        self.mk_main()
 
     def test_view(self):
         self.client.login(username='tester', password='tester')
@@ -111,7 +114,7 @@ class MyProfileViewTest(TestCase):
 
 @override_settings(
     ROOT_URLCONF='molo.profiles.tests.test_views')
-class MyProfileEditTest(TestCase):
+class MyProfileEditTest(TestCase, MoloTestCaseMixin):
 
     def setUp(self):
         self.user = User.objects.create_user(
@@ -120,6 +123,7 @@ class MyProfileEditTest(TestCase):
             password='tester')
         self.client = Client()
         self.client.login(username='tester', password='tester')
+        self.mk_main()
 
     def test_view(self):
         response = self.client.get(reverse('molo.profiles:edit_my_profile'))
@@ -160,7 +164,7 @@ class MyProfileEditTest(TestCase):
 
 @override_settings(
     ROOT_URLCONF='molo.profiles.tests.test_views')
-class ProfileDateOfBirthEditTest(TestCase):
+class ProfileDateOfBirthEditTest(TestCase, MoloTestCaseMixin):
 
     def setUp(self):
         self.user = User.objects.create_user(
@@ -169,6 +173,7 @@ class ProfileDateOfBirthEditTest(TestCase):
             password='tester')
         self.client = Client()
         self.client.login(username='tester', password='tester')
+        self.mk_main()
 
     def test_view(self):
         response = self.client.get(
@@ -189,7 +194,7 @@ class ProfileDateOfBirthEditTest(TestCase):
 
 @override_settings(
     ROOT_URLCONF='molo.profiles.tests.test_views')
-class ProfilePasswordChangeViewTest(TestCase):
+class ProfilePasswordChangeViewTest(TestCase, MoloTestCaseMixin):
 
     def setUp(self):
         self.user = User.objects.create_user(
@@ -198,6 +203,7 @@ class ProfilePasswordChangeViewTest(TestCase):
             password='0000')
         self.client = Client()
         self.client.login(username='tester', password='0000')
+        self.mk_main()
 
     def test_view(self):
         response = self.client.get(
