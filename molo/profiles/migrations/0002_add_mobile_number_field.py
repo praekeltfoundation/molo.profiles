@@ -17,8 +17,8 @@ class Migration(migrations.Migration):
             name='UserProfilesSettings',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('show_mobile_number_filed', models.BooleanField(default=True, verbose_name="Ask user's mobile number")),
-                ('mobile_number_required', models.BooleanField(default=True, verbose_name='Mobile number required')),
+                ('show_mobile_number_field', models.BooleanField(default=False, verbose_name='Add mobile number field to registration')),
+                ('mobile_number_required', models.BooleanField(default=False, verbose_name='Mobile number required')),
                 ('site', models.OneToOneField(editable=False, to='wagtailcore.Site')),
             ],
             options={
@@ -28,6 +28,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='userprofile',
             name='mobile_number',
-            field=phonenumber_field.modelfields.PhoneNumberField(max_length=128, unique=True, null=True, blank=True),
+            field=phonenumber_field.modelfields.PhoneNumberField(max_length=128, null=True, blank=True),
         ),
     ]
