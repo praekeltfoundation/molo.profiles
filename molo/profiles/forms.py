@@ -85,14 +85,6 @@ class EditProfileForm(forms.ModelForm):
     )
     mobile_number = PhoneNumberField(required=False)
 
-    def __init__(self, *args, **kwargs):
-        super(EditProfileForm, self).__init__(*args, **kwargs)
-        site = Site.objects.get(is_default_site=True)
-        settings = SettingsProxy(site)
-        profile_settings = settings['profiles']['UserProfilesSettings']
-        self.fields['mobile_number'].required = (
-            profile_settings.mobile_number_required)
-
     class Meta:
         model = UserProfile
         fields = ['alias', 'date_of_birth', 'mobile_number']
