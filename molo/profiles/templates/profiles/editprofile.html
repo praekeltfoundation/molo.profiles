@@ -1,5 +1,6 @@
 {% extends "base.html" %}
-{% load i18n %}
+{% load i18n wagtailsettings_tags %}
+{% get_settings %}
 
 {% block content %}
 <div class="signin-form">
@@ -10,9 +11,11 @@
       <p>{% trans "Update your date of birth:" %}</p>
 	      {{ form.date_of_birth }}
 
-      <p>{% trans "Update your mobile number:" %}</p>
-	      {{ form.mobile_number.errors }}
-	      {{ form.mobile_number }}
+			{% if settings.profiles.UserProfilesSettings.show_mobile_number_filed %}
+	      <p>{% trans "Update your mobile number:" %}</p>
+		      {{ form.mobile_number.errors }}
+		      {{ form.mobile_number }}
+			{% endif %}
 				<br>
 				<br>
 			<input type="submit" value='{% trans "Update profile" %}' class="btn">

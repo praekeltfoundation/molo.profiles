@@ -21,7 +21,8 @@
         {{ form.password }}
         <br>
         {% if settings.profiles.UserProfilesSettings.show_mobile_number_filed %}
-        <p><strong>{% trans "Enter your mobile number E.g. +27900000013" %}</strong></p>
+        <p><strong>{% trans "Enter your mobile number" %}</strong></p>
+        <p>{% trans "(e.g. +27900000013)" %}</p>
         {{ form.mobile_number.errors}}
         {{ form.mobile_number }}
         <br>
@@ -31,7 +32,7 @@
           <p>{% trans "Please accept the T&Cs in order to complete the registration" %}</p>
         {% endif %}
         {{ form.terms_and_conditions }}
-        <span>{% trans "I accept the T&C's" %}</span></p>
+        <span>{% trans "I accept the Terms and Conditions" %}</span></p>
         <br>
 
         <input type="submit" class="registerSubmit" value='{% trans "JOIN" %}' />
