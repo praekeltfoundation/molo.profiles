@@ -5,15 +5,20 @@ from molo.profiles.forms import RegistrationForm, ProfilePasswordChangeForm
 from molo.core.tests.base import MoloTestCaseMixin
 
 
-class RegisterTestCase(TestCase, MoloTestCaseMixin):
+class RegisterTestCase(MoloTestCaseMixin, TestCase):
 
     def setUp(self):
         self.mk_main()
+        self.user = User.objects.create_user(
+            username='tester',
+            email='tester@example.com',
+            password='tester')
 
     def test_register_username_correct(self):
         form_data = {
             'username': 'Jeyabal@-1',
             'password': '1234',
+            'terms_and_conditions': True
         }
         form = RegistrationForm(data=form_data)
         self.assertEqual(form.is_valid(), True)
@@ -22,6 +27,8 @@ class RegisterTestCase(TestCase, MoloTestCaseMixin):
         form_data = {
             'username': 'Jeyabal#',
             'password': '1234',
+            'terms_and_conditions': True
+
         }
         form = RegistrationForm(data=form_data)
         self.assertEqual(form.is_valid(), False)
@@ -30,6 +37,8 @@ class RegisterTestCase(TestCase, MoloTestCaseMixin):
         form_data = {
             'username': 'Jeyabal#',
             'password': '12345',
+            'terms_and_conditions': True
+
         }
         form = RegistrationForm(data=form_data)
         self.assertEqual(form.is_valid(), False)
@@ -64,3 +73,11 @@ class RegisterTestCase(TestCase, MoloTestCaseMixin):
         [validation_error] = form.errors.as_data()['username']
         self.assertEqual(
             'Username already exists.', validation_error.message)
+
+    def test_terms_and_conditions_is_required(self):
+        form_data = {
+            'username': 'test',
+            'password': '12345',
+        }
+        form = RegistrationForm(data=form_data)
+        self.assertEqual(form.is_valid(), False)

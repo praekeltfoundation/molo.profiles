@@ -9,13 +9,13 @@ from django.utils.translation import ugettext_lazy as _
 
 @register_setting
 class UserProfilesSettings(BaseSetting):
-    show_mobile_number_filed = models.BooleanField(
-        default=True,
+    show_mobile_number_field = models.BooleanField(
+        default=False,
         editable=True,
-        verbose_name=_("Ask user's mobile number"),
+        verbose_name=_("Add mobile number field to registration"),
     )
     mobile_number_required = models.BooleanField(
-        default=True,
+        default=False,
         editable=True,
         verbose_name=_('Mobile number required'),
     )
@@ -35,7 +35,7 @@ class UserProfile(models.Model):
         blank=True,
         null=True)
 
-    mobile_number = PhoneNumberField(blank=True, null=True, unique=True)
+    mobile_number = PhoneNumberField(blank=True, null=True, unique=False)
 
 
 @receiver(post_save, sender=User)

@@ -9,7 +9,7 @@
   <h3>{% trans "Hello " %}{{ user.username }}</h3>
   <label class="label-wide">{% trans "Display Name: " %}{{ user.profile.alias | default:'Anonymous' }}</label>
   <label class="label-wide">{% trans "Date of Birth: " %}{{ user.profile.date_of_birth | date:"M d, Y" }}</label>
-  {% if settings.profiles.UserProfilesSettings.show_mobile_number_filed %}
+  {% if settings.profiles.UserProfilesSettings.show_mobile_number_field %}
     <label class="label-wide">{% trans "Mobile Number " %}{{ user.profile.mobile_number }}</label>
   {% endif %}
   <a href="{% url 'molo.profiles:auth_logout' %}" class="btn btn-wide"><input type="button" value='{% trans "log out" %}' class="btn btn-wide" /></a>

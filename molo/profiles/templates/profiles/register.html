@@ -20,7 +20,7 @@
         {{ form.password.errors}}
         {{ form.password }}
         <br>
-        {% if settings.profiles.UserProfilesSettings.show_mobile_number_filed %}
+        {% if settings.profiles.UserProfilesSettings.show_mobile_number_field %}
         <p><strong>{% trans "Enter your mobile number" %}</strong></p>
         <p>{% trans "(e.g. +27900000013)" %}</p>
         {{ form.mobile_number.errors}}

@@ -100,7 +100,8 @@ class EditProfileForm(forms.ModelForm):
     def clean(self):
         alias = self.cleaned_data.get('alias', None)
         date_of_birth = self.cleaned_data.get('date_of_birth', None)
-        if (alias or date_of_birth):
+        mobile_number = self.cleaned_data.get('mobile_number', None)
+        if (alias or date_of_birth or mobile_number):
             return self.cleaned_data
         else:
             raise forms.ValidationError(_('Please enter a new value.'))
