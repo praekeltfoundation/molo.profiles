@@ -101,6 +101,22 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
         self.assertFormError(
             response, 'form', 'mobile_number', ['This field is required.'])
 
+    def test_mobile_num_is_required_but_show_mobile_num_field_is_false(self):
+        site = Site.objects.get(is_default_site=True)
+        settings = SettingsProxy(site)
+        profile_settings = settings['profiles']['UserProfilesSettings']
+
+        profile_settings.show_mobile_number_field = False
+        profile_settings.mobile_number_required = True
+        profile_settings.save()
+
+        response = self.client.post(reverse('molo.profiles:user_register'), {
+            'username': 'test',
+            'password': '1234',
+            'terms_and_conditions': True
+        })
+        self.assertEqual(response.status_code, 302)
+
     def test_invalid_mobile_number(self):
         site = Site.objects.get(is_default_site=True)
         settings = SettingsProxy(site)
