@@ -9,10 +9,14 @@ from django.test import TestCase, override_settings, Client
 from molo.profiles.forms import (
     RegistrationForm, EditProfileForm, ProfilePasswordChangeForm)
 from molo.profiles.models import UserProfile
+from molo.core.tests.base import MoloTestCaseMixin
 
+from wagtail.wagtailcore.models import Site
+from wagtail.contrib.settings.context_processors import SettingsProxy
 
 urlpatterns = patterns(
     '',
+    url(r'', include('testapp.urls')),
     url(r'^profiles/',
         include('molo.profiles.urls',
                 namespace='molo.profiles',
@@ -22,10 +26,11 @@ urlpatterns = patterns(
 
 @override_settings(
     ROOT_URLCONF='molo.profiles.tests.test_views', LOGIN_URL='/login/')
-class RegistrationViewTest(TestCase):
+class RegistrationViewTest(TestCase, MoloTestCaseMixin):
 
     def setUp(self):
         self.client = Client()
+        self.mk_main()
 
     def test_register_view(self):
         response = self.client.get(reverse('molo.profiles:user_register'))
@@ -51,6 +56,8 @@ class RegistrationViewTest(TestCase):
         response = self.client.post(reverse('molo.profiles:user_register'), {
             'username': 'testing',
             'password': '1234',
+            'terms_and_conditions': True
+
         })
 
         # After registration, doesn't redirect
@@ -63,10 +70,100 @@ class RegistrationViewTest(TestCase):
             reverse('molo.profiles:user_register')))
         self.assertRedirects(response, reverse('molo.profiles:user_register'))
 
+    def test_mobile_number_field_exists_in_registration_form(self):
+        site = Site.objects.get(is_default_site=True)
+        settings = SettingsProxy(site)
+        profile_settings = settings['profiles']['UserProfilesSettings']
+
+        response = self.client.get(reverse('molo.profiles:user_register'))
+        self.assertNotContains(response, 'Enter your mobile number')
+
+        profile_settings.show_mobile_number_field = True
+        profile_settings.save()
+
+        response = self.client.get(reverse('molo.profiles:user_register'))
+        self.assertContains(response, 'Enter your mobile number')
+
+    def test_mobile_number_field_is_required(self):
+        site = Site.objects.get(is_default_site=True)
+        settings = SettingsProxy(site)
+        profile_settings = settings['profiles']['UserProfilesSettings']
+
+        profile_settings.show_mobile_number_field = True
+        profile_settings.mobile_number_required = True
+        profile_settings.save()
+
+        response = self.client.post(reverse('molo.profiles:user_register'), {
+            'username': 'test',
+            'password': '1234',
+            'terms_and_conditions': True
+        })
+        self.assertFormError(
+            response, 'form', 'mobile_number', ['This field is required.'])
+
+    def test_mobile_num_is_required_but_show_mobile_num_field_is_false(self):
+        site = Site.objects.get(is_default_site=True)
+        settings = SettingsProxy(site)
+        profile_settings = settings['profiles']['UserProfilesSettings']
+
+        profile_settings.show_mobile_number_field = False
+        profile_settings.mobile_number_required = True
+        profile_settings.save()
+
+        response = self.client.post(reverse('molo.profiles:user_register'), {
+            'username': 'test',
+            'password': '1234',
+            'terms_and_conditions': True
+        })
+        self.assertEqual(response.status_code, 302)
+
+    def test_invalid_mobile_number(self):
+        site = Site.objects.get(is_default_site=True)
+        settings = SettingsProxy(site)
+        profile_settings = settings['profiles']['UserProfilesSettings']
+
+        profile_settings.show_mobile_number_field = True
+        profile_settings.mobile_number_required = True
+        profile_settings.save()
+
+        response = self.client.post(reverse('molo.profiles:user_register'), {
+            'username': 'test',
+            'password': '1234',
+            'mobile_number': '0785577743'
+        })
+        self.assertFormError(
+            response, 'form', 'mobile_number', ['Enter a valid phone number.'])
+
+        response = self.client.post(reverse('molo.profiles:user_register'), {
+            'username': 'test',
+            'password': '1234',
+            'mobile_number': '27785577743'
+        })
+        self.assertFormError(
+            response, 'form', 'mobile_number', ['Enter a valid phone number.'])
+
+        response = self.client.post(reverse('molo.profiles:user_register'), {
+            'username': 'test',
+            'password': '1234',
+            'mobile_number': '+2785577743'
+        })
+        self.assertFormError(
+            response, 'form', 'mobile_number', ['Enter a valid phone number.'])
+
+    def test_valid_mobile_number(self):
+        self.client.post(reverse('molo.profiles:user_register'), {
+            'username': 'test',
+            'password': '1234',
+            'mobile_number': '+27784500003',
+            'terms_and_conditions': True
+        })
+        self.assertEqual(UserProfile.objects.get().mobile_number,
+                         '+27784500003')
+
 
 @override_settings(
     ROOT_URLCONF='molo.profiles.tests.test_views')
-class RegistrationDone(TestCase):
+class RegistrationDone(TestCase, MoloTestCaseMixin):
 
     def setUp(self):
         self.user = User.objects.create_user(
@@ -75,6 +172,7 @@ class RegistrationDone(TestCase):
             password='tester')
         self.client = Client()
         self.client.login(username='tester', password='tester')
+        self.mk_main()
 
     def test_date_of_birth(self):
         response = self.client.post(reverse(
@@ -91,7 +189,7 @@ class RegistrationDone(TestCase):
     TEMPLATE_CONTEXT_PROCESSORS=settings.TEMPLATE_CONTEXT_PROCESSORS + (
         'molo.profiles.context_processors.get_profile_data',
     ))
-class MyProfileViewTest(TestCase):
+class MyProfileViewTest(TestCase, MoloTestCaseMixin):
 
     def setUp(self):
         self.user = User.objects.create_user(
@@ -101,6 +199,7 @@ class MyProfileViewTest(TestCase):
         # Update the userprofile without touching (and caching) user.profile
         UserProfile.objects.filter(user=self.user).update(alias='The Alias')
         self.client = Client()
+        self.mk_main()
 
     def test_view(self):
         self.client.login(username='tester', password='tester')
@@ -111,7 +210,7 @@ class MyProfileViewTest(TestCase):
 
 @override_settings(
     ROOT_URLCONF='molo.profiles.tests.test_views')
-class MyProfileEditTest(TestCase):
+class MyProfileEditTest(TestCase, MoloTestCaseMixin):
 
     def setUp(self):
         self.user = User.objects.create_user(
@@ -120,6 +219,7 @@ class MyProfileEditTest(TestCase):
             password='tester')
         self.client = Client()
         self.client.login(username='tester', password='tester')
+        self.mk_main()
 
     def test_view(self):
         response = self.client.get(reverse('molo.profiles:edit_my_profile'))
@@ -157,10 +257,18 @@ class MyProfileEditTest(TestCase):
         self.assertEqual(UserProfile.objects.get(user=self.user).date_of_birth,
                          date(2000, 1, 1))
 
+    def test_update_mobile_number(self):
+        response = self.client.post(reverse('molo.profiles:edit_my_profile'), {
+                                    'mobile_number': '+27788888813'})
+        self.assertRedirects(
+            response, reverse('molo.profiles:view_my_profile'))
+        self.assertEqual(UserProfile.objects.get(user=self.user).mobile_number,
+                         '+27788888813')
+
 
 @override_settings(
     ROOT_URLCONF='molo.profiles.tests.test_views')
-class ProfileDateOfBirthEditTest(TestCase):
+class ProfileDateOfBirthEditTest(MoloTestCaseMixin, TestCase):
 
     def setUp(self):
         self.user = User.objects.create_user(
@@ -169,6 +277,7 @@ class ProfileDateOfBirthEditTest(TestCase):
             password='tester')
         self.client = Client()
         self.client.login(username='tester', password='tester')
+        self.mk_main()
 
     def test_view(self):
         response = self.client.get(
