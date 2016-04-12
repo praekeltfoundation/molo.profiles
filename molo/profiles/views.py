@@ -23,7 +23,9 @@ class RegistrationView(FormView):
     def form_valid(self, form):
         username = form.cleaned_data['username']
         password = form.cleaned_data['password']
+        mobile_number = form.cleaned_data['mobile_number']
         user = User.objects.create_user(username=username, password=password)
+        user.profile.mobile_number = mobile_number
         user.profile.save()
 
         authed_user = authenticate(username=username, password=password)
