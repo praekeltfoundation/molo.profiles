@@ -54,7 +54,7 @@ class RegistrationForm(forms.Form):
         settings = SettingsProxy(site)
         profile_settings = settings['profiles']['UserProfilesSettings']
         self.fields['mobile_number'].required = (
-            profile_settings.mobile_number_required)
+            profile_settings.mobile_number_required and profile_settings.show_mobile_number_field)
 
     def clean_username(self):
         if User.objects.filter(

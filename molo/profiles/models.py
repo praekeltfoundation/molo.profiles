@@ -19,6 +19,7 @@ class UserProfilesSettings(BaseSetting):
         editable=True,
         verbose_name=_('Mobile number required'),
     )
+    # TODO: mobile_number_required field shouldn't be shown if show_mobile_number_field is False
 
 
 class UserProfile(models.Model):
