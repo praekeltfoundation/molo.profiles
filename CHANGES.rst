@@ -1,5 +1,11 @@
 CHANGE LOG
 ==========
+
+0.2.5
+-----
+- Added cellphone number to registration
+- Added User Profiles Settings in wagtail
+
 0.2.4
 -----
 - Removed requirement for date of birth when editing profile
