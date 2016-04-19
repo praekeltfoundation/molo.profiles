@@ -21,7 +21,7 @@ def download_as_csv(ProfileUserAdmin, request, queryset):
     field_names = user_model_fields + profile_fields
     writer.writerow(field_names)
     for obj in queryset:
-        obj.date_joined = obj.date_joined.date()
+        obj.date_joined = obj.date_joined.strftime("%Y-%m-%d %H:%M %p")
         writer.writerow(
             [getattr(obj, field) for field in user_model_fields] +
             [getattr(obj.profile, field) for field in profile_fields])
@@ -49,4 +49,4 @@ class ProfileUserAdmin(UserAdmin):
         return ''
 
     def _date_joined(self, obj, *args, **kwargs):
-        return obj.date_joined.date()
+        return obj.date_joined.strftime("%Y-%m-%d %H:%M %p")

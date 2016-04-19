@@ -1,4 +1,3 @@
-import datetime
 
 from django.test import TestCase
 from django.contrib.auth.models import User
@@ -27,7 +26,7 @@ class ModelsTestCase(TestCase, MoloTestCaseMixin):
         response = download_as_csv(ProfileUserAdmin(UserProfile, self.site),
                                    None,
                                    User.objects.all())
-        date = str(datetime.datetime.now().date())
+        date = str(self.user.date_joined.strftime("%Y-%m-%d %H:%M %p"))
         expected_output = ('Content-Type: text/csv\r\nContent-Disposition: '
                            'attachment;filename=export.csv\r\n\r\nusername,'
                            'email,first_name,last_name,is_staff,date_joined,'
