@@ -1,6 +1,10 @@
 CHANGE LOG
 ==========
 
+0.2.6
+-----
+- Added the option of exporting user data as CSV in django admin
+
 0.2.5
 -----
 - Added cellphone number to registration
