@@ -26,7 +26,7 @@ class ModelsTestCase(TestCase, MoloTestCaseMixin):
         response = download_as_csv(ProfileUserAdmin(UserProfile, self.site),
                                    None,
                                    User.objects.all())
-        date = str(self.user.date_joined.strftime("%Y-%m-%d %H:%M %p"))
+        date = str(self.user.date_joined.strftime("%Y-%m-%d %H:%M"))
         expected_output = ('Content-Type: text/csv\r\nContent-Disposition: '
                            'attachment;filename=export.csv\r\n\r\nusername,'
                            'email,first_name,last_name,is_staff,date_joined,'
