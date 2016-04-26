@@ -34,7 +34,7 @@ If you want to enable user data being sent to a Slack Channel, insert the follow
   CELERYBEAT_SCHEDULE = {
       # Executes every morning at 8:00 A.M GMT+2
       'add-every-morning': {
-          'task': 'molo.profiles.tasks.send_user_data_to_slack',
+          'task': 'molo.profiles.task.send_user_data_to_slack',
           'schedule': crontab(hour=8)
       },
   }
