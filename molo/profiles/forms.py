@@ -1,9 +1,16 @@
+from datetime import datetime
+
 from django import forms
+from django.forms.extras.widgets import SelectDateWidget
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
-from datetime import datetime
-from django.forms.extras.widgets import SelectDateWidget
+
+from wagtail.wagtailcore.models import Site
+from wagtail.contrib.settings.context_processors import SettingsProxy
+
 from molo.profiles.models import UserProfile
+
+from phonenumber_field.formfields import PhoneNumberField
 
 
 class RegistrationForm(forms.Form):
@@ -37,7 +44,18 @@ class RegistrationForm(forms.Form):
         },
         label=_("PIN")
     )
+    mobile_number = PhoneNumberField(required=False)
+    terms_and_conditions = forms.BooleanField(required=True)
     next = forms.CharField(required=False)
+
+    def __init__(self, *args, **kwargs):
+        super(RegistrationForm, self).__init__(*args, **kwargs)
+        site = Site.objects.get(is_default_site=True)
+        settings = SettingsProxy(site)
+        profile_settings = settings['profiles']['UserProfilesSettings']
+        self.fields['mobile_number'].required = (
+            profile_settings.mobile_number_required and
+            profile_settings.show_mobile_number_field)
 
     def clean_username(self):
         if User.objects.filter(
@@ -66,15 +84,17 @@ class EditProfileForm(forms.ModelForm):
         ),
         required=False
     )
+    mobile_number = PhoneNumberField(required=False)
 
     class Meta:
         model = UserProfile
-        fields = ['alias', 'date_of_birth']
+        fields = ['alias', 'date_of_birth', 'mobile_number']
 
     def clean(self):
         alias = self.cleaned_data.get('alias', None)
         date_of_birth = self.cleaned_data.get('date_of_birth', None)
-        if (alias or date_of_birth):
+        mobile_number = self.cleaned_data.get('mobile_number', None)
+        if (alias or date_of_birth or mobile_number):
             return self.cleaned_data
         else:
             raise forms.ValidationError(_('Please enter a new value.'))
