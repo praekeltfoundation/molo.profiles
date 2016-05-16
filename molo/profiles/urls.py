@@ -1,6 +1,6 @@
 from molo.profiles import views
 
-from django.conf.urls import patterns, url
+from django.conf.urls import patterns, url, include
 from django.contrib.auth.decorators import login_required
 
 
@@ -35,4 +35,6 @@ urlpatterns = patterns(
         login_required(views.ProfilePasswordChangeView.as_view()),
         name="profile_password_change"
     ),
+    url('^', include('django.contrib.auth.urls')),
+
 )

@@ -19,6 +19,17 @@ class UserProfilesSettings(BaseSetting):
         editable=True,
         verbose_name=_('Mobile number required'),
     )
+
+    show_email_field = models.BooleanField(
+        default=False,
+        editable=True,
+        verbose_name=_("Add email field to registration")
+    )
+    email_required = models.BooleanField(
+        default=False,
+        editable=True,
+        verbose_name=_("Email required")
+    )
     # TODO: mobile_number_required field shouldn't be shown
     # if show_mobile_number_field is False
 

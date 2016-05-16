@@ -26,6 +26,8 @@ class RegistrationView(FormView):
         mobile_number = form.cleaned_data['mobile_number']
         user = User.objects.create_user(username=username, password=password)
         user.profile.mobile_number = mobile_number
+        if form.cleaned_data['email']:
+            user.email = form.cleaned_data['email']
         user.profile.save()
 
         authed_user = authenticate(username=username, password=password)

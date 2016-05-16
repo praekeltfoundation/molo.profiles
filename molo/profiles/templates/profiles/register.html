@@ -27,6 +27,13 @@
         {{ form.mobile_number }}
         <br>
         {% endif %}
+        {% if settings.profiles.UserProfilesSettings.show_email_field %}
+        <p><strong>{% trans "Enter your email addresss" %}</strong></p>
+        <p>{% trans "(e.g. example@foo.com)" %}</p>
+        {{ form.email.errors}}
+        {{ form.email }}
+        <br>
+        {% endif %}
 
         {% if form.terms_and_conditions.errors %}
           <p>{% trans "Please accept the T&Cs in order to complete the registration" %}</p>
