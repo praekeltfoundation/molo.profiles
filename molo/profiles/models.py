@@ -4,6 +4,8 @@ from django.dispatch import receiver
 from django.contrib.auth.models import User
 from phonenumber_field.modelfields import PhoneNumberField
 from wagtail.contrib.settings.models import BaseSetting, register_setting
+from wagtail.wagtailadmin.edit_handlers import (
+    FieldPanel, MultiFieldPanel)
 from django.utils.translation import ugettext_lazy as _
 
 
@@ -30,6 +32,21 @@ class UserProfilesSettings(BaseSetting):
         editable=True,
         verbose_name=_("Email required")
     )
+
+    panels = [
+        MultiFieldPanel(
+            [
+                FieldPanel('show_mobile_number_field'),
+                FieldPanel('mobile_number_required'),
+            ],
+            heading="Mobile Number Settings",),
+        MultiFieldPanel(
+            [
+                FieldPanel('show_email_field'),
+                FieldPanel('email_required'),
+            ],
+            heading="Email Settings",)
+    ]
     # TODO: mobile_number_required field shouldn't be shown
     # if show_mobile_number_field is False
 
