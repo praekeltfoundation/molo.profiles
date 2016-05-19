@@ -57,6 +57,9 @@ class RegistrationForm(forms.Form):
         self.fields['mobile_number'].required = (
             profile_settings.mobile_number_required and
             profile_settings.show_mobile_number_field)
+        self.fields['email'].required = (
+            profile_settings.email_required and
+            profile_settings.show_email_field)
 
     def clean_username(self):
         if User.objects.filter(

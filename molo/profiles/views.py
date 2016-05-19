@@ -28,6 +28,7 @@ class RegistrationView(FormView):
         user.profile.mobile_number = mobile_number
         if form.cleaned_data['email']:
             user.email = form.cleaned_data['email']
+            user.save()
         user.profile.save()
 
         authed_user = authenticate(username=username, password=password)
