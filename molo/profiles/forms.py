@@ -89,6 +89,7 @@ class EditProfileForm(forms.ModelForm):
         required=False
     )
     mobile_number = PhoneNumberField(required=False)
+    email = forms.EmailField(required=False)
 
     class Meta:
         model = UserProfile
@@ -98,7 +99,8 @@ class EditProfileForm(forms.ModelForm):
         alias = self.cleaned_data.get('alias', None)
         date_of_birth = self.cleaned_data.get('date_of_birth', None)
         mobile_number = self.cleaned_data.get('mobile_number', None)
-        if (alias or date_of_birth or mobile_number):
+        email = self.cleaned_data.get('email', None)
+        if (alias or date_of_birth or mobile_number or email):
             return self.cleaned_data
         else:
             raise forms.ValidationError(_('Please enter a new value.'))

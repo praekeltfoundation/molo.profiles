@@ -72,6 +72,13 @@ class MyProfileEdit(UpdateView):
     template_name = 'profiles/editprofile.html'
     success_url = reverse_lazy('molo.profiles:view_my_profile')
 
+    def form_valid(self, form):
+        super(MyProfileEdit, self).form_valid(form)
+        self.request.user.email = form.cleaned_data['email']
+        self.request.user.save()
+        return HttpResponseRedirect(
+            reverse('molo.profiles:view_my_profile'))
+
     def get_object(self, queryset=None):
         return self.request.user.profile
 

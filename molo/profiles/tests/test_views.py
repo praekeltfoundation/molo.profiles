@@ -346,6 +346,14 @@ class MyProfileEditTest(TestCase, MoloTestCaseMixin):
         self.assertEqual(UserProfile.objects.get(user=self.user).mobile_number,
                          '+27788888813')
 
+    def test_update_email(self):
+        response = self.client.post(reverse('molo.profiles:edit_my_profile'), {
+                                    'email': 'example@foo.com'})
+        self.assertRedirects(
+            response, reverse('molo.profiles:view_my_profile'))
+        self.assertEqual(UserProfile.objects.get(user=self.user).user.email,
+                         'example@foo.com')
+
 
 @override_settings(
     ROOT_URLCONF='molo.profiles.tests.test_views')

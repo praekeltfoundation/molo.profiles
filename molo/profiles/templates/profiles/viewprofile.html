@@ -12,6 +12,9 @@
   {% if settings.profiles.UserProfilesSettings.show_mobile_number_field %}
     <label class="label-wide">{% trans "Mobile Number: " %}{{ user.profile.mobile_number | default:'' }}</label>
   {% endif %}
+  {% if settings.profiles.UserProfilesSettings.show_email_field %}
+    <label class="label-wide">{% trans "Email Address: " %}{{ user.email | default:'' }}</label>
+  {% endif %}
   <a href="{% url 'molo.profiles:auth_logout' %}" class="btn btn-wide"><input type="button" value='{% trans "log out" %}' class="btn btn-wide" /></a>
   <a href="{% url 'molo.profiles:edit_my_profile' %}" class="btn btn-wide"><input type="button" value='{% trans "Edit My Profile" %}' class="btn btn-wide" /></a>
   <a href="{% url 'molo.profiles:profile_password_change' %}" class="btn btn-wide"><input type="button" value='{% trans "Change My Password" %}' class="btn btn-wide" /></a>
