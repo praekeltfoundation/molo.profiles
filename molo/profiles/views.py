@@ -26,6 +26,9 @@ class RegistrationView(FormView):
         mobile_number = form.cleaned_data['mobile_number']
         user = User.objects.create_user(username=username, password=password)
         user.profile.mobile_number = mobile_number
+        if form.cleaned_data['email']:
+            user.email = form.cleaned_data['email']
+            user.save()
         user.profile.save()
 
         authed_user = authenticate(username=username, password=password)
@@ -68,6 +71,13 @@ class MyProfileEdit(UpdateView):
     form_class = EditProfileForm
     template_name = 'profiles/editprofile.html'
     success_url = reverse_lazy('molo.profiles:view_my_profile')
+
+    def form_valid(self, form):
+        super(MyProfileEdit, self).form_valid(form)
+        self.request.user.email = form.cleaned_data['email']
+        self.request.user.save()
+        return HttpResponseRedirect(
+            reverse('molo.profiles:view_my_profile'))
 
     def get_object(self, queryset=None):
         return self.request.user.profile

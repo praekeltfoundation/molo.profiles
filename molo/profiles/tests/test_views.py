@@ -70,6 +70,10 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
             reverse('molo.profiles:user_register')))
         self.assertRedirects(response, reverse('molo.profiles:user_register'))
 
+    def test_login(self):
+        response = self.client.get(reverse('molo.profiles:auth_login'))
+        self.assertContains(response, 'Forgotten your password')
+
     def test_mobile_number_field_exists_in_registration_form(self):
         site = Site.objects.get(is_default_site=True)
         settings = SettingsProxy(site)
@@ -83,6 +87,20 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
 
         response = self.client.get(reverse('molo.profiles:user_register'))
         self.assertContains(response, 'Enter your mobile number')
+
+    def test_email_field_exists_in_registration_form(self):
+        site = Site.objects.get(is_default_site=True)
+        settings = SettingsProxy(site)
+        profile_settings = settings['profiles']['UserProfilesSettings']
+
+        response = self.client.get(reverse('molo.profiles:user_register'))
+        self.assertNotContains(response, 'Enter your email')
+
+        profile_settings.show_email_field = True
+        profile_settings.save()
+
+        response = self.client.get(reverse('molo.profiles:user_register'))
+        self.assertContains(response, 'Enter your email')
 
     def test_mobile_number_field_is_required(self):
         site = Site.objects.get(is_default_site=True)
@@ -101,6 +119,23 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
         self.assertFormError(
             response, 'form', 'mobile_number', ['This field is required.'])
 
+    def test_email_field_is_required(self):
+        site = Site.objects.get(is_default_site=True)
+        settings = SettingsProxy(site)
+        profile_settings = settings['profiles']['UserProfilesSettings']
+
+        profile_settings.show_email_field = True
+        profile_settings.email_required = True
+        profile_settings.save()
+
+        response = self.client.post(reverse('molo.profiles:user_register'), {
+            'username': 'test',
+            'password': '1234',
+            'terms_and_conditions': True
+        })
+        self.assertFormError(
+            response, 'form', 'email', ['This field is required.'])
+
     def test_mobile_num_is_required_but_show_mobile_num_field_is_false(self):
         site = Site.objects.get(is_default_site=True)
         settings = SettingsProxy(site)
@@ -108,6 +143,22 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
 
         profile_settings.show_mobile_number_field = False
         profile_settings.mobile_number_required = True
+        profile_settings.save()
+
+        response = self.client.post(reverse('molo.profiles:user_register'), {
+            'username': 'test',
+            'password': '1234',
+            'terms_and_conditions': True
+        })
+        self.assertEqual(response.status_code, 302)
+
+    def test_email_is_required_but_show_email_field_is_false(self):
+        site = Site.objects.get(is_default_site=True)
+        settings = SettingsProxy(site)
+        profile_settings = settings['profiles']['UserProfilesSettings']
+
+        profile_settings.show_email_field = False
+        profile_settings.email_required = True
         profile_settings.save()
 
         response = self.client.post(reverse('molo.profiles:user_register'), {
@@ -150,6 +201,23 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
         self.assertFormError(
             response, 'form', 'mobile_number', ['Enter a valid phone number.'])
 
+    def test_invalid_email(self):
+        site = Site.objects.get(is_default_site=True)
+        settings = SettingsProxy(site)
+        profile_settings = settings['profiles']['UserProfilesSettings']
+
+        profile_settings.show_email_field = True
+        profile_settings.email_required = True
+        profile_settings.save()
+
+        response = self.client.post(reverse('molo.profiles:user_register'), {
+            'username': 'test',
+            'password': '1234',
+            'email': 'example@'
+        })
+        self.assertFormError(
+            response, 'form', 'email', ['Enter a valid email address.'])
+
     def test_valid_mobile_number(self):
         self.client.post(reverse('molo.profiles:user_register'), {
             'username': 'test',
@@ -159,6 +227,23 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
         })
         self.assertEqual(UserProfile.objects.get().mobile_number,
                          '+27784500003')
+
+    def test_valid_email(self):
+        site = Site.objects.get(is_default_site=True)
+        settings = SettingsProxy(site)
+        profile_settings = settings['profiles']['UserProfilesSettings']
+
+        profile_settings.show_email_field = True
+        profile_settings.email_required = True
+        profile_settings.save()
+        self.client.post(reverse('molo.profiles:user_register'), {
+            'username': 'test',
+            'password': '1234',
+            'email': 'example@foo.com',
+            'terms_and_conditions': True
+        })
+        self.assertEqual(UserProfile.objects.get().user.email,
+                         'example@foo.com')
 
 
 @override_settings(
@@ -264,6 +349,14 @@ class MyProfileEditTest(TestCase, MoloTestCaseMixin):
             response, reverse('molo.profiles:view_my_profile'))
         self.assertEqual(UserProfile.objects.get(user=self.user).mobile_number,
                          '+27788888813')
+
+    def test_update_email(self):
+        response = self.client.post(reverse('molo.profiles:edit_my_profile'), {
+                                    'email': 'example@foo.com'})
+        self.assertRedirects(
+            response, reverse('molo.profiles:view_my_profile'))
+        self.assertEqual(UserProfile.objects.get(user=self.user).user.email,
+                         'example@foo.com')
 
 
 @override_settings(
