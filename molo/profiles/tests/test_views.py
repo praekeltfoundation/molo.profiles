@@ -72,7 +72,6 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
 
     def test_login(self):
         response = self.client.get(reverse('molo.profiles:auth_login'))
-        print response
         self.assertContains(response, 'Forgotten your password')
 
     def test_mobile_number_field_exists_in_registration_form(self):
