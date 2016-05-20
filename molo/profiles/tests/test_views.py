@@ -51,7 +51,7 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(
             response['Location'],
-            'http://testserver/login/?next=/profiles/edit/myprofile/')
+            '/login/?next=/profiles/edit/myprofile/')
 
         response = self.client.post(reverse('molo.profiles:user_register'), {
             'username': 'testing',
@@ -186,9 +186,9 @@ class RegistrationDone(TestCase, MoloTestCaseMixin):
 
 @override_settings(
     ROOT_URLCONF='molo.profiles.tests.test_views',
-    TEMPLATE_CONTEXT_PROCESSORS=settings.TEMPLATE_CONTEXT_PROCESSORS + (
+    TEMPLATE_CONTEXT_PROCESSORS=settings.TEMPLATE_CONTEXT_PROCESSORS + [
         'molo.profiles.context_processors.get_profile_data',
-    ))
+    ])
 class MyProfileViewTest(TestCase, MoloTestCaseMixin):
 
     def setUp(self):
