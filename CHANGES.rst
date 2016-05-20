@@ -1,6 +1,17 @@
 CHANGE LOG
 ==========
 
+1.0.0
+-----
+- Added email address to registration
+- Upgraded to Molo 3.0
+- Upgraded to Django 1.9
+
+NOTICE:
+~~~~~~~
+- Not compatible with `molo<3.0`
+
+
 0.2.7
 -----
 - Fixed bug in slack stats integration
