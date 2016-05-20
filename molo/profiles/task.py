@@ -49,6 +49,6 @@ def send_user_data_to_slack():
         data = {
             "text": get_message_text()
         }
-        requests.post(url, data=data, headers=headers)
+        requests.post(url, json=data, headers=headers)
     except AttributeError:
         pass
