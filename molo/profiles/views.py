@@ -52,7 +52,7 @@ class RegistrationDone(FormView):
 
 def logout_page(request):
     logout(request)
-    return HttpResponseRedirect(request.REQUEST.get('next', '/'))
+    return HttpResponseRedirect(request.GET.get('next', '/'))
 
 
 class MyProfileView(TemplateView):
