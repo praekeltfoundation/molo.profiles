@@ -70,6 +70,11 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
             reverse('molo.profiles:user_register')))
         self.assertRedirects(response, reverse('molo.profiles:user_register'))
 
+    def test_login(self):
+        response = self.client.get(reverse('molo.profiles:auth_login'))
+        print response
+        self.assertContains(response, 'Forgotten your password')
+
     def test_mobile_number_field_exists_in_registration_form(self):
         site = Site.objects.get(is_default_site=True)
         settings = SettingsProxy(site)
