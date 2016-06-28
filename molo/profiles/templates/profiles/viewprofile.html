@@ -9,13 +9,13 @@
   </div>
 
   <div class="profiles l-indent">
-    <label class="profile_label">{% trans "Display Name: " %}{{ user.profile.alias | default:'Anonymous' }}</label>
-    <label class="profile_label">{% trans "Date of Birth: " %}{{ user.profile.date_of_birth | date:"M d, Y" }}</label>
+    <label class="profile__label">{% trans "Display Name: " %}{{ user.profile.alias | default:'Anonymous' }}</label>
+    <label class="profile__label">{% trans "Date of Birth: " %}{{ user.profile.date_of_birth | date:"M d, Y" }}</label>
     {% if settings.profiles.UserProfilesSettings.show_mobile_number_field %}
-      <label class="profile_label">{% trans "Mobile Number: " %}{{ user.profile.mobile_number | default:'' }}</label>
+      <label class="profile__label">{% trans "Mobile Number: " %}{{ user.profile.mobile_number | default:'' }}</label>
     {% endif %}
     {% if settings.profiles.UserProfilesSettings.show_email_field %}
-      <label class="profile_label">{% trans "Email Address: " %}{{ user.email | default:'' }}</label>
+      <label class="profile__label">{% trans "Email Address: " %}{{ user.email | default:'' }}</label>
     {% endif %}
 
     <a href="{% url 'molo.profiles:auth_logout' %}" class="button__pill button__pill--navy">
