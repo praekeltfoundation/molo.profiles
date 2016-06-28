@@ -1,6 +1,10 @@
 CHANGE LOG
 ==========
 
+1.0.1
+-----
+- Removed clean method from EditProfileForm
+
 1.0.0
 -----
 - Added email address to registration
