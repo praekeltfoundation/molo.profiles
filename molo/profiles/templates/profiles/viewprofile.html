@@ -4,21 +4,29 @@
 
 {% block content %}
 
-<div class="profile-style">
+  <div class="super-heading l-indent">
+    <h3 class="super-heading__title">{% trans "Hello " %}{{ user.username }}</h3>
+  </div>
 
-  <h3>{% trans "Hello " %}{{ user.username }}</h3>
-  <label class="label-wide">{% trans "Display Name: " %}{{ user.profile.alias | default:'Anonymous' }}</label>
-  <label class="label-wide">{% trans "Date of Birth: " %}{{ user.profile.date_of_birth | date:"M d, Y" }}</label>
-  {% if settings.profiles.UserProfilesSettings.show_mobile_number_field %}
-    <label class="label-wide">{% trans "Mobile Number: " %}{{ user.profile.mobile_number | default:'' }}</label>
-  {% endif %}
-  {% if settings.profiles.UserProfilesSettings.show_email_field %}
-    <label class="label-wide">{% trans "Email Address: " %}{{ user.email | default:'' }}</label>
-  {% endif %}
-  <a href="{% url 'molo.profiles:auth_logout' %}" class="btn btn-wide"><input type="button" value='{% trans "log out" %}' class="btn btn-wide" /></a>
-  <a href="{% url 'molo.profiles:edit_my_profile' %}" class="btn btn-wide"><input type="button" value='{% trans "Edit My Profile" %}' class="btn btn-wide" /></a>
-  <a href="{% url 'molo.profiles:profile_password_change' %}" class="btn btn-wide"><input type="button" value='{% trans "Change My Password" %}' class="btn btn-wide" /></a>
+  <div class="profiles l-indent">
+    <label class="profile_label">{% trans "Display Name: " %}{{ user.profile.alias | default:'Anonymous' }}</label>
+    <label class="profile_label">{% trans "Date of Birth: " %}{{ user.profile.date_of_birth | date:"M d, Y" }}</label>
+    {% if settings.profiles.UserProfilesSettings.show_mobile_number_field %}
+      <label class="profile_label">{% trans "Mobile Number: " %}{{ user.profile.mobile_number | default:'' }}</label>
+    {% endif %}
+    {% if settings.profiles.UserProfilesSettings.show_email_field %}
+      <label class="profile_label">{% trans "Email Address: " %}{{ user.email | default:'' }}</label>
+    {% endif %}
 
-</div>
+    <a href="{% url 'molo.profiles:auth_logout' %}" class="button__pill button__pill--navy">
+      {% trans "log out" %}
+    </a>
+    <a href="{% url 'molo.profiles:edit_my_profile' %}" class="button__pill button__pill--navy">
+      {% trans "Edit My Profile" %}
+    </a>
+    <a href="{% url 'molo.profiles:profile_password_change' %}" class="button__pill button__pill--navy">
+      {% trans "Change My Password" %}
+    </a>
+  </div>
 
 {% endblock %}
