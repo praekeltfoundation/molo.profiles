@@ -4,48 +4,54 @@
 
 
 {% block content %}
-<div class="title profile">
-    <h3>{% trans "Join" %}</h3>
-</div>
-<div class="block">
-  <div class="signin-form">
-    <p>{% trans "Not a member yet? Join us by signing up below." %}</p>
-
-    <form method="post" action="{% url 'molo.profiles:user_register' %}">{% csrf_token %}
-        <p><strong>{% trans "Choose a username" %}</strong></p>
-        {{ form.username.errors}}
-        {{ form.username }}
-
-        <p><strong>{% trans "Choose a 4-digit pin" %}</strong></p>
-        {{ form.password.errors}}
-        {{ form.password }}
-        <br>
-        {% if settings.profiles.UserProfilesSettings.show_mobile_number_field %}
-        <p><strong>{% trans "Enter your mobile number" %}</strong></p>
-        <p>{% trans "(e.g. +27900000013)" %}</p>
-        {{ form.mobile_number.errors}}
-        {{ form.mobile_number }}
-        <br>
-        {% endif %}
-        {% if settings.profiles.UserProfilesSettings.show_email_field %}
-        <p><strong>{% trans "Enter your email addresss" %}</strong></p>
-        <p>{% trans "(e.g. example@foo.com)" %}</p>
-        {{ form.email.errors}}
-        {{ form.email }}
-        <br>
-        {% endif %}
-
-        {% if form.terms_and_conditions.errors %}
-          <p>{% trans "Please accept the T&Cs in order to complete the registration" %}</p>
-        {% endif %}
-        {{ form.terms_and_conditions }}
-        <span>{% trans "I accept the Terms and Conditions" %}</span></p>
-        <br>
-
-        <input type="submit" class="registerSubmit" value='{% trans "JOIN" %}' />
-        <input type="hidden" name="next" value="{% url 'molo.profiles:registration_done' %}" />
-        <a href="{% url 'molo.profiles:auth_login' %}" class="button inverted">{% trans "already joined?" %}</a>
-    </form>
+  <div class="super-heading l-indent">
+    <h3 class="super-heading__title">{% trans "Join" %}</h3>
   </div>
+
+  <div class="profiles l-indent">
+    <p class="profiles__subtitle">{% trans "Not a member yet?" %}</p>
+    <p class="profiles__subtitle">{% trans "Join us by signing up below." %}</p>
+
+    <form method="post" action="{% url 'molo.profiles:user_register' %}" class="signin-form">{% csrf_token %}
+        <div class="profile__fieldset">
+            <label class="profile__label">{% trans "Choose a username" %}</label>
+            {{ form.username.errors}}
+            {{ form.username }}
+        </div>
+
+        <div class="profile__fieldset">
+            <label class="profile__label">{% trans "Choose a 4-digit pin" %}</label>
+            {{ form.password.errors}}
+            {{ form.password }}
+        </div>
+
+        <div class="profile__fieldset">
+            {% if settings.profiles.UserProfilesSettings.show_mobile_number_field %}
+            <label class="profile__label">{% trans "Enter your mobile number" %}</label>
+            <p>{% trans "(e.g. +27900000013)" %}</p>
+            {{ form.mobile_number.errors}}
+            {{ form.mobile_number }}
+            {% endif %}
+        </div>
+        <div class="profile__fieldset">
+            {% if settings.profiles.UserProfilesSettings.show_email_field %}
+            <label class="profile__label">{% trans "Enter your email addresss" %}</label>
+            <p>{% trans "(e.g. example@foo.com)" %}</p>
+            {{ form.email.errors}}
+            {{ form.email }}
+            {% endif %}
+        </div>
+
+        <div class="profile__fieldset">
+            {% if form.terms_and_conditions.errors %}
+             <label class="profile__label">{% trans "Please accept the T&Cs in order to complete the registration" %}</label>
+            {% endif %}
+            {{ form.terms_and_conditions }}
+            <label class="profile__label">{% trans "I accept the Terms and Conditions" %}</label>
+        </div>
+        <input type="submit" value='{% trans "JOIN" %}' class="registerSubmit button__pill button__pill--navy" />
+        <input type="hidden" name="next" value="{% url 'molo.profiles:registration_done' %}" class="button__pill button__pill--navy" />
+        <a href="{% url 'molo.profiles:auth_login' %}" class="registerSubmit button__pill button__pill--navy">{% trans "already joined?" %}</a>
+    </form>
 </div>
 {% endblock %}
