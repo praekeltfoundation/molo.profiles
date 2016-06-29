@@ -8,12 +8,13 @@
 
   <form method="post" action="{% url 'molo.profiles:registration_done' %}" class="profiles__form">{% csrf_token %}
     <fieldset>
+      <label>Select date of birth</label>
         {{ form.date_of_birth }}
     </fieldset>
-    <input type="submit" value='{% trans "Update" %}' />
+    <input type="submit" value='{% trans "Save" %}' />
   </form>
 
-  <a href="/" class="button__pill">{% trans "Skip" %}</a>
+  <a href="/">{% trans "Skip" %}</a>
 </div>
 
 {% endblock %}

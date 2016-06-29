@@ -7,7 +7,8 @@
 	<h4 class="profiles__title">{% trans "LOGIN TO YOUR ACCOUNT!" %}</h4>
 	<span class="profiles__subtitle">{% trans "We’re excited to have you..." %}</span>
 
-	    <form method="post" action="." class="profiles__form">{% csrf_token %}
+	    <form method="post" action="." class="profiles__form">
+	    {% csrf_token %}
 	        {% if form.errors %}
 	            <span class="error">{% trans "Your username and password does not match. Please try again." %}</span>
 	        {% endif %}
@@ -21,7 +22,7 @@
 					<label>{% trans "4-digit pin" %}<label>
 					{{form.password}}
 				</fieldset>
-					<input type="submit" value="{% trans 'Sign in' %}">
+					<input type="submit" value="{% trans 'Save' %}">
 					<input type="hidden" name="next" value="{% if request.GET.next %}{{ request.GET.next }}{% else %}{{request.site.root_page.url}}{% endif %}" />
 	    </form>
 	    <a href="{% url 'password_reset' %}" class="button__pill button__pill--navy">{% trans 'Forgotten your password?' %}</a>
