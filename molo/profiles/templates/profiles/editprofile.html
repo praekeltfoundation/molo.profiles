@@ -3,29 +3,28 @@
 {% get_settings %}
 
 {% block content %}
-<div class="signin-form">
-	<div class="block turq">
-		<form method="post" id="frmProfileEdit" action="{% url 'molo.profiles:edit_my_profile' %}">{% csrf_token %}
-			<p>{% trans "Type new display name:" %}</p>
+<div class="profiles">
+		<form method="post" action="{% url 'molo.profiles:edit_my_profile' %}" class="profiles__form">{% csrf_token %}
+			<span class="profile__feedback">{% trans "Type new display name:" %}</span>
 			{{ form.alias }}
-      <p>{% trans "Update your date of birth:" %}</p>
+     <span class="profile__feedback">{% trans "Update your date of birth:" %}</span>
 	      {{ form.date_of_birth }}
 
+ 
 			{% if settings.profiles.UserProfilesSettings.show_mobile_number_field %}
-	      <p>{% trans "Update your mobile number:" %}</p>
+	      <label>{% trans "Update your mobile number:" %}</label>
 		      {{ form.mobile_number.errors }}
 		      {{ form.mobile_number }}
 			{% endif %}
+
 			{% if settings.profiles.UserProfilesSettings.show_email_field %}
-	      <p>{% trans "Update your email address:" %}</p>
+	      <label>{% trans "Update your email address:" %}</label>
 		      {{ form.email.errors }}
 		      {{ form.email}}
 			{% endif %}
-				<br>
-				<br>
-			<input type="submit" value='{% trans "Update profile" %}' class="btn">
+	
+			<input type="submit" value='{% trans "Update profile" %}'>
 		</form>
-	</div>
 </div>
 
 {% endblock %}

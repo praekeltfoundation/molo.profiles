@@ -6,10 +6,9 @@
 		<h3>{% trans "Sign in" %}</h3>
 	</div>
 
-	<div class="block turq">
-		<div class="signin-form">
-			<h5>{% trans "LOGIN TO YOUR ACCOUNT!" %}</h5>
-			<p>{% trans "We’re excited to have you..." %}</p>
+<div class="profiles">
+	<h5>{% trans "LOGIN TO YOUR ACCOUNT!" %}</h5>
+	<p class="profiles__subtitle">{% trans "We’re excited to have you..." %}</p>
 	    <form method="post" action=".">{% csrf_token %}
 	        {% if form.errors %}
 	            <p class="error errorlist">{% trans "Your username and password does not match. Please try again." %}</p>

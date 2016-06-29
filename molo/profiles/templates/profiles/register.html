@@ -5,7 +5,6 @@
 
 {% block content %}
   <h3 class="heading heading--profiles">{% trans "Join" %}</h3>
-
   <div class="profiles">
     <p class="profiles__subtitle">{% trans "Not a member yet?" %}</p>
     <p class="profiles__subtitle">{% trans "Join us by signing up below." %}</p>
@@ -26,7 +25,7 @@
         <fieldset>
             {% if settings.profiles.UserProfilesSettings.show_mobile_number_field %}
             <label>{% trans "Enter your mobile number" %}</label>
-            <p>{% trans "(e.g. +27900000013)" %}</p>
+            {% trans "(e.g. +27900000013)" %}
             {{ form.mobile_number.errors}}
             {{ form.mobile_number }}
             {% endif %}
@@ -35,7 +34,7 @@
         <fieldset>
             {% if settings.profiles.UserProfilesSettings.show_email_field %}
             <label>{% trans "Enter your email addresss" %}</label>
-            <p>{% trans "(e.g. example@foo.com)" %}</p>
+            {% trans "(e.g. example@foo.com)" %}
             {{ form.email.errors}}
             {{ form.email }}
             {% endif %}
@@ -43,14 +42,19 @@
 
        <fieldset>
             {% if form.terms_and_conditions.errors %}
-             <label class="profile__terms">{% trans "Please accept the T&Cs in order to complete the registration" %}</label>
+             <span class="profile__feedback">{% trans "Please accept the T&Cs in order to complete the registration" %}</span>
             {% endif %}
             {{ form.terms_and_conditions }}
             <label class="profile__terms">{% trans "I accept the Terms and Conditions" %}</label>
         </fieldset>
+
         <input type="submit" value='{% trans "JOIN" %}' class="registerSubmit button__pill button__pill--navy" />
+
         <input type="hidden" name="next" value="{% url 'molo.profiles:registration_done' %}" class="button__pill button__pill--navy" />
-        <a href="{% url 'molo.profiles:auth_login' %}" class="registerSubmit button__pill button__pill--navy">{% trans "already joined?" %}</a>
     </form>
+</div>
+<div class="profile-login">
+    <h5 class="profile-login__title">{% trans "Already a member?" %}</h5>
+    <a href="{% url 'molo.profiles:auth_login' %}" class="registerSubmit button__pill button__pill--white">{% trans "Login" %}</a>
 </div>
 {% endblock %}

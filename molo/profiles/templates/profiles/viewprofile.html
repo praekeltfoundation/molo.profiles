@@ -3,13 +3,11 @@
 {% get_settings %}
 
 {% block content %}
-  <div class="super-heading">
-     <h3 class="heading heading--profiles">{% trans "Hello " %}{{ user.username }}</h3>
-  </div>
-
+  <h3 class="heading heading--profiles">{% trans "Hello " %}{{ user.username }}</h3>
   <div class="profiles">
-    <label>{% trans "Display Name: " %}{{ user.profile.alias | default:'Anonymous' }}</label>
-    <label>{% trans "Date of Birth: " %}{{ user.profile.date_of_birth | date:"M d, Y" }}</label>
+    <span class="profile__feedback">{% trans "Display Name: " %}{{ user.profile.alias | default:'Anonymous' }}</span>
+   <span class="profile__feedback">
+    {% trans "Date of Birth: " %}{{ user.profile.date_of_birth | date:"M d, Y" }}</span>
     {% if settings.profiles.UserProfilesSettings.show_mobile_number_field %}
       <label>{% trans "Mobile Number: " %}{{ user.profile.mobile_number | default:'' }}</label>
     {% endif %}
