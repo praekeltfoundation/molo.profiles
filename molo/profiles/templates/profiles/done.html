@@ -3,16 +3,17 @@
 
 {% block content %}
 <div class="profiles">
-  <h5>{% trans "Thank you for joining!" %}</h5>
+  <h4 class="profiles__title">{% trans "Thank you for joining!" %}</h4>
   <p>{% trans "Let us know your birthday to get access to exclusive content." %}</p>
+
   <form method="post" action="{% url 'molo.profiles:registration_done' %}" class="profiles__form">{% csrf_token %}
     <fieldset>
         {{ form.date_of_birth }}
     </fieldset>
-
     <input type="submit" value='{% trans "Update" %}' />
-    <a href="/" class="button__pill">{% trans "Skip" %}</a>
   </form>
+
+  <a href="/" class="button__pill">{% trans "Skip" %}</a>
 </div>
 
 {% endblock %}

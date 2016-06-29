@@ -3,8 +3,8 @@
 {% get_settings %}
 
 {% block content %}
-  <h3 class="heading heading--profiles">{% trans "Hello " %}{{ user.username }}</h3>
-  <div class="profiles">
+<h3 class="heading heading--profiles">{% trans "Hello " %}{{ user.username }}</h3>
+<div class="profiles">
     <p>{% trans "Display Name: " %}{{ user.profile.alias | default:'Anonymous' }}</p>
     <p>{% trans "Date of Birth: " %}{{ user.profile.date_of_birth | date:"M d, Y" }}</p>
     {% if settings.profiles.UserProfilesSettings.show_mobile_number_field %}
@@ -23,6 +23,6 @@
     <a href="{% url 'molo.profiles:profile_password_change' %}" class="button__pill button__pill--navy">
       {% trans "Change My Password" %}
     </a>
-  </div>
+</div>
 
 {% endblock %}

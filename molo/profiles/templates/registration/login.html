@@ -5,7 +5,8 @@
 <h3 class="heading heading--profiles">{% trans "Sign in" %}</h3>
 <div class="profiles">
 	<h4 class="profiles__title">{% trans "LOGIN TO YOUR ACCOUNT!" %}</h4>
-	<p class="profiles__subtitle">{% trans "We’re excited to have you..." %}</p>
+	<span class="profiles__subtitle">{% trans "We’re excited to have you..." %}</span>
+
 	    <form method="post" action="." class="profiles__form">{% csrf_token %}
 	        {% if form.errors %}
 	            <span class="error">{% trans "Your username and password does not match. Please try again." %}</span>
@@ -23,12 +24,11 @@
 					<input type="submit" value="{% trans 'Sign in' %}">
 					<input type="hidden" name="next" value="{% if request.GET.next %}{{ request.GET.next }}{% else %}{{request.site.root_page.url}}{% endif %}" />
 	    </form>
-		</div>
+</div>
 
-		<div class="profiles-login">
+<div class="profiles-login">
 	    <h5 class="profiles-login__title">{% trans "Not a member yet?" %}</h5>
 	   	<a href="{% url 'molo.profiles:user_register' %}" class="button__pill button__pill--white">{% trans "Join" %}</a>
-	</div>
+</div>
 		<a href="{% url 'password_reset' %}" class="button__pill button__pill--white">{% trans 'Forgotten your password?' %}</a>
-	</div>
 {% endblock %}

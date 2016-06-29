@@ -5,8 +5,8 @@
 {% block content %}
 <h3 class="heading heading--profiles">{% trans "Join" %}</h3>
 <div class="profiles">
-    <p class="profiles__subtitle">{% trans "Not a member yet?" %}</p>
-    <p class="profiles__subtitle">{% trans "Join us by signing up below." %}</p>
+    <span class="profiles__subtitle">{% trans "Not a member yet?" %}</span>
+    <span class="profiles__subtitle">{% trans "Join us by signing up below." %}</span>
 
     <form method="post" action="{% url 'molo.profiles:user_register' %}" class="profiles__form">{% csrf_token %}
         <fieldset>
@@ -44,10 +44,10 @@
              <p>{% trans "Please accept the T&Cs in order to complete the registration" %}</p>
             {% endif %}
             {{ form.terms_and_conditions }}
-            <label class="profile__terms">{% trans "I accept the Terms and Conditions" %}</label>
+            <label class="profiles__terms">{% trans "I accept the Terms and Conditions" %}</label>
         </fieldset>
 
-        <input type="submit" value='{% trans "JOIN" %}' class="registerSubmit button__pill button__pill--navy" />
+        <input type="submit" value='{% trans "JOIN" %}' class="button__pill button__pill--navy" />
 
         <input type="hidden" name="next" value="{% url 'molo.profiles:registration_done' %}" class="button__pill button__pill--navy" />
     </form>

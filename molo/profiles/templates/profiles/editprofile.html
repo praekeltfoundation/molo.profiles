@@ -8,7 +8,7 @@
 			<p>{% trans "Type new display name:" %}</p>
 			{{ form.alias }}
       <p>{% trans "Update your date of birth:" %}</p>
-	      {{ form.date_of_birth }}
+	    {{ form.date_of_birth }}
  
 			{% if settings.profiles.UserProfilesSettings.show_mobile_number_field %}
 	      <label>{% trans "Update your mobile number:" %}</label>
@@ -21,7 +21,7 @@
 		      {{ form.email.errors }}
 		      {{ form.email}}
 			{% endif %}
-	
+
 			<input type="submit" value='{% trans "Update profile" %}'>
 		</form>
 </div>
