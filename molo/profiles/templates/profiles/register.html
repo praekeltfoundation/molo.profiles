@@ -44,10 +44,10 @@
 
         <div class="profile__fieldset">
             {% if form.terms_and_conditions.errors %}
-             <label class="profile__label">{% trans "Please accept the T&Cs in order to complete the registration" %}</label>
+             <label class="profile__label profile__label--terms">{% trans "Please accept the T&Cs in order to complete the registration" %}</label>
             {% endif %}
             {{ form.terms_and_conditions }}
-            <label class="profile__label">{% trans "I accept the Terms and Conditions" %}</label>
+            <label class="profile__label profile__label--terms">{% trans "I accept the Terms and Conditions" %}</label>
         </div>
         <input type="submit" value='{% trans "JOIN" %}' class="registerSubmit button__pill button__pill--navy" />
         <input type="hidden" name="next" value="{% url 'molo.profiles:registration_done' %}" class="button__pill button__pill--navy" />
