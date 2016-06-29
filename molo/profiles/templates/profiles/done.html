@@ -4,12 +4,14 @@
 {% block content %}
 <div class="profiles">
   <h5>{% trans "Thank you for joining!" %}</h5>
-  <h5>{% trans "Let us know your birthday to get access to exclusive content." %}</h5><br>
-  <form method="post" action="{% url 'molo.profiles:registration_done' %}">{% csrf_token %}
-      {{ form.date_of_birth }}
-      <br>
-      <input type="submit" value='{% trans "Update" %}' />
-      <a href="/" class="button inverted">{% trans "Skip" %}</a>
+  <p>{% trans "Let us know your birthday to get access to exclusive content." %}</p>
+  <form method="post" action="{% url 'molo.profiles:registration_done' %}" class="profiles__form">{% csrf_token %}
+    <fieldset>
+        {{ form.date_of_birth }}
+    </fieldset>
+
+    <input type="submit" value='{% trans "Update" %}' />
+    <a href="/" class="button__pill">{% trans "Skip" %}</a>
   </form>
 </div>
 

@@ -8,7 +8,7 @@
 	<p class="profiles__subtitle">{% trans "We’re excited to have you..." %}</p>
 	    <form method="post" action="." class="profiles__form">{% csrf_token %}
 	        {% if form.errors %}
-	            <p class="error errorlist">{% trans "Your username and password does not match. Please try again." %}</p>
+	            <span class="error">{% trans "Your username and password does not match. Please try again." %}</span>
 	        {% endif %}
 
 	      <fieldset>
@@ -25,8 +25,8 @@
 	    </form>
 		</div>
 
-		<div class="profile-login">
-	    <h5 class="profile-login__title">{% trans "Not a member yet?" %}</h5>
+		<div class="profiles-login">
+	    <h5 class="profiles-login__title">{% trans "Not a member yet?" %}</h5>
 	   	<a href="{% url 'molo.profiles:user_register' %}" class="button__pill button__pill--white">{% trans "Join" %}</a>
 	</div>
 		<a href="{% url 'password_reset' %}" class="button__pill button__pill--white">{% trans 'Forgotten your password?' %}</a>

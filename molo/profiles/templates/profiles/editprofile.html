@@ -5,11 +5,10 @@
 {% block content %}
 <div class="profiles">
 		<form method="post" action="{% url 'molo.profiles:edit_my_profile' %}" class="profiles__form">{% csrf_token %}
-			<span class="profile__feedback">{% trans "Type new display name:" %}</span>
+			<p>{% trans "Type new display name:" %}</p>
 			{{ form.alias }}
-     <span class="profile__feedback">{% trans "Update your date of birth:" %}</span>
+      <p>{% trans "Update your date of birth:" %}</p>
 	      {{ form.date_of_birth }}
-
  
 			{% if settings.profiles.UserProfilesSettings.show_mobile_number_field %}
 	      <label>{% trans "Update your mobile number:" %}</label>

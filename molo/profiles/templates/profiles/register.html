@@ -41,7 +41,7 @@
 
        <fieldset>
             {% if form.terms_and_conditions.errors %}
-             <span class="profile__feedback">{% trans "Please accept the T&Cs in order to complete the registration" %}</span>
+             <p>{% trans "Please accept the T&Cs in order to complete the registration" %}</p>
             {% endif %}
             {{ form.terms_and_conditions }}
             <label class="profile__terms">{% trans "I accept the Terms and Conditions" %}</label>
@@ -52,8 +52,8 @@
         <input type="hidden" name="next" value="{% url 'molo.profiles:registration_done' %}" class="button__pill button__pill--navy" />
     </form>
 </div>
-<div class="profile-login">
-    <h5 class="profile-login__title">{% trans "Already a member?" %}</h5>
+<div class="profiles-login">
+    <h5 class="profiles-login__title">{% trans "Already a member?" %}</h5>
     <a href="{% url 'molo.profiles:auth_login' %}" class="button__pill button__pill--white">{% trans "Login" %}</a>
 </div>
 {% endblock %}
