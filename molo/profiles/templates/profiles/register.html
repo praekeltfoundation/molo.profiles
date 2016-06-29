@@ -2,10 +2,9 @@
 {% load i18n static core_tags wagtailsettings_tags %}
 {% get_settings %}
 
-
 {% block content %}
-  <h3 class="heading heading--profiles">{% trans "Join" %}</h3>
-  <div class="profiles">
+<h3 class="heading heading--profiles">{% trans "Join" %}</h3>
+<div class="profiles">
     <p class="profiles__subtitle">{% trans "Not a member yet?" %}</p>
     <p class="profiles__subtitle">{% trans "Join us by signing up below." %}</p>
 
@@ -55,6 +54,6 @@
 </div>
 <div class="profile-login">
     <h5 class="profile-login__title">{% trans "Already a member?" %}</h5>
-    <a href="{% url 'molo.profiles:auth_login' %}" class="registerSubmit button__pill button__pill--white">{% trans "Login" %}</a>
+    <a href="{% url 'molo.profiles:auth_login' %}" class="button__pill button__pill--white">{% trans "Login" %}</a>
 </div>
 {% endblock %}

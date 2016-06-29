@@ -2,26 +2,33 @@
 {% load i18n %}
 
 {% block content %}
-	<div class="title profile">
-		<h3>{% trans "Sign in" %}</h3>
-	</div>
-
+<h3 class="heading heading--profiles">{% trans "Sign in" %}</h3>
 <div class="profiles">
-	<h5>{% trans "LOGIN TO YOUR ACCOUNT!" %}</h5>
+	<h4 class="profiles__title">{% trans "LOGIN TO YOUR ACCOUNT!" %}</h4>
 	<p class="profiles__subtitle">{% trans "We’re excited to have you..." %}</p>
-	    <form method="post" action=".">{% csrf_token %}
+	    <form method="post" action="." class="profiles__form">{% csrf_token %}
 	        {% if form.errors %}
 	            <p class="error errorlist">{% trans "Your username and password does not match. Please try again." %}</p>
 	        {% endif %}
-					<p><strong>{% trans "Username" %}</strong></p>
+
+	      <fieldset>
+					<label>{% trans "Username" %}<label>
 					{{form.username}}
-					<p><strong>{% trans "4-digit pin" %}</strong></p>
+				</fieldset>
+
+				<fieldset>
+					<label>{% trans "4-digit pin" %}<label>
 					{{form.password}}
+				</fieldset>
 					<input type="submit" value="{% trans 'Sign in' %}">
 					<input type="hidden" name="next" value="{% if request.GET.next %}{{ request.GET.next }}{% else %}{{request.site.root_page.url}}{% endif %}" />
-					<a href="{% url 'molo.profiles:user_register' %}" class="button inverted">{% trans "Not a member yet" %}</a>
 	    </form>
 		</div>
-		<a href="{% url 'password_reset' %}">{% trans 'Forgotten your password?' %}</a>
+
+		<div class="profile-login">
+	    <h5 class="profile-login__title">{% trans "Not a member yet?" %}</h5>
+	   	<a href="{% url 'molo.profiles:user_register' %}" class="button__pill button__pill--white">{% trans "Join" %}</a>
+	</div>
+		<a href="{% url 'password_reset' %}" class="button__pill button__pill--white">{% trans 'Forgotten your password?' %}</a>
 	</div>
 {% endblock %}
