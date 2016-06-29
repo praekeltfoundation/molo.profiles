@@ -9,3 +9,4 @@ build
 htmlcov/
 .coverage
 .cache
+.DS_Store

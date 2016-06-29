@@ -3,18 +3,18 @@
 {% get_settings %}
 
 {% block content %}
-  <div class="super-heading l-indent">
-    <h3 class="super-heading__title">{% trans "Hello " %}{{ user.username }}</h3>
+  <div class="super-heading">
+     <h3 class="heading heading--profiles">{% trans "Hello " %}{{ user.username }}</h3>
   </div>
 
-  <div class="profiles l-indent">
-    <label class="profile__label">{% trans "Display Name: " %}{{ user.profile.alias | default:'Anonymous' }}</label>
-    <label class="profile__label">{% trans "Date of Birth: " %}{{ user.profile.date_of_birth | date:"M d, Y" }}</label>
+  <div class="profiles">
+    <label>{% trans "Display Name: " %}{{ user.profile.alias | default:'Anonymous' }}</label>
+    <label>{% trans "Date of Birth: " %}{{ user.profile.date_of_birth | date:"M d, Y" }}</label>
     {% if settings.profiles.UserProfilesSettings.show_mobile_number_field %}
-      <label class="profile__label">{% trans "Mobile Number: " %}{{ user.profile.mobile_number | default:'' }}</label>
+      <label>{% trans "Mobile Number: " %}{{ user.profile.mobile_number | default:'' }}</label>
     {% endif %}
     {% if settings.profiles.UserProfilesSettings.show_email_field %}
-      <label class="profile__label">{% trans "Email Address: " %}{{ user.email | default:'' }}</label>
+      <label>{% trans "Email Address: " %}{{ user.email | default:'' }}</label>
     {% endif %}
 
     <a href="{% url 'molo.profiles:auth_logout' %}" class="button__pill button__pill--navy">
