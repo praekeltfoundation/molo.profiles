@@ -24,11 +24,12 @@
 					<input type="submit" value="{% trans 'Sign in' %}">
 					<input type="hidden" name="next" value="{% if request.GET.next %}{{ request.GET.next }}{% else %}{{request.site.root_page.url}}{% endif %}" />
 	    </form>
+	    <a href="{% url 'password_reset' %}" class="button__pill button__pill--navy">{% trans 'Forgotten your password?' %}</a>
 </div>
 
 <div class="profiles-login">
 	    <h5 class="profiles-login__title">{% trans "Not a member yet?" %}</h5>
 	   	<a href="{% url 'molo.profiles:user_register' %}" class="button__pill button__pill--white">{% trans "Join" %}</a>
 </div>
-		<a href="{% url 'password_reset' %}" class="button__pill button__pill--white">{% trans 'Forgotten your password?' %}</a>
+		
 {% endblock %}
