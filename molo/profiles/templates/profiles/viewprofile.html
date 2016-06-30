@@ -8,10 +8,10 @@
     <p>{% trans "Display Name: " %}{{ user.profile.alias | default:'Anonymous' }}</p>
     <p>{% trans "Date of Birth: " %}{{ user.profile.date_of_birth | date:"M d, Y" }}</p>
     {% if settings.profiles.UserProfilesSettings.show_mobile_number_field %}
-      <label>{% trans "Mobile Number: " %}{{ user.profile.mobile_number | default:'' }}</label>
+      <label for="id_profile.mobile_number">{% trans "Mobile Number: " %}{{ user.profile.mobile_number | default:'' }}</label>
     {% endif %}
     {% if settings.profiles.UserProfilesSettings.show_email_field %}
-      <label>{% trans "Email Address: " %}{{ user.email | default:'' }}</label>
+      <label for="id_email">{% trans "Email Address: " %}{{ user.email | default:'' }}</label>
     {% endif %}
 
     <a href="{% url 'molo.profiles:auth_logout' %}" class="button__pill button__pill--navy">
