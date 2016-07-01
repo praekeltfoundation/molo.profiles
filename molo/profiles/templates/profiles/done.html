@@ -2,10 +2,11 @@
 {% load i18n %}
 
 {% block content %}
+<h4 class="heading heading--subtitle">
+    {% trans "Thank you for joining!" %}
+</h4>
 <div class="profiles">
-  <p class="profiles__title">{% trans "Thank you for joining!" %}</p>
   <p>{% trans "Let us know your birthday to get access to exclusive content." %}</p>
-
   <form method="post" action="{% url "molo.profiles:registration_done" %}" class="profiles__form">
   {% csrf_token %}
     <fieldset>
