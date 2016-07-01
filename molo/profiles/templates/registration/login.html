@@ -2,14 +2,18 @@
 {% load i18n %}
 
 {% block content %}
-<h3 class="heading heading--profiles">{% trans "Log in" %}</h3>
+<h1 class="heading heading--profiles">{% trans "Log in" %}</h1>
 <div class="profiles">
 	<h4 class="profiles__title">{% trans "LOGIN TO YOUR ACCOUNT!" %}</h4>
-	<span class="profiles__subtitle">{% trans "We’re excited to have you..." %}</span>
+	<span class="profiles__subtitle">
+		{% trans "We’re excited to have you..." %}
+	</span>
 	<form method="post" action="" class="profiles__form">
 	{% csrf_token %}
 		{% if form.errors %}
-		    <span class="error">{% trans "Your username and password does not match. Please try again." %}</span>
+		    <span class="error">
+		    	{% trans "Your username and password does not match. Please try again." %}
+		    </span>
 		{% endif %}
 
     <fieldset>
@@ -28,7 +32,7 @@
 </div>
 
 <div class="call-to-action call-to-action--profile">
-	    <h5 class="call-to-action__challenge">{% trans "Not a member yet?" %}</h5>
-	   	<a href="{% url "molo.profiles:user_register" %}" class="call-to-action__login">{% trans "Join" %}</a>
+  <h5 class="call-to-action__challenge">{% trans "Not a member yet?" %}</h5>
+ 	<a href="{% url "molo.profiles:user_register" %}" class="call-to-action__login">{% trans "Join" %}</a>
 </div>
 {% endblock %}
