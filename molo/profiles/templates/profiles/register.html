@@ -21,29 +21,30 @@
       <label for="id_password">{% trans "Choose a 4-digit pin" %}</label>
       {{ form.password.errors}}
       {{ form.password }}
+      <p class="sigin-form__input-hint">({% trans "Eg.: 2086" %})</p>
     </fieldset>
 
+    {% if settings.profiles.UserProfilesSettings.show_mobile_number_field %}
     <fieldset>
-      {% if settings.profiles.UserProfilesSettings.show_mobile_number_field %}
       <label for="mobile_number">{% trans "Enter your mobile number" %}</label>
       {% trans "(e.g. +27900000013)" %}
       {{ form.mobile_number.errors}}
       {{ form.mobile_number }}
-      {% endif %}
     </fieldset>
+    {% endif %}
 
+    {% if settings.profiles.UserProfilesSettings.show_email_field %}
     <fieldset>
-      {% if settings.profiles.UserProfilesSettings.show_email_field %}
       <label for="id_email">{% trans "Enter your email addresss" %}</label>
       {% trans "(e.g. example@foo.com)" %}
       {{ form.email.errors}}
       {{ form.email }}
-      {% endif %}
     </fieldset>
+    {% endif %}
 
     <fieldset>
       {% if form.terms_and_conditions.errors %}
-      <p>{% trans "Please accept the T&Cs in order to complete the registration" %}</p>
+      <span class="error">{% trans "Please accept the T&Cs in order to complete the registration" %}</span>
       {% endif %}
       {{ form.terms_and_conditions }}
       <label for="id_terms_and_conditions" class="profiles__terms">{% trans "I accept the Terms and Conditions" %}</label>
