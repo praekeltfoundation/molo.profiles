@@ -6,22 +6,23 @@
 <h1 class="heading heading--profiles">{% trans "Hello " %}{{ user.username }}</h1>
 <div class="profiles">
   <p>{% trans "Display Name: " %}{{ user.profile.alias | default:"Anonymous" }}</p>
-  <p>{% trans "Date of Birth: " %}{{ user.profile.date_of_birth | date:"M d, Y" }}</p>
-    {% if settings.profiles.UserProfilesSettings.show_mobile_number_field %}
-      <label for="id_profile.mobile_number">{% trans "Mobile Number: " %}{{ user.profile.mobile_number | default:"" }}</label>
-    {% endif %}
-    {% if settings.profiles.UserProfilesSettings.show_email_field %}
-      <label for="id_email">{% trans "Email Address: " %}{{ user.email | default:"" }}</label>
-    {% endif %}
+  <p>{% trans "Date of Birth: " %}{{ user.profile.date_of_birth | date:"M d, Y" }}</p>  
+  {% if settings.profiles.UserProfilesSettings.show_mobile_number_field %}
+  <fieldset>
+      <label for="id_profile.mobile_number">{% trans "Mobile Number: " %}</label>
+      {{ user.profile.mobile_number | default:"" }}
+  </fieldset>
+  {% endif %}
 
-    <a href="{% url "molo.profiles:auth_logout" %}">
-      {% trans "log out" %}
-    </a>
-    <a href="{% url "molo.profiles:edit_my_profile" %}">
-      {% trans "Edit My Profile" %}
-    </a>
-    <a href="{% url "molo.profiles:profile_password_change" %}">
-      {% trans "Change My Password" %}
-    </a>
+  {% if settings.profiles.UserProfilesSettings.show_email_field %}
+  <fieldset>
+      <label for="id_email">{% trans "Email Address: " %}</label>
+      {{ user.email | default:"" }}
+  </fieldset>
+  {% endif %}
+
+  <a href="{% url "molo.profiles:auth_logout" %}">{% trans "log out" %}</a>
+  <a href="{% url "molo.profiles:edit_my_profile" %}">{% trans "Edit My Profile" %}</a>
+  <a href="{% url "molo.profiles:profile_password_change" %}">{% trans "Change My Password" %}</a>
 </div>
 {% endblock %}
