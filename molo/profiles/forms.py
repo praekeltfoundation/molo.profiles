@@ -1,5 +1,7 @@
 from datetime import datetime
 
+import re
+
 from django import forms
 from django.forms.extras.widgets import SelectDateWidget
 from django.contrib.auth.models import User
@@ -11,6 +13,30 @@ from wagtail.contrib.settings.context_processors import SettingsProxy
 from molo.profiles.models import UserProfile
 
 from phonenumber_field.formfields import PhoneNumberField
+
+
+REGEX_PHONE = r'.*?(\(?\d{3})? ?[\.-]? ?\d{3} ?[\.-]? ?\d{4}.*?'
+REGEX_EMAIL = r'([\w\.-]+@[\w\.-]+)'
+
+
+def validate_no_email_or_phone(input):
+    site = Site.objects.get(is_default_site=True)
+    settings = SettingsProxy(site)
+    profile_settings = settings['profiles']['UserProfilesSettings']
+
+    regexes = []
+    if profile_settings.prevent_number_in_username:
+        regexes.append(REGEX_PHONE)
+
+    if profile_settings.prevent_email_in_username:
+        regexes.append(REGEX_EMAIL)
+
+    for regex in regexes:
+        match = re.search(regex, input)
+        if match:
+            return False
+
+    return True
 
 
 class RegistrationForm(forms.Form):
@@ -62,10 +88,36 @@ class RegistrationForm(forms.Form):
             profile_settings.show_email_field)
 
     def clean_username(self):
+        site = Site.objects.get(is_default_site=True)
+        settings = SettingsProxy(site)
+        profile_settings = settings['profiles']['UserProfilesSettings']
+
+        invalid_msg = ''
+
+        if getattr(profile_settings, 'prevent_email_in_username', False) \
+                and getattr(profile_settings, 'prevent_number_in_username',
+                            False):
+            invalid_msg = 'phone number or email address'
+
+        elif getattr(profile_settings, 'prevent_number_in_username', False):
+            invalid_msg = 'phone number'
+
+        elif getattr(profile_settings, 'prevent_email_in_username', False):
+            invalid_msg = 'email address'
+
         if User.objects.filter(
-            username__iexact=self.cleaned_data['username']
+                username__iexact=self.cleaned_data['username']
         ).exists():
             raise forms.ValidationError(_("Username already exists."))
+
+        if not validate_no_email_or_phone(self.cleaned_data['username']):
+            raise forms.ValidationError(
+                _(
+                    "Sorry, but that is an invalid username. Please don't use"
+                    " your %s in your username." % invalid_msg
+                )
+            )
+
         return self.cleaned_data['username']
 
 
@@ -94,6 +146,37 @@ class EditProfileForm(forms.ModelForm):
     class Meta:
         model = UserProfile
         fields = ['alias', 'date_of_birth', 'mobile_number']
+
+    def clean_alias(self):
+        site = Site.objects.get(is_default_site=True)
+        settings = SettingsProxy(site)
+        profile_settings = settings['profiles']['UserProfilesSettings']
+
+        invalid_msg = ''
+
+        if getattr(profile_settings, 'prevent_email_in_username', False) \
+                and getattr(profile_settings, 'prevent_number_in_username',
+                            False):
+            invalid_msg = 'phone number or email address'
+
+        elif getattr(profile_settings, 'prevent_number_in_username', False):
+            invalid_msg = 'phone number'
+
+        elif getattr(profile_settings, 'prevent_email_in_username', False):
+            invalid_msg = 'email address'
+
+        alias = self.cleaned_data['alias']
+
+        if not validate_no_email_or_phone(alias):
+            raise forms.ValidationError(
+                _(
+                    "Sorry, but that is an invalid display name. "
+                    "Please don't use your %s in your display name."
+                    % invalid_msg
+                )
+            )
+
+        return alias
 
 
 class ProfilePasswordChangeForm(forms.Form):

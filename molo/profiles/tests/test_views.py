@@ -245,6 +245,75 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
         self.assertEqual(UserProfile.objects.get().user.email,
                          'example@foo.com')
 
+    def test_email_or_phone_not_allowed_in_username(self):
+        site = Site.objects.get(is_default_site=True)
+        settings = SettingsProxy(site)
+
+        profile_settings = settings['profiles']['UserProfilesSettings']
+
+        profile_settings.prevent_number_in_username = True
+        profile_settings.prevent_email_in_username = True
+        profile_settings.save()
+
+        response = self.client.post(reverse('molo.profiles:user_register'), {
+            'username': 'test@test.com',
+            'password': '1234',
+            'email': 'example@foo.com',
+            'terms_and_conditions': True
+        })
+
+        expected_validation_message = "Sorry, but that is an invalid " \
+                                      "username. Please don&#39;t use " \
+                                      "your phone number or email address " \
+                                      "in your username."
+
+        self.assertContains(response, expected_validation_message)
+
+    def test_email_not_allowed_in_username(self):
+        site = Site.objects.get(is_default_site=True)
+        settings = SettingsProxy(site)
+
+        profile_settings = settings['profiles']['UserProfilesSettings']
+
+        profile_settings.prevent_email_in_username = True
+        profile_settings.save()
+
+        response = self.client.post(reverse('molo.profiles:user_register'), {
+            'username': 'test@test.com',
+            'password': '1234',
+            'email': 'example@foo.com',
+            'terms_and_conditions': True
+        })
+
+        expected_validation_message = "Sorry, but that is an invalid" \
+                                      " username. Please don&#39;t use" \
+                                      " your email address in your" \
+                                      " username."
+
+        self.assertContains(response, expected_validation_message)
+
+    def test_phone_number_not_allowed_in_username(self):
+        site = Site.objects.get(is_default_site=True)
+        settings = SettingsProxy(site)
+
+        profile_settings = settings['profiles']['UserProfilesSettings']
+
+        profile_settings.prevent_number_in_username = True
+        profile_settings.save()
+
+        response = self.client.post(reverse('molo.profiles:user_register'), {
+            'username': '021123123123',
+            'password': '1234',
+            'email': 'example@foo.com',
+            'terms_and_conditions': True
+        })
+
+        expected_validation_message = "Sorry, but that is an invalid" \
+                                      " username. Please don&#39;t use" \
+                                      " your phone number in your username."
+
+        self.assertContains(response, expected_validation_message)
+
 
 @override_settings(
     ROOT_URLCONF='molo.profiles.tests.test_views')
