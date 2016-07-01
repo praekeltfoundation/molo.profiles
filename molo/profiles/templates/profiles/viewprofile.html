@@ -3,7 +3,7 @@
 {% get_settings %}
 
 {% block content %}
-<h3 class="heading heading--profiles">{% trans "Hello " %}{{ user.username }}</h3>
+<h1 class="heading heading--profiles">{% trans "Hello " %}{{ user.username }}</h1>
 <div class="profiles">
   <p>{% trans "Display Name: " %}{{ user.profile.alias | default:"Anonymous" }}</p>
   <p>{% trans "Date of Birth: " %}{{ user.profile.date_of_birth | date:"M d, Y" }}</p>
@@ -14,13 +14,13 @@
       <label for="id_email">{% trans "Email Address: " %}{{ user.email | default:"" }}</label>
     {% endif %}
 
-    <a href="{% url "molo.profiles:auth_logout" %}" class="button__pill button__pill--navy">
+    <a href="{% url "molo.profiles:auth_logout" %}">
       {% trans "log out" %}
     </a>
-    <a href="{% url "molo.profiles:edit_my_profile" %}" class="button__pill button__pill--navy">
+    <a href="{% url "molo.profiles:edit_my_profile" %}">
       {% trans "Edit My Profile" %}
     </a>
-    <a href="{% url "molo.profiles:profile_password_change" %}" class="button__pill button__pill--navy">
+    <a href="{% url "molo.profiles:profile_password_change" %}">
       {% trans "Change My Password" %}
     </a>
 </div>
