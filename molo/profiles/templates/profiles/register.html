@@ -4,6 +4,12 @@
 
 {% block content %}
 <h1 class="heading heading--profiles">{% trans "Register" %}</h1>
+
+<div class="call-to-action call-to-action--profile">
+    <h5 class="call-to-action__nav-item call-to-action__nav-item--challenge">{% trans "Already a member?" %}</h5>
+    <a href="{% url "molo.profiles:auth_login" %}" class="call-to-action__nav-item call-to-action__nav-item--log-in">{% trans "Login" %}</a>
+</div>
+
 <h4 class="heading heading--subtitle">
     {% trans "Not a member yet?" %}<br/>
     {% trans "Join us by signing up below." %}
@@ -27,7 +33,7 @@
     {% if settings.profiles.UserProfilesSettings.show_mobile_number_field %}
     <fieldset>
       <label for="mobile_number">{% trans "Enter your mobile number" %}</label>
-      {% trans "(e.g. +27900000013)" %}
+      <span class="label__hint">{% trans "(e.g. +27900000013)" %}</span>
       {{ form.mobile_number.errors}}
       {{ form.mobile_number }}
     </fieldset>
@@ -50,12 +56,8 @@
       <label for="id_terms_and_conditions" class="profiles__terms">{% trans "I accept the Terms and Conditions" %}</label>
     </fieldset>
 
-    <input type="submit" value="{% trans "Save" %}"/>
+    <input type="submit" value="{% trans "Register" %}"/>
     <input type="hidden" name="next" value="{% url "molo.profiles:registration_done" %}"/>
   </form>
-</div>
-<div class="call-to-action call-to-action--profile">
-    <h5 class="call-to-action__challenge">{% trans "Already a member?" %}</h5>
-    <a href="{% url "molo.profiles:auth_login" %}" class="call-to-action__login">{% trans "Login" %}</a>
 </div>
 {% endblock %}
