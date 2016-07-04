@@ -50,9 +50,9 @@
 
     <fieldset>
       {% if form.terms_and_conditions.errors %}
-      <span class="error">
-        {% trans "Please accept the T&Cs in order to complete the registration" %}
-      </span>
+        <span class="error">
+          {% trans "Please accept the T&Cs in order to complete the registration" %}
+        </span> 
       {% endif %}
       {{ form.terms_and_conditions }}
       <label for="id_terms_and_conditions" class="profiles__terms">{% trans "I accept the Terms and Conditions" %}</label>
