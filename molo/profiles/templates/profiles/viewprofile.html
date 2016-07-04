@@ -21,8 +21,8 @@
   </fieldset>
   {% endif %}
 
-  <a href="{% url "molo.profiles:auth_logout" %}">{% trans "log out" %}</a>
-  <a href="{% url "molo.profiles:edit_my_profile" %}">{% trans "Edit My Profile" %}</a>
-  <a href="{% url "molo.profiles:profile_password_change" %}">{% trans "Change My Password" %}</a>
+  <a href="{% url "molo.profiles:auth_logout" %}" class="profiles__nav-item">{% trans "log out" %}</a>
+  <a href="{% url "molo.profiles:edit_my_profile" %}" class="profiles__nav-item">{% trans "Edit My Profile" %}</a>
+  <a href="{% url "molo.profiles:profile_password_change" %}" class="profiles__nav-item">{% trans "Change My Password" %}</a>
 </div>
 {% endblock %}
