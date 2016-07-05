@@ -5,24 +5,31 @@
 {% block content %}
 <h1 class="heading heading--profiles">{% trans "Hello " %}{{ user.username }}</h1>
 <div class="profiles">
+  <span class="profiles__heading">Your comments details will appear as:</span>
+  <fieldset>
+     <label class="profile__alias">{% trans "Display Name: " %}</label>
+    {{ user.profile.alias | default:"Anonymous" }}
+  </fieldset>
 
-  <p>{% trans "Display Name: " %}{{ user.profile.alias | default:"Anonymous" }}</p>
-  <p>{% trans "Date of Birth: " %}{{ user.profile.date_of_birth | date:"M d, Y" }}</p> 
-   
+  <fieldset>
+    <label class="profile__alias">{% trans "Date of Birth: " %}</label>
+    {{ user.profile.date_of_birth | date:"M d, Y" }}
+  </fieldset>
+
   {% if settings.profiles.UserProfilesSettings.show_mobile_number_field %}
   <fieldset>
-      <label for="id_profile.mobile_number">{% trans "Mobile Number: " %}</label>
+      <label class="profile__alias">{% trans "Mobile Number: " %}</label>
       {{ user.profile.mobile_number | default:"" }}
   </fieldset>
   {% endif %}
 
   {% if settings.profiles.UserProfilesSettings.show_email_field %}
   <fieldset>
-      <label for="id_email">{% trans "Email Address: " %}</label>
+      <label class="profile__alias">{% trans "Email Address: " %}</label>
       {{ user.email | default:"" }}
   </fieldset>
   {% endif %}
-
+  <span class="profile__note">If you haven not set a nickname, your comments will appear as 'anonymous'.</span>
   <a href="{% url "molo.profiles:auth_logout" %}" class="profiles__nav-item">{% trans "log out" %}</a>
   <a href="{% url "molo.profiles:edit_my_profile" %}" class="profiles__nav-item">{% trans "Edit My Profile" %}</a>
   <a href="{% url "molo.profiles:profile_password_change" %}" class="profiles__nav-item">{% trans "Change My Password" %}</a>
