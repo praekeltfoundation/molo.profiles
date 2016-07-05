@@ -21,6 +21,7 @@
 		<label for="id_mobile_number">{% trans "Update your mobile number:" %}</label>
 		{{ form.mobile_number.errors }}
 		{{ form.mobile_number }}
+		<span class="label__hint">{% trans "(e.g. +27900000013)" %}</span>
 	</fieldset>
 	{% endif %}
 
@@ -29,6 +30,7 @@
 		<label for="id_email">{% trans "Update your email address:" %}</label>
 		{{ form.email.errors }}
 		{{ form.email}}
+		<span class="label__hint">{% trans "(e.g. example@foo.com)" %}</span>
 	</fieldset>
 	{% endif %}
 	<input type="submit" value="{% trans "Save" %}">
