@@ -7,9 +7,9 @@
 <div class="profiles">
 
   <p>{% trans "Display Name: " %}{{ user.profile.alias | default:"Anonymous" }}</p>
-  <p>{% trans "Date of Birth: " %}{{ user.profile.date_of_birth | date:"M d, Y" }}</p>  
+  <p>{% trans "Date of Birth: " %}{{ user.profile.date_of_birth | date:"M d, Y" }}</p> 
+   
   {% if settings.profiles.UserProfilesSettings.show_mobile_number_field %}
-
   <fieldset>
       <label for="id_profile.mobile_number">{% trans "Mobile Number: " %}</label>
       {{ user.profile.mobile_number | default:"" }}
