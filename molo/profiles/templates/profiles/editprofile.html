@@ -6,31 +6,31 @@
 <div class="profiles">
 	<form method="post" action="{% url "molo.profiles:edit_my_profile" %}" class="profiles__form">
 	{% csrf_token %}
-		<fieldset>
-			<label for="id_alias">{% trans "Type new display name:" %}</label>
-			{{ form.alias }}
-		</fieldset>
+	<fieldset>
+		<label for="id_alias">{% trans "Type new display name:" %}</label>
+		{{ form.alias }}
+	</fieldset>
 
-		<fieldset>
-      	<label for="id_date_of_birth_year">{% trans "Update your date of birth:" %}</label>
-	    	{{ form.date_of_birth }}
-	  </fieldset>
+	<fieldset>
+		<label for="id_date_of_birth_year">{% trans "Update your date of birth:" %}</label>
+		{{ form.date_of_birth }}
+	</fieldset>
 
-		{% if settings.profiles.UserProfilesSettings.show_mobile_number_field %}
-		<fieldset>
-      	<label for="id_mobile_number">{% trans "Update your mobile number:" %}</label>
-	      {{ form.mobile_number.errors }}
-	      {{ form.mobile_number }}
-		</fieldset>
-		{% endif %}
+	{% if settings.profiles.UserProfilesSettings.show_mobile_number_field %}
+	<fieldset>
+		<label for="id_mobile_number">{% trans "Update your mobile number:" %}</label>
+		{{ form.mobile_number.errors }}
+		{{ form.mobile_number }}
+	</fieldset>
+	{% endif %}
 
-		{% if settings.profiles.UserProfilesSettings.show_email_field %}
+	{% if settings.profiles.UserProfilesSettings.show_email_field %}
+	</fieldset>
+		<label for="id_email">{% trans "Update your email address:" %}</label>
+		{{ form.email.errors }}
+		{{ form.email}}
 		</fieldset>
-      	<label for="id_email">{% trans "Update your email address:" %}</label>
-	      {{ form.email.errors }}
-	      {{ form.email}}
-		</fieldset>
-		{% endif %}
+	{% endif %}
 		<input type="submit" value="{% trans "Save" %}">
 	</form>
 </div>
