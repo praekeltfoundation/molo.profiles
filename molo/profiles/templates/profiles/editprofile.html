@@ -18,12 +18,10 @@
 
 	{% if settings.profiles.UserProfilesSettings.show_mobile_number_field %}
 	<fieldset>
-		<label for="id_mobile_number">{% trans "Update your mobile number:" %}
-				<span class="label__hint">{% trans "(e.g. +27900000013)" %}</span>
-		</label>
+		<label for="id_mobile_number">{% trans "Update your mobile number:" %}</label>
 		{{ form.mobile_number.errors }}
 		{{ form.mobile_number }}
-		
+		<span class="label__hint">{% trans "(e.g. +27900000013)" %}</span>
 	</fieldset>
 	{% endif %}
 
