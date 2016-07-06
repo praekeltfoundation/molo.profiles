@@ -29,7 +29,7 @@
       {{ user.email | default:"" }}
   </fieldset>
   {% endif %}
-  <span class="profile__note">If you haven not set a nickname, your comments will appear as 'anonymous'.</span>
+  <p class="profile__note">If you haven not set a nickname, your comments will appear as 'anonymous'.</p>
   <a href="{% url "molo.profiles:auth_logout" %}" class="profiles__nav-item">{% trans "log out" %}</a>
   <a href="{% url "molo.profiles:edit_my_profile" %}" class="profiles__nav-item">{% trans "Edit My Profile" %}</a>
   <a href="{% url "molo.profiles:profile_password_change" %}" class="profiles__nav-item">{% trans "Change My Password" %}</a>
