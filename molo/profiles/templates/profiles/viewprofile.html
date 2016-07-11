@@ -6,31 +6,25 @@
 <h1 class="heading heading--profiles">{% trans "Hello " %}{{ user.username }}</h1>
 <div class="profiles">
  
-  <fieldset>
-    <label class="profile__alias">{% trans "As you type your name comment will appear as:" %}</label>
-    {{ user.profile.alias | default:" Anonymous " }}
-  </fieldset>
+    <p class="profile__alias">{% trans "As you type your name comment will appear as:" %}
+    {{ user.profile.alias | default:" Anonymous " }}</p>
 
-  <fieldset>
-    <label class="profile__alias">{% trans "Date of Birth: " %}</label>
-    {{ user.profile.date_of_birth | date:"M d, Y" }}
-  </fieldset>
+    <p class="profile__alias">{% trans "Date of Birth: " %}
+    {{ user.profile.date_of_birth | date:"M d, Y" }}</p>
 
-  {% if settings.profiles.UserProfilesSettings.show_mobile_number_field %}
-  <fieldset>
-    <label class="profile__alias">{% trans "Mobile Number: " %}</label>
-    {{ user.profile.mobile_number | default:"" }}
-  </fieldset>
-  {% endif %}
+    {% if settings.profiles.UserProfilesSettings.show_mobile_number_field %}
+      <p class="profile__alias">{% trans "Mobile Number: " %}
+      {{ user.profile.mobile_number | default:"" }}</p>
+    {% endif %}
 
   {% if settings.profiles.UserProfilesSettings.show_email_field %}
-  <fieldset>
-    <label class="profile__alias">{% trans "Email Address: " %}</label>
-    {{ user.email | default:"" }}
-  </fieldset>
+    <p class="profile__alias">{% trans "Email Address: " %}
+    {{ user.email | default:"" }}</p>
   {% endif %}
-  <a href="{% url "molo.profiles:auth_logout" %}" class="profiles__nav-item">{% trans "log out" %}</a>
-  <a href="{% url "molo.profiles:edit_my_profile" %}" class="profiles__nav-item">{% trans "Edit My Profile" %}</a>
-  <a href="{% url "molo.profiles:profile_password_change" %}" class="profiles__nav-item">{% trans "Change My Password" %}</a>
+  <div class="call-to-action call-to-action--profile">
+    <a href="{% url "molo.profiles:auth_logout" %}" class="call-to-action__nav-item call-to-action__nav-item--logout">{% trans "log out" %}</a>
+    <a href="{% url "molo.profiles:edit_my_profile" %}" class="call-to-action__nav-item call-to-action__nav-item--editprofile">{% trans "Edit My Profile" %}</a>
+    <a href="{% url "molo.profiles:profile_password_change" %}" class="call-to-action__nav-item call-to-action__nav-item--change-password">{% trans "Change My Password" %}</a>
+  </div>
 </div>
 {% endblock %}
