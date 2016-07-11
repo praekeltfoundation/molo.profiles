@@ -93,7 +93,7 @@ class EditProfileForm(forms.ModelForm):
 
     class Meta:
         model = UserProfile
-        fields = ['alias', 'date_of_birth', 'mobile_number']
+        fields = ['alias', 'date_of_birth', 'mobile_number', 'email']
 
 
 class ProfilePasswordChangeForm(forms.Form):

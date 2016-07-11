@@ -66,6 +66,7 @@ class UserProfile(models.Model):
         null=True)
 
     mobile_number = PhoneNumberField(blank=True, null=True, unique=False)
+    email = models.EmailField(blank=True, null=True)
 
 
 @receiver(post_save, sender=User)
