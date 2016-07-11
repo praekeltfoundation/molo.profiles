@@ -18,7 +18,6 @@ def get_profile_data(request):
         date_of_birth = profile.date_of_birth
         mobile_number = profile.mobile_number
         email = profile.email
-        print email
     edit_profile_form = EditProfileForm(
         initial={
             'username': username,
