@@ -322,7 +322,7 @@ class MyProfileEditTest(TestCase, MoloTestCaseMixin):
                          'foo')
 
     def test_email_showing_in_edit_view(self):
-        response = self.client.get(reverse('edit_my_profile'))
+        response = self.client.get(reverse('molo.profiles:edit_my_profile'))
         self.assertContains(response, 'tester@example.com')
 
     # Test for update with dob only is in ProfileDateOfBirthEditTest
