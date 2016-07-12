@@ -10,16 +10,21 @@
     {{ user.profile.alias | default:" Anonymous " }}</p>
 
     <p class="profile__alias">{% trans "Date of Birth: " %}
-    {{ user.profile.date_of_birth | date:"M d, Y" }}</p>
+      {% if user.profile.date_of_birth %}
+        {{ user.profile.date_of_birth | date:"M d, Y" }}
+      {% else %}
+        {% trans " Not set." %} 
+      {% endif %}
+    </p>
 
     {% if settings.profiles.UserProfilesSettings.show_mobile_number_field %}
       <p class="profile__alias">{% trans "Mobile Number: " %}
-      {{ user.profile.mobile_number | default:"" }}</p>
+      {{ user.profile.mobile_number | default:"Not set" }}</p>
     {% endif %}
 
   {% if settings.profiles.UserProfilesSettings.show_email_field %}
-    <p class="profile__alias">{% trans "Email Address: " %}
-    {{ user.email | default:"" }}</p>
+    <p class="profile__alias">{% trans "Email Address:" %}
+    {{ user.email | default:"Not set" }}</p>
   {% endif %}
   <div class="call-to-action call-to-action--profile">
     <a href="{% url "molo.profiles:auth_logout" %}" class="call-to-action__nav-item call-to-action__nav-item--logout">{% trans "log out" %}</a>
