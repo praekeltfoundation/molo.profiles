@@ -3,29 +3,37 @@
 {% get_settings %}
 
 {% block content %}
-<div class="signin-form">
-	<div class="block turq">
-		<form method="post" id="frmProfileEdit" action="{% url 'molo.profiles:edit_my_profile' %}">{% csrf_token %}
-			<p>{% trans "Type new display name:" %}</p>
-			{{ form.alias }}
-      <p>{% trans "Update your date of birth:" %}</p>
-	      {{ form.date_of_birth }}
+<div class="profiles">
+	<form method="post" action="{% url "molo.profiles:edit_my_profile" %}" class="profiles__form">
+	{% csrf_token %}
+	<fieldset>
+		<label for="id_alias">{% trans "Type new display name:" %}</label>
+		{{ form.alias }}
+	</fieldset>
 
-			{% if settings.profiles.UserProfilesSettings.show_mobile_number_field %}
-	      <p>{% trans "Update your mobile number:" %}</p>
-		      {{ form.mobile_number.errors }}
-		      {{ form.mobile_number }}
-			{% endif %}
-			{% if settings.profiles.UserProfilesSettings.show_email_field %}
-	      <p>{% trans "Update your email address:" %}</p>
-		      {{ form.email.errors }}
-		      {{ form.email}}
-			{% endif %}
-				<br>
-				<br>
-			<input type="submit" value='{% trans "Update profile" %}' class="btn">
-		</form>
-	</div>
+	<fieldset>
+		<label for="id_date_of_birth_year">{% trans "Update your date of birth:" %}</label>
+		{{ form.date_of_birth }}
+	</fieldset>
+
+	{% if settings.profiles.UserProfilesSettings.show_mobile_number_field %}
+	<fieldset>
+		<label for="id_mobile_number">{% trans "Update your mobile number:" %}</label>
+		{{ form.mobile_number.errors }}
+		{{ form.mobile_number }}
+		<span class="input-hint">{% trans "(e.g. +27900000013)" %}</span>
+	</fieldset>
+	{% endif %}
+
+	{% if settings.profiles.UserProfilesSettings.show_email_field %}
+	</fieldset>
+		<label for="id_email">{% trans "Update your email address:" %}</label>
+		{{ form.email.errors }}
+		{{ form.email}}
+		<span class="input-hint">{% trans "(e.g. example@foo.com)" %}</span>
+	</fieldset>
+	{% endif %}
+	<input type="submit" value="{% trans "Save" %}">
+	</form>
 </div>
-
 {% endblock %}

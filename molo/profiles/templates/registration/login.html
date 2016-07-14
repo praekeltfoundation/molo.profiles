@@ -2,27 +2,39 @@
 {% load i18n %}
 
 {% block content %}
-	<div class="title profile">
-		<h3>{% trans "Sign in" %}</h3>
-	</div>
+<h1 class="heading heading--profiles">{% trans "Log in" %}</h1>
 
-	<div class="block turq">
-		<div class="signin-form">
-			<h5>{% trans "LOGIN TO YOUR ACCOUNT!" %}</h5>
-			<p>{% trans "We’re excited to have you..." %}</p>
-	    <form method="post" action=".">{% csrf_token %}
-	        {% if form.errors %}
-	            <p class="error errorlist">{% trans "Your username and password does not match. Please try again." %}</p>
-	        {% endif %}
-					<p><strong>{% trans "Username" %}</strong></p>
-					{{form.username}}
-					<p><strong>{% trans "4-digit pin" %}</strong></p>
-					{{form.password}}
-					<input type="submit" value="{% trans 'Sign in' %}">
-					<input type="hidden" name="next" value="{% if request.GET.next %}{{ request.GET.next }}{% else %}{{request.site.root_page.url}}{% endif %}" />
-					<a href="{% url 'molo.profiles:user_register' %}" class="button inverted">{% trans "Not a member yet" %}</a>
-	    </form>
-		</div>
-		<a href="{% url 'password_reset' %}">{% trans 'Forgotten your password?' %}</a>
-	</div>
+<div class="call-to-action call-to-action--profile">
+	<h5 class="call-to-action__nav-item call-to-action__nav-item--challenge">{% trans "Not a member yet?" %}</h5>
+	<a href="{% url "molo.profiles:user_register" %}" class="call-to-action__nav-item call-to-action__nav-item--login">{% trans "Register" %}</a>
+</div>
+
+<h4 class="heading heading--subtitle">
+    Login by signing in below.
+</h4>
+<div class="profiles">
+	<form method="post" action="" class="profiles__form">
+	{% csrf_token %}
+	{% if form.errors %}
+		<span class="error">
+			{% trans "Your username and password do not match. Please try again." %}
+		</span>
+	{% endif %}
+
+	<fieldset>
+		<label for="id_username">{% trans "Username" %}</label>
+		{{form.username}}
+	</fieldset>
+
+	<fieldset>
+		<label for="id_password">{% trans "4-digit pin" %}</label>
+		{{form.password}}
+		<span class="input-hint">({% trans "Eg.: 2086" %})</span>
+	</fieldset>
+	<input type="submit" value="{% trans "Log in" %}">
+	<input type="hidden" name="next" value="{% if request.GET.next %}{{ request.GET.next }}{% else %}{{request.site.root_page.url}}{% endif %}" />
+	</form>
+	<a href="{% url "password_reset" %}" class="profiles__forgotten-password">{% trans "Forgotten your password?" %}</a>
+</div>
+
 {% endblock %}
