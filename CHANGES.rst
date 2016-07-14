@@ -1,6 +1,10 @@
 CHANGE LOG
 ==========
 
+1.1.0
+-----
+- Adding BEM rules to the templates
+
 1.0.1
 -----
 - Removed clean method from EditProfileForm
