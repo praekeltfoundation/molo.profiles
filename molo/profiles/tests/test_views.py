@@ -544,7 +544,7 @@ class TestAdminUserView(TestCase):
         expected_output = (
             'last_login,username,first_name,last_name,'
             'email,is_active,date_joined\r\n'
-            ',tester,,,tester@example.com,1,2016-07-13'
+            ',tester,,,tester@example.com,1'
         )
 
         self.assertContains(response, expected_output)
