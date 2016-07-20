@@ -53,9 +53,11 @@ class FrontendUsersModelAdmin(ModelAdmin, ProfileUserAdmin):
     index_view_class = ModelAdminTemplate
     add_to_settings_menu = True
     list_display = ('username', '_alias', '_mobile_number',
-                    'date_joined', 'is_active')
+                    'email', 'date_joined', 'is_active')
 
     list_filter = ('is_active', 'date_joined')
+
+    search_fields = ('username',)
 
     def get_queryset(self, request):
         queryset = User.objects.filter(is_staff=False)
