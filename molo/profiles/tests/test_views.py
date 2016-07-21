@@ -251,7 +251,7 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
 
         profile_settings = settings['profiles']['UserProfilesSettings']
 
-        profile_settings.prevent_number_in_username = True
+        profile_settings.prevent_phone_number_in_username = True
         profile_settings.prevent_email_in_username = True
         profile_settings.save()
 
@@ -298,7 +298,7 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
 
         profile_settings = settings['profiles']['UserProfilesSettings']
 
-        profile_settings.prevent_number_in_username = True
+        profile_settings.prevent_phone_number_in_username = True
         profile_settings.save()
 
         response = self.client.post(reverse('molo.profiles:user_register'), {

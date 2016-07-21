@@ -19,7 +19,7 @@ class Migration(migrations.Migration):
         ),
         migrations.AddField(
             model_name='userprofilessettings',
-            name='prevent_number_in_username',
-            field=models.BooleanField(default=False, verbose_name='Prevent number in username / display name'),
+            name='prevent_phone_number_in_username',
+            field=models.BooleanField(default=False, verbose_name='Prevent phone number in username / display name'),
         ),
     ]
