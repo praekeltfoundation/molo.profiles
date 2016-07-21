@@ -1,9 +1,14 @@
+from daterange_filter.filter import DateRangeFilter
 from django.contrib.auth.models import User
 from django.http import HttpResponse
 from molo.profiles.admin import ProfileUserAdmin
 from import_export import resources
 from wagtailmodeladmin.options import ModelAdmin, wagtailmodeladmin_register
 from wagtailmodeladmin.views import IndexView
+
+
+class DateFilter(DateRangeFilter):
+    template = 'admin/user_date_range_filter.html'
 
 
 class FrontendUsersResource(resources.ModelResource):
@@ -16,14 +21,14 @@ class FrontendUsersResource(resources.ModelResource):
 class ModelAdminTemplate(IndexView):
     def post(self, request, *args, **kwargs):
 
-        date_joined__gte = request.GET.get('date_joined__gte')
-        date_joined__lt = request.GET.get('date_joined__lt')
+        drf__date_joined__gte = request.GET.get('drf__date_joined__gte')
+        drf__date_joined__lte = request.GET.get('drf__date_joined__lte')
         is_active_exact = request.GET.get('is_active_exact')
 
         filter_list = {
-            'date_joined__range': (date_joined__gte,
-                                   date_joined__lt) if
-            date_joined__gte and date_joined__lt else None,
+            'date_joined__range': (drf__date_joined__gte,
+                                   drf__date_joined__lte) if
+            drf__date_joined__gte and drf__date_joined__lte else None,
             'is_active': is_active_exact
         }
 
@@ -55,7 +60,7 @@ class FrontendUsersModelAdmin(ModelAdmin, ProfileUserAdmin):
     list_display = ('username', '_alias', '_mobile_number',
                     'email', 'date_joined', 'is_active')
 
-    list_filter = ('is_active', 'date_joined')
+    list_filter = (('date_joined', DateFilter), 'is_active')
 
     search_fields = ('username',)
 

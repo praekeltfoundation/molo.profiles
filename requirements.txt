@@ -3,3 +3,4 @@ celery
 wagtailmodeladmin
 django-phonenumber-field
 django-import-export
+django-daterange-filter
