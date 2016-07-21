@@ -22,6 +22,12 @@ class UserProfilesSettings(BaseSetting):
         verbose_name=_('Mobile number required'),
     )
 
+    prevent_phone_number_in_username = models.BooleanField(
+        default=False,
+        editable=True,
+        verbose_name=_('Prevent phone number in username / display name'),
+    )
+
     show_email_field = models.BooleanField(
         default=False,
         editable=True,
@@ -33,17 +39,25 @@ class UserProfilesSettings(BaseSetting):
         verbose_name=_("Email required")
     )
 
+    prevent_email_in_username = models.BooleanField(
+        default=False,
+        editable=True,
+        verbose_name=_('Prevent email in username / display name'),
+    )
+
     panels = [
         MultiFieldPanel(
             [
                 FieldPanel('show_mobile_number_field'),
                 FieldPanel('mobile_number_required'),
+                FieldPanel('prevent_phone_number_in_username'),
             ],
             heading="Mobile Number Settings",),
         MultiFieldPanel(
             [
                 FieldPanel('show_email_field'),
                 FieldPanel('email_required'),
+                FieldPanel('prevent_email_in_username'),
             ],
             heading="Email Settings",)
     ]
