@@ -6,7 +6,6 @@ from django.contrib.auth.models import User
 
 class FrontendUsersAdminView(IndexView):
     def post(self, request, *args, **kwargs):
-
         drf__date_joined__gte = request.GET.get('drf__date_joined__gte')
         drf__date_joined__lte = request.GET.get('drf__date_joined__lte')
         is_active_exact = request.GET.get('is_active__exact')
@@ -27,9 +26,9 @@ class FrontendUsersAdminView(IndexView):
         dataset = FrontendUsersResource().export(
             User.objects.filter(is_staff=False, **arguments))
 
-        response = HttpResponse(dataset.csv, content_type="csv")
+        response = HttpResponse(dataset.csv, content_type="text/csv")
         response['Content-Disposition'] = \
-            'attachment; filename=frontend_users.csv'
+            'attachment;filename=frontend_users.csv'
         return response
 
     def get_template_names(self):
