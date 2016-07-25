@@ -251,7 +251,7 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
 
         profile_settings = settings['profiles']['UserProfilesSettings']
 
-        profile_settings.prevent_number_in_username = True
+        profile_settings.prevent_phone_number_in_username = True
         profile_settings.prevent_email_in_username = True
         profile_settings.save()
 
@@ -298,7 +298,7 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
 
         profile_settings = settings['profiles']['UserProfilesSettings']
 
-        profile_settings.prevent_number_in_username = True
+        profile_settings.prevent_phone_number_in_username = True
         profile_settings.save()
 
         response = self.client.post(reverse('molo.profiles:user_register'), {
@@ -389,6 +389,17 @@ class MyProfileEditTest(TestCase, MoloTestCaseMixin):
             response, reverse('molo.profiles:view_my_profile'))
         self.assertEqual(UserProfile.objects.get(user=self.user).alias,
                          'foo')
+
+    def test_email_showing_in_edit_view(self):
+        site = Site.objects.get(is_default_site=True)
+        settings = SettingsProxy(site)
+        profile_settings = settings['profiles']['UserProfilesSettings']
+
+        profile_settings.show_email_field = True
+        profile_settings.email_required = True
+        profile_settings.save()
+        response = self.client.get(reverse('molo.profiles:edit_my_profile'))
+        self.assertContains(response, 'tester@example.com')
 
     # Test for update with dob only is in ProfileDateOfBirthEditTest
 
