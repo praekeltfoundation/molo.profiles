@@ -519,3 +519,43 @@ class ProfilePasswordChangeViewTest(TestCase):
         # Avoid cache by loading from db
         user = User.objects.get(pk=self.user.pk)
         self.assertTrue(user.check_password('1234'))
+
+
+@override_settings(
+    ROOT_URLCONF='molo.profiles.tests.test_views')
+class TestAdminUserView(TestCase):
+
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username='tester',
+            email='tester@example.com',
+            password='0000',
+            is_staff=False)
+
+        self.superuser = User.objects.create_superuser(
+            username='superuser',
+            email='admin@example.com',
+            password='0000',
+            is_staff=True)
+
+        self.client = Client()
+        self.client.login(username='superuser', password='0000')
+
+    def test_wagtail_admin_frontend_user_view(self):
+        response = self.client.get(
+            '/admin/modeladmin/auth/user/'
+        )
+
+        self.assertContains(response, self.user.username)
+        self.assertNotContains(response, self.superuser.email)
+
+    def test_export_csv(self):
+        response = self.client.post('/admin/modeladmin/auth/user/')
+
+        expected_output = (
+            'last_login,username,first_name,last_name,'
+            'email,is_active,date_joined\r\n'
+            ',tester,,,tester@example.com,1'
+        )
+
+        self.assertContains(response, expected_output)

@@ -1,3 +1,6 @@
 molo.core<4.0.0,>=3.1.2
 celery
+wagtailmodeladmin
 django-phonenumber-field
+django-import-export
+django-daterange-filter
