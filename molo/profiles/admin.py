@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.admin.sites import NotRegistered
 from molo.profiles.admin_views import FrontendUsersAdminView
-from wagtailmodeladmin.options import ModelAdmin
+from wagtailmodeladmin.options import ModelAdmin as WagtailModelAdmin
 
 try:
     admin.site.unregister(User)
@@ -57,11 +57,12 @@ class ProfileUserAdmin(UserAdmin):
         return ''
 
 
+# Below here is for Wagtail Admin
 class FrontendUsersDateRangeFilter(DateRangeFilter):
     template = 'admin/frontend_users_date_range_filter.html'
 
 
-class FrontendUsersModelAdmin(ModelAdmin, ProfileUserAdmin):
+class FrontendUsersModelAdmin(WagtailModelAdmin, ProfileUserAdmin):
     model = User
     menu_label = 'End Users'
     menu_icon = 'user'
