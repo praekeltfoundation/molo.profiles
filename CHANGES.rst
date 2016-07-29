@@ -1,6 +1,14 @@
 CHANGE LOG
 ==========
 
+1.2.0
+-----
+- Added End Users view to Wagtail Admin
+
+1.1.0
+-----
+- Adding BEM rules to the templates
+
 1.0.1
 -----
 - Removed clean method from EditProfileForm

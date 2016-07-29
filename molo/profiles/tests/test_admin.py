@@ -1,6 +1,8 @@
+from datetime import date
 
 from django.test import TestCase
 from django.contrib.auth.models import User
+from django.test.client import Client
 
 from molo.core.tests.base import MoloTestCaseMixin
 
@@ -9,7 +11,6 @@ from molo.profiles.models import UserProfile
 
 
 class ModelsTestCase(TestCase, MoloTestCaseMixin):
-
     def setUp(self):
         self.user = User.objects.create_user(
             username='tester',
@@ -33,3 +34,46 @@ class ModelsTestCase(TestCase, MoloTestCaseMixin):
                            'alias,mobile_number\r\ntester,tester@example.com,'
                            ',,False,' + date + ',The Alias,+27784667723\r\n')
         self.assertEquals(str(response), expected_output)
+
+
+class TestFrontendUsersAdminView(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username='tester',
+            email='tester@example.com',
+            password='0000',
+            is_staff=False)
+
+        self.superuser = User.objects.create_superuser(
+            username='superuser',
+            email='admin@example.com',
+            password='0000',
+            is_staff=True)
+
+        self.client = Client()
+        self.client.login(username='superuser', password='0000')
+
+    def test_staff_users_are_not_shown(self):
+        response = self.client.get(
+            '/admin/modeladmin/auth/user/'
+        )
+
+        self.assertContains(response, self.user.username)
+        self.assertNotContains(response, self.superuser.email)
+
+    def test_export_csv(self):
+        profile = self.user.profile
+        profile.alias = 'The Alias'
+        profile.date_of_birth = date(1985, 1, 1)
+        profile.mobile_number = '+27784667723'
+        profile.save()
+
+        response = self.client.post('/admin/modeladmin/auth/user/')
+
+        expected_output = (
+            'username,alias,first_name,last_name,date_of_birth,'
+            'email,mobile_number,is_active,date_joined,last_login\r\n'
+            'tester,The Alias,,,1985-01-01,tester@example.com,+27784667723,1,'
+        )
+
+        self.assertContains(response, expected_output)
