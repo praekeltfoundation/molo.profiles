@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from datetime import date
 
 from django.conf.urls import patterns, url, include
@@ -290,6 +291,26 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
                                       " your email address in your" \
                                       " username."
 
+        self.assertContains(response, expected_validation_message)
+
+    def test_ascii_code_not_allowed_in_username(self):
+        site = Site.objects.get(is_default_site=True)
+        settings = SettingsProxy(site)
+
+        profile_settings = settings['profiles']['UserProfilesSettings']
+
+        profile_settings.prevent_email_in_username = True
+        profile_settings.save()
+
+        response = self.client.post(reverse('molo.profiles:user_register'), {
+            'username': 'A bad username 😁',
+            'password': '1234',
+            'email': 'example@foo.com',
+            'terms_and_conditions': True
+        })
+
+        expected_validation_message = "This value must contain only letters,"\
+                                      " numbers and underscores."
         self.assertContains(response, expected_validation_message)
 
     def test_phone_number_not_allowed_in_username(self):
