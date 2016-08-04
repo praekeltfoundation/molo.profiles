@@ -1,6 +1,10 @@
 CHANGE LOG
 ==========
 
+1.2.2
+-----
+- Make sure we only encode for users that have alias
+
 1.2.1
 -----
 - Added encoding to user alias when downloading CSV
