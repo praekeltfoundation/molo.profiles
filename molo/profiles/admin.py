@@ -1,10 +1,13 @@
 import csv
 
+from daterange_filter.filter import DateRangeFilter
 from django.contrib import admin
 from django.http import HttpResponse
 from django.contrib.auth.models import User
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.admin.sites import NotRegistered
+from molo.profiles.admin_views import FrontendUsersAdminView
+from wagtailmodeladmin.options import ModelAdmin as WagtailModelAdmin
 
 try:
     admin.site.unregister(User)
@@ -21,6 +24,7 @@ def download_as_csv(ProfileUserAdmin, request, queryset):
     field_names = user_model_fields + profile_fields
     writer.writerow(field_names)
     for obj in queryset:
+        obj.profile.alias = (obj.profile.alias).encode('utf-8')
         obj.date_joined = obj.date_joined.strftime("%Y-%m-%d %H:%M")
         writer.writerow(
             [getattr(obj, field) for field in user_model_fields] +
@@ -32,7 +36,7 @@ download_as_csv.short_description = "Download selected as csv"
 @admin.register(User)
 class ProfileUserAdmin(UserAdmin):
     list_display = UserAdmin.list_display + (
-        'date_joined', '_alias', '_mobile_number')
+        'date_joined', '_alias', '_mobile_number', '_date_of_birth')
 
     list_filter = UserAdmin.list_filter + ('date_joined', )
 
@@ -47,3 +51,32 @@ class ProfileUserAdmin(UserAdmin):
         if hasattr(obj, 'profile') and obj.profile.mobile_number:
             return obj.profile.mobile_number
         return ''
+
+    def _date_of_birth(self, obj, *args, **kwargs):
+        if hasattr(obj, 'profile') and obj.profile.date_of_birth:
+            return obj.profile.date_of_birth
+        return ''
+
+
+# Below here is for Wagtail Admin
+class FrontendUsersDateRangeFilter(DateRangeFilter):
+    template = 'admin/frontend_users_date_range_filter.html'
+
+
+class FrontendUsersModelAdmin(WagtailModelAdmin, ProfileUserAdmin):
+    model = User
+    menu_label = 'End Users'
+    menu_icon = 'user'
+    menu_order = 600
+    index_view_class = FrontendUsersAdminView
+    add_to_settings_menu = True
+    list_display = ('username', '_alias', '_mobile_number', '_date_of_birth',
+                    'email', 'date_joined', 'is_active')
+
+    list_filter = (('date_joined', FrontendUsersDateRangeFilter), 'is_active')
+
+    search_fields = ('username',)
+
+    def get_queryset(self, request):
+        queryset = User.objects.filter(is_staff=False)
+        return queryset

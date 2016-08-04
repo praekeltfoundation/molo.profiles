@@ -1,6 +1,22 @@
 CHANGE LOG
 ==========
 
+1.2.1
+-----
+- Added encoding to user alias when downloading CSV
+
+1.2.0
+-----
+- Added End Users view to Wagtail Admin
+
+1.1.0
+-----
+- Adding BEM rules to the templates
+
+1.0.1
+-----
+- Removed clean method from EditProfileForm
+
 1.0.0
 -----
 - Added email address to registration

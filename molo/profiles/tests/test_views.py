@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from datetime import date
 
 from django.conf.urls import patterns, url, include
@@ -245,6 +246,95 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
         self.assertEqual(UserProfile.objects.get().user.email,
                          'example@foo.com')
 
+    def test_email_or_phone_not_allowed_in_username(self):
+        site = Site.objects.get(is_default_site=True)
+        settings = SettingsProxy(site)
+
+        profile_settings = settings['profiles']['UserProfilesSettings']
+
+        profile_settings.prevent_phone_number_in_username = True
+        profile_settings.prevent_email_in_username = True
+        profile_settings.save()
+
+        response = self.client.post(reverse('molo.profiles:user_register'), {
+            'username': 'test@test.com',
+            'password': '1234',
+            'email': 'example@foo.com',
+            'terms_and_conditions': True
+        })
+
+        expected_validation_message = "Sorry, but that is an invalid " \
+                                      "username. Please don&#39;t use " \
+                                      "your phone number or email address " \
+                                      "in your username."
+
+        self.assertContains(response, expected_validation_message)
+
+    def test_email_not_allowed_in_username(self):
+        site = Site.objects.get(is_default_site=True)
+        settings = SettingsProxy(site)
+
+        profile_settings = settings['profiles']['UserProfilesSettings']
+
+        profile_settings.prevent_email_in_username = True
+        profile_settings.save()
+
+        response = self.client.post(reverse('molo.profiles:user_register'), {
+            'username': 'test@test.com',
+            'password': '1234',
+            'email': 'example@foo.com',
+            'terms_and_conditions': True
+        })
+
+        expected_validation_message = "Sorry, but that is an invalid" \
+                                      " username. Please don&#39;t use" \
+                                      " your email address in your" \
+                                      " username."
+
+        self.assertContains(response, expected_validation_message)
+
+    def test_ascii_code_not_allowed_in_username(self):
+        site = Site.objects.get(is_default_site=True)
+        settings = SettingsProxy(site)
+
+        profile_settings = settings['profiles']['UserProfilesSettings']
+
+        profile_settings.prevent_email_in_username = True
+        profile_settings.save()
+
+        response = self.client.post(reverse('molo.profiles:user_register'), {
+            'username': 'A bad username 😁',
+            'password': '1234',
+            'email': 'example@foo.com',
+            'terms_and_conditions': True
+        })
+
+        expected_validation_message = "This value must contain only letters,"\
+                                      " numbers and underscores."
+        self.assertContains(response, expected_validation_message)
+
+    def test_phone_number_not_allowed_in_username(self):
+        site = Site.objects.get(is_default_site=True)
+        settings = SettingsProxy(site)
+
+        profile_settings = settings['profiles']['UserProfilesSettings']
+
+        profile_settings.prevent_phone_number_in_username = True
+        profile_settings.save()
+
+        response = self.client.post(reverse('molo.profiles:user_register'), {
+            'username': '021123123123',
+            'password': '1234',
+            'email': 'example@foo.com',
+            'terms_and_conditions': True
+        })
+
+        expected_validation_message = "Sorry, but that is an invalid" \
+                                      " username. Please don&#39;t use" \
+                                      " your phone number in your username."
+
+        self.assertContains(response, expected_validation_message)
+
 
 @override_settings(
     ROOT_URLCONF='molo.profiles.tests.test_views')
@@ -321,13 +411,23 @@ class MyProfileEditTest(TestCase, MoloTestCaseMixin):
         self.assertEqual(UserProfile.objects.get(user=self.user).alias,
                          'foo')
 
+    def test_email_showing_in_edit_view(self):
+        site = Site.objects.get(is_default_site=True)
+        settings = SettingsProxy(site)
+        profile_settings = settings['profiles']['UserProfilesSettings']
+
+        profile_settings.show_email_field = True
+        profile_settings.email_required = True
+        profile_settings.save()
+        response = self.client.get(reverse('molo.profiles:edit_my_profile'))
+        self.assertContains(response, 'tester@example.com')
+
     # Test for update with dob only is in ProfileDateOfBirthEditTest
 
     def test_update_no_input(self):
         response = self.client.post(reverse('molo.profiles:edit_my_profile'),
                                     {})
-        self.assertFormError(
-            response, 'form', None, ['Please enter a new value.'])
+        self.assertEquals(response.status_code, 302)
 
     def test_update_alias_and_dob(self):
         response = self.client.post(reverse('molo.profiles:edit_my_profile'),
