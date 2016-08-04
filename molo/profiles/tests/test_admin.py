@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from datetime import date
 
 from django.test import TestCase
@@ -33,6 +34,24 @@ class ModelsTestCase(TestCase, MoloTestCaseMixin):
                            'email,first_name,last_name,is_staff,date_joined,'
                            'alias,mobile_number\r\ntester,tester@example.com,'
                            ',,False,' + date + ',The Alias,+27784667723\r\n')
+        self.assertEquals(str(response), expected_output)
+
+    def test_download_csv_with_an_alias_contains_ascii_code(self):
+        profile = self.user.profile
+        profile.alias = 'The Alias 😁'
+        profile.mobile_number = '+27784667723'
+        profile.save()
+
+        response = download_as_csv(ProfileUserAdmin(UserProfile, self.site),
+                                   None,
+                                   User.objects.all())
+        date = str(self.user.date_joined.strftime("%Y-%m-%d %H:%M"))
+        expected_output = ('Content-Type: text/csv\r\nContent-Disposition: '
+                           'attachment;filename=export.csv\r\n\r\nusername,'
+                           'email,first_name,last_name,is_staff,date_joined,'
+                           'alias,mobile_number\r\ntester,tester@example.com,'
+                           ',,False,' + date + ',The Alias \xf0\x9f\x98\x81,'
+                           '+27784667723\r\n')
         self.assertEquals(str(response), expected_output)
 
 
