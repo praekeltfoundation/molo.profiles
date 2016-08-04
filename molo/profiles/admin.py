@@ -25,7 +25,8 @@ def download_as_csv(ProfileUserAdmin, request, queryset):
     writer.writerow(field_names)
     for obj in queryset:
         if obj.profile.alias:
-            obj.profile.alias = (obj.profile.alias).encode('utf-8')
+            obj.profile.alias = obj.profile.alias.encode('utf-8')
+        obj.username = obj.username.encode('utf-8')
         obj.date_joined = obj.date_joined.strftime("%Y-%m-%d %H:%M")
         writer.writerow(
             [getattr(obj, field) for field in user_model_fields] +

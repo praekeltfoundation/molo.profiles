@@ -54,6 +54,22 @@ class ModelsTestCase(TestCase, MoloTestCaseMixin):
                            '+27784667723\r\n')
         self.assertEquals(str(response), expected_output)
 
+    def test_download_csv_with_an_username_contains_ascii_code(self):
+        self.user.username = '사이네'
+        self.user.save()
+
+        response = download_as_csv(ProfileUserAdmin(UserProfile, self.site),
+                                   None,
+                                   User.objects.all())
+        date = str(self.user.date_joined.strftime("%Y-%m-%d %H:%M"))
+        expected_output = ('Content-Type: text/csv\r\nContent-Disposition: '
+                           'attachment;filename=export.csv\r\n\r\nusername,'
+                           'email,first_name,last_name,is_staff,date_joined,'
+                           'alias,mobile_number\r\n\xec\x82\xac\xec\x9d\xb4'
+                           '\xeb\x84\xa4,tester@example.com,'
+                           ',,False,' + date + ',,\r\n')
+        self.assertEquals(str(response), expected_output)
+
 
 class TestFrontendUsersAdminView(TestCase):
     def setUp(self):
