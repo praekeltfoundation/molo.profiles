@@ -1,6 +1,10 @@
 CHANGE LOG
 ==========
 
+1.2.1
+-----
+- Added encoding to user alias when downloading CSV
+
 1.2.0
 -----
 - Added End Users view to Wagtail Admin
