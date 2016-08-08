@@ -7,7 +7,8 @@
 <div class="profiles">
  
     <p>{% trans "As you type your name comment will appear as:" %}
-    {{ user.profile.alias | default:" Anonymous " }}</p>
+    <span class="profile__alias--label">{{ user.profile.alias | default:" Anonymous " }}</span>
+    </p>
 
     <p class="profile__alias">
       <span class="profile__alias--label">{% trans "Date of Birth: " %}</span>
