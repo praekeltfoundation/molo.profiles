@@ -6,11 +6,11 @@
 <h1 class="heading heading--profiles">{% trans "Hello " %}{{ user.username }}</h1>
 <div class="profiles">
  
-    <p>{% trans "As you type your name comment will appear as:" %}</p>
-    <label>{{ user.profile.alias | default:" Anonymous " }}</label> 
+    <p class="profile__alias">{% trans "As you type your name comment will appear as:" %}
+    {{ user.profile.alias | default:" Anonymous " }}</p>
 
-    <label>{% trans "Date of Birth: " %}</label>
-    <p class="profile__alias">{% if user.profile.date_of_birth %}
+    <p class="profile__alias">{% trans "Date of Birth: " %}
+      {% if user.profile.date_of_birth %}
         {{ user.profile.date_of_birth | date:"M d, Y" }}
       {% else %}
         {% trans " Not set." %} 
@@ -18,13 +18,13 @@
     </p>
 
     {% if settings.profiles.UserProfilesSettings.show_mobile_number_field %}
-      <label>{% trans "Mobile Number: " %}</label>
-      <p class="profile__alias">{{ user.profile.mobile_number | default:"Not set" }}</p>
+      <p class="profile__alias">{% trans "Mobile Number: " %}
+      {{ user.profile.mobile_number | default:"Not set" }}</p>
     {% endif %}
 
   {% if settings.profiles.UserProfilesSettings.show_email_field %}
-    <label>{% trans "Email Address:" %}</label>
-    <p class="profile__alias">{{ user.email | default:"Not set" }}</p>
+    <p class="profile__alias">{% trans "Email Address:" %}
+    {{ user.email | default:"Not set" }}</p>
   {% endif %}
   <div class="call-to-action call-to-action--profile call-to-action--view-profile">
     <a href="{% url "molo.profiles:auth_logout" %}" class="call-to-action__nav-item call-to-action__nav-item--logout">{% trans "log out" %}</a>
