@@ -24,7 +24,7 @@
 
     <fieldset>
       {% if settings.profiles.UserProfilesSettings.show_mobile_number_field %}
-        <label>>{% trans "Mobile Number: " %}</label
+        <label>{% trans "Mobile Number: " %}</label
         <p class="profile__mobile-number">{{ user.profile.mobile_number | default:"Not set" }}</p>
       {% endif %}
     </fieldset>
