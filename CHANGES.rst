@@ -1,6 +1,10 @@
 CHANGE LOG
 ==========
 
+1.2.4
+-----
+- Added BEM class rules to Viewprofiles template 
+
 1.2.3
 -----
 - Added encoding to username when downloading CSV
