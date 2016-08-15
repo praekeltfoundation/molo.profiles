@@ -1,6 +1,10 @@
 CHANGE LOG
 ==========
 
+1.2.5
+-----
+- Assigned label to view profile template
+
 1.2.4
 -----
 - Added BEM class rules to Viewprofiles template 
