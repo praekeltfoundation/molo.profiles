@@ -7,8 +7,8 @@
 <div class="profiles">
 
     <fieldset>
-      <p class="profile__alias">{% trans "As you type your name comment will appear as:" %}</p>
-      <label>{{ user.profile.alias | default:" Anonymous " }}</label>
+      <label>{% trans "As you type your name comment will appear as:" %}</label>
+      <p class="profile__alias">{{ user.profile.alias | default:" Anonymous " }}</p>
     </fieldset>
 
     <fieldset>
