@@ -80,6 +80,10 @@ class UserProfile(models.Model):
         null=True)
 
     mobile_number = PhoneNumberField(blank=True, null=True, unique=False)
+    security_question_answers = models.ManyToManyField(
+        SecurityQuestion,
+        through="SecurityAnswers"
+    )
 
 
 @receiver(post_save, sender=User)
@@ -87,3 +91,12 @@ def user_profile_handler(sender, instance, created, **kwargs):
     if created:
         profile = UserProfile(user=instance)
         profile.save()
+
+
+class SecurityQuestion(models.Model):
+    question = models.CharField(max_length=250, null=False, blank=False)
+
+
+class SecurityAnswer(models.Model):
+    user = models.ForeignKey(UserProfile)
+    question = models.ForeignKey
