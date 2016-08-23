@@ -229,3 +229,30 @@ class ProfilePasswordChangeForm(forms.Form):
             return self.cleaned_data
         else:
             raise forms.ValidationError(_('New passwords do not match.'))
+
+
+class ProfileForgotPasswordForm(forms.Form):
+    username = forms.RegexField(
+        regex=r'^[\w.@+-]+$',
+        widget=forms.TextInput(
+            attrs=dict(
+                required=True,
+                max_length=30,
+            )
+        ),
+        label=_("Username"),
+        error_messages={
+            'invalid': _("This value must contain only letters, "
+                         "numbers and underscores."),
+        }
+    )
+
+    random_security_question_answer = forms.CharField(
+        label=_("Answer to Security Question"),
+        widget=forms.TextInput(
+            attrs=dict(
+                required=True,
+                max_length=128,
+            )
+        ),
+    )
