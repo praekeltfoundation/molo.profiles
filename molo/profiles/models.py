@@ -1,7 +1,9 @@
+from django.contrib.auth import hashers
+from django.contrib.auth.models import User
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from django.contrib.auth.models import User
+
 from phonenumber_field.modelfields import PhoneNumberField
 from wagtail.contrib.settings.models import BaseSetting, register_setting
 from wagtail.wagtailadmin.edit_handlers import (
@@ -65,6 +67,10 @@ class UserProfilesSettings(BaseSetting):
     # if show_mobile_number_field is False
 
 
+class SecurityQuestion(models.Model):
+    question = models.CharField(max_length=250, null=False, blank=False)
+
+
 class UserProfile(models.Model):
     user = models.OneToOneField(User, related_name="profile", primary_key=True)
     date_of_birth = models.DateField(null=True)
@@ -82,7 +88,7 @@ class UserProfile(models.Model):
     mobile_number = PhoneNumberField(blank=True, null=True, unique=False)
     security_question_answers = models.ManyToManyField(
         SecurityQuestion,
-        through="SecurityAnswers"
+        through="SecurityAnswer"
     )
 
 
@@ -93,10 +99,22 @@ def user_profile_handler(sender, instance, created, **kwargs):
         profile.save()
 
 
-class SecurityQuestion(models.Model):
-    question = models.CharField(max_length=250, null=False, blank=False)
-
-
 class SecurityAnswer(models.Model):
     user = models.ForeignKey(UserProfile)
-    question = models.ForeignKey
+    question = models.ForeignKey(SecurityQuestion)
+    answer = models.CharField(max_length=150, null=False, blank=False)
+
+    def set_answer(self, raw_answer):
+        self.answer = hashers.make_password(raw_answer.strip().lower())
+
+    def check_answer(self, raw_answer):
+
+        def setter(raw_answer):
+            self.set_answer(raw_answer)
+            self.save(update_fields=["answer"])
+
+        return hashers.check_password(
+            raw_answer.strip().lower(),
+            self.answer,
+            setter
+        )
