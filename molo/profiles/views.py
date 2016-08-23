@@ -1,16 +1,20 @@
-from molo.profiles.forms import RegistrationForm, DateOfBirthForm
-from molo.profiles.forms import EditProfileForm, ProfilePasswordChangeForm
-from molo.profiles.models import UserProfile
-from django.contrib.auth import logout
+from django.contrib import messages
+from django.contrib.auth import authenticate
+from django.contrib.auth import login, logout
+from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse, reverse_lazy
 from django.http import HttpResponseRedirect
+from django.shortcuts import render
+from django.utils.translation import ugettext_lazy as _
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import FormView, UpdateView
-from django.core.urlresolvers import reverse, reverse_lazy
-from django.shortcuts import render
-from django.contrib import messages
-from django.contrib.auth.models import User
-from django.contrib.auth import authenticate, login
-from django.utils.translation import ugettext_lazy as _
+
+from molo.profiles.forms import DateOfBirthForm
+from molo.profiles.forms import EditProfileForm
+from molo.profiles.forms import ProfileForgotPasswordForm
+from molo.profiles.forms import ProfilePasswordChangeForm
+from molo.profiles.forms import RegistrationForm
+from molo.profiles.models import UserProfile
 
 
 class RegistrationView(FormView):
@@ -108,7 +112,7 @@ class ProfilePasswordChangeView(FormView):
 
 
 class ForgotPasswordView(FormView):
-    form_class = ForgotPasswordForm
+    form_class = ProfileForgotPasswordForm
     template_name = 'forgot_password.html'
 
     security_questions = [
