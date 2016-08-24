@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate
 from django.contrib.auth import login, logout
@@ -14,6 +15,7 @@ from molo.profiles.forms import EditProfileForm
 from molo.profiles.forms import ProfileForgotPasswordForm
 from molo.profiles.forms import ProfilePasswordChangeForm
 from molo.profiles.forms import RegistrationForm
+from molo.profiles.models import SecurityQuestion
 from molo.profiles.models import UserProfile
 
 
@@ -113,12 +115,17 @@ class ProfilePasswordChangeView(FormView):
 
 class ForgotPasswordView(FormView):
     form_class = ProfileForgotPasswordForm
-    template_name = 'forgot_password.html'
+    template_name = "profiles/forgot_password.html"
 
-    # TODO: get random security question fro user's questions
-    security_questions = [
-        settings.SECURITY_QUESTION_1, settings.SECURITY_QUESTION_2
-    ]
+    # TODO: get random security question for user's questions
+    # add attribute in settings to configure how many security
+    # questions must be shown
+
+    # Retrieve all security questions, then randomly select
+    # a subset of them as required.
+    security_questions = SecurityQuestion.objects.all()
+    num_security_questions = settings.SECURITY_QUESTION_COUNT \
+        if hasattr(settings, "SECURITY_QUESTION_COUNT") else 1
 
     def form_valid(self, form):
         if 'random_security_question_idx' not in self.request.session:
