@@ -252,7 +252,7 @@ class ProfileForgotPasswordForm(forms.Form):
         widget=forms.TextInput(
             attrs=dict(
                 required=True,
-                max_length=128,
+                max_length=150,
             )
         ),
     )
