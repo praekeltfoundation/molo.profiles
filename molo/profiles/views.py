@@ -115,6 +115,7 @@ class ForgotPasswordView(FormView):
     form_class = ProfileForgotPasswordForm
     template_name = 'forgot_password.html'
 
+    # TODO: get random security question fro user's questions
     security_questions = [
         settings.SECURITY_QUESTION_1, settings.SECURITY_QUESTION_2
     ]
