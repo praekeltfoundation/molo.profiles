@@ -68,6 +68,7 @@ class UserProfilesSettings(BaseSetting):
 
 
 class SecurityQuestion(models.Model):
+    # TODO: consider enforcing questions to be unique
     question = models.CharField(max_length=250, null=False, blank=False)
 
 
