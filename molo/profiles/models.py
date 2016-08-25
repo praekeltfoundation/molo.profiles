@@ -122,3 +122,8 @@ class SecurityAnswer(models.Model):
             self.answer,
             setter
         )
+
+    def save(self, *args, **kwargs):
+        if not self.id:
+            self.set_answer(self.answer)
+        super(SecurityAnswer, self).save(*args, **kwargs)
