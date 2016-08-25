@@ -8,8 +8,10 @@ from django.core.urlresolvers import reverse
 from django.test import TestCase, override_settings, Client
 
 from molo.profiles.forms import (
-    RegistrationForm, EditProfileForm, ProfilePasswordChangeForm)
-from molo.profiles.models import UserProfile
+    RegistrationForm, EditProfileForm,
+    ProfilePasswordChangeForm, ForgotPasswordForm)
+from molo.profiles.models import (
+    SecurityQuestion, SecurityAnswer, UserProfile)
 from molo.core.tests.base import MoloTestCaseMixin
 
 from wagtail.wagtailcore.models import Site
@@ -540,3 +542,36 @@ class ProfilePasswordChangeViewTest(TestCase):
         # Avoid cache by loading from db
         user = User.objects.get(pk=self.user.pk)
         self.assertTrue(user.check_password('1234'))
+
+
+class ForgotPasswordViewTest(TestCase):
+
+    def setUp(self):
+        self.client = Client()
+        self.user = User.objects.create_user(
+            username='tester',
+            email='tester@example.com',
+            password='0000')
+
+        # create a few security questions
+        q1 = SecurityQuestion.objects.create(question="How old are you?")
+        q2 = SecurityQuestion.objects.create(question="Where were you born?")
+        q3 = SecurityQuestion.objects.create(
+            question="What's the name of your province?"
+        )
+
+        # create answers for this user
+        self.a1 = SecurityAnswer.objects.create(
+            user=self.user.profile, question=q1, answer="20"
+        )
+        self.a2 = SecurityAnswer.objects.create(
+            user=self.user.profile, question=q2, answer="Johannesburg"
+        )
+        self.a3 = SecurityAnswer.objects.create(
+            user=self.user.profile, question=q3, answer="Gauteng")
+
+    def test_view(self):
+        response = self.client.get(
+            reverse("molo.profiles:forgot_password"))
+        form = response.context["form"]
+        self.assertTrue(isinstance(form, ForgotPasswordForm))
