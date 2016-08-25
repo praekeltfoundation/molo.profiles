@@ -71,6 +71,9 @@ class SecurityQuestion(models.Model):
     # TODO: consider enforcing questions to be unique
     question = models.CharField(max_length=250, null=False, blank=False)
 
+    def __str__(self):
+        return self.question
+
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, related_name="profile", primary_key=True)
