@@ -575,3 +575,15 @@ class ForgotPasswordViewTest(TestCase):
             reverse("molo.profiles:forgot_password"))
         form = response.context["form"]
         self.assertTrue(isinstance(form, ForgotPasswordForm))
+
+    def test_unidentified_user_gets_error(self):
+        pass
+
+    def test_suspended_user_gets_error(self):
+        pass
+
+    def test_incorrect_security_answer_gets_error(self):
+        pass
+
+    # TODO: test that all goes well when username and security
+    # question are valid and correct
