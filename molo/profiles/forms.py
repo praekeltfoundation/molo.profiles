@@ -231,7 +231,7 @@ class ProfilePasswordChangeForm(forms.Form):
             raise forms.ValidationError(_('New passwords do not match.'))
 
 
-class ProfileForgotPasswordForm(forms.Form):
+class ForgotPasswordForm(forms.Form):
     username = forms.RegexField(
         regex=r'^[\w.@+-]+$',
         widget=forms.TextInput(
@@ -247,12 +247,18 @@ class ProfileForgotPasswordForm(forms.Form):
         }
     )
 
-    random_security_question_answer = forms.CharField(
-        label=_("Answer to Security Question"),
-        widget=forms.TextInput(
-            attrs=dict(
-                required=True,
-                max_length=150,
+    def __init__(self, *args, **kwargs):
+        self.questions = kwargs.pop("questions")
+        super(ForgotPasswordForm, self).__init__(*args, **kwargs)
+
+        for index, question in enumerate(self.questions):
+            self.fields["question_%s_answer" % index] = forms.CharField(
+                label=_(str(question)),
+                widget=forms.TextInput(
+                    attrs=dict(
+                        required=True,
+                        max_length=150,
+                    )
+                )
             )
-        ),
-    )
+
