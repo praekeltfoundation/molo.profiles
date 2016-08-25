@@ -35,4 +35,9 @@ urlpatterns = patterns(
         login_required(views.ProfilePasswordChangeView.as_view()),
         name="profile_password_change"
     ),
+    url(
+        r'^forgot-password/$',
+        views.ForgotPasswordView.as_view(),
+        name="forgot_password"
+    ),
 )
