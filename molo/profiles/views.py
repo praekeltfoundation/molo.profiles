@@ -12,7 +12,7 @@ from django.views.generic.edit import FormView, UpdateView
 
 from molo.profiles.forms import DateOfBirthForm
 from molo.profiles.forms import EditProfileForm
-from molo.profiles.forms import ProfileForgotPasswordForm
+from molo.profiles.forms import ForgotPasswordForm
 from molo.profiles.forms import ProfilePasswordChangeForm
 from molo.profiles.forms import RegistrationForm
 from molo.profiles.models import SecurityQuestion
@@ -114,108 +114,143 @@ class ProfilePasswordChangeView(FormView):
 
 
 class ForgotPasswordView(FormView):
-    form_class = ProfileForgotPasswordForm
+    form_class = ForgotPasswordForm
     template_name = "profiles/forgot_password.html"
 
     # TODO: get random security question for user's questions
     # add attribute in settings to configure how many security
     # questions must be shown
 
-    # Retrieve all security questions, then randomly select
-    # a subset of them as required.
-    security_questions = SecurityQuestion.objects.all()
+    # Retrieve the required number of security questions (at random)
     num_security_questions = settings.SECURITY_QUESTION_COUNT \
         if hasattr(settings, "SECURITY_QUESTION_COUNT") else 1
+    security_questions = \
+        SecurityQuestion.objects.order_by("?")[:num_security_questions]
+
+    # Display message for form errors should be generic. Specificity
+    # could allow for a correct combination of username and security
+    # question(s) to be guessed.
+    error_message = "The username and security question(s) combination " \
+                    "do not match."
 
     def form_valid(self, form):
-        if 'random_security_question_idx' not in self.request.session:
-            # the session expired between the time that the form was loaded
-            # and submitted, restart the process
-            return HttpResponseRedirect(reverse('forgot_password'))
+        if not hasattr(self.request.session, "forgot_password_attempts"):
+            self.request.session["forgot_password_attempts"] = 0
 
-        if 'forgot_password_attempts' not in self.request.session:
-            self.request.session['forgot_password_attempts'] = 0
-
-        if self.request.session['forgot_password_attempts'] >= 5:
-            # GEM-195 implemented a 10 min session timeout, so effectively
-            # the user can only try again once their anonymous session expires.
-            # If they make another request within the 10 min time window the
-            # expiration will be reset to 10 mins in the future.
-            # This is obviously not bulletproof as an attacker could simply
-            # not send the session cookie to circumvent this.
-            form.add_error(None,
-                           _('Too many attempts. Please try again later.'))
-            return self.render_to_response({'form': form})
-
-        username = form.cleaned_data['username']
-        random_security_question_idx = self.request.session[
-            'random_security_question_idx'
-        ]
-        random_security_question_answer = form.cleaned_data[
-            'random_security_question_answer'
-        ]
-
-        # TODO: consider moving these checks to GemForgotPasswordForm.clean()
-        # see django.contrib.auth.forms.AuthenticationForm for reference
+        username = form.cleaned_data["username"]
         try:
             user = User.objects.get_by_natural_key(username)
         except User.DoesNotExist:
-            self.request.session['forgot_password_attempts'] += 1
-            form.add_error('username',
-                           _('The username that you entered appears to be '
-                             'invalid. Please try again.'))
+            # add non_field_error
+            form.add_error(None, _(self.error_message))
             return self.render_to_response({'form': form})
 
         if not user.is_active:
-            form.add_error('username', 'This account is inactive.')
+            # add non_field_error
+            form.add_error(None, _(self.error_message))
             return self.render_to_response({'form': form})
 
-        is_answer_correct = False
-        if random_security_question_idx == 0:
-            is_answer_correct = \
-                user.gem_profile.check_security_question_1_answer(
-                    random_security_question_answer
-                )
-        elif random_security_question_idx == 1:
-            is_answer_correct = \
-                user.gem_profile.check_security_question_2_answer(
-                    random_security_question_answer
-                )
-        else:
-            logging.warn('Unhandled security question index')
 
-        if not is_answer_correct:
-            self.request.session['forgot_password_attempts'] += 1
-            form.add_error('random_security_question_answer',
-                           _('Your answer to the security question was '
-                             'invalid. Please try again.'))
-            return self.render_to_response({'form': form})
 
-        token = default_token_generator.make_token(user)
-        q = QueryDict(mutable=True)
-        q['user'] = username
-        q['token'] = token
-        reset_password_url = '{0}?{1}'.format(
-            reverse('reset_password'), q.urlencode()
-        )
+        return self.render_to_response({"form": form})
 
-        return HttpResponseRedirect(reset_password_url)
+    def get_form_kwargs(self):
+        # add security questions for form field generation
+        kwargs = super(ForgotPasswordView, self).get_form_kwargs()
+        kwargs["questions"] = self.security_questions
+        return kwargs
+
+
+    # def form_valid(self, form):
+        # if 'random_security_question_idx' not in self.request.session:
+        #     # the session expired between the time that the form was loaded
+        #     # and submitted, restart the process
+        #     return HttpResponseRedirect(reverse('forgot_password'))
+        #
+        # if 'forgot_password_attempts' not in self.request.session:
+        #     self.request.session['forgot_password_attempts'] = 0
+        #
+        # if self.request.session['forgot_password_attempts'] >= 5:
+        #     # GEM-195 implemented a 10 min session timeout, so effectively
+        #     # the user can only try again once their anonymous session expires.
+        #     # If they make another request within the 10 min time window the
+        #     # expiration will be reset to 10 mins in the future.
+        #     # This is obviously not bulletproof as an attacker could simply
+        #     # not send the session cookie to circumvent this.
+        #     form.add_error(None,
+        #                    _('Too many attempts. Please try again later.'))
+        #     return self.render_to_response({'form': form})
+        #
+        # username = form.cleaned_data['username']
+        # random_security_question_idx = self.request.session[
+        #     'random_security_question_idx'
+        # ]
+        # random_security_question_answer = form.cleaned_data[
+        #     'random_security_question_answer'
+        # ]
+        #
+        # # TODO: consider moving these checks to GemForgotPasswordForm.clean()
+        # see django.contrib.auth.forms.AuthenticationForm for reference
+        # try:
+        #     user = User.objects.get_by_natural_key(username)
+        # except User.DoesNotExist:
+        #     self.request.session['forgot_password_attempts'] += 1
+        #     form.add_error('username',
+        #                    _('The username that you entered appears to be '
+        #                      'invalid. Please try again.'))
+        #     return self.render_to_response({'form': form})
+        #
+        # if not user.is_active:
+        #     form.add_error('username', 'This account is inactive.')
+        #     return self.render_to_response({'form': form})
+        #
+        # is_answer_correct = False
+        # if random_security_question_idx == 0:
+        #     is_answer_correct = \
+        #         user.gem_profile.check_security_question_1_answer(
+        #             random_security_question_answer
+        #         )
+        # elif random_security_question_idx == 1:
+        #     is_answer_correct = \
+        #         user.gem_profile.check_security_question_2_answer(
+        #             random_security_question_answer
+        #         )
+        # else:
+        #     logging.warn('Unhandled security question index')
+        #
+        # if not is_answer_correct:
+        #     self.request.session['forgot_password_attempts'] += 1
+        #     form.add_error('random_security_question_answer',
+        #                    _('Your answer to the security question was '
+        #                      'invalid. Please try again.'))
+        #     return self.render_to_response({'form': form})
+        #
+        # token = default_token_generator.make_token(user)
+        # q = QueryDict(mutable=True)
+        # q['user'] = username
+        # q['token'] = token
+        # reset_password_url = '{0}?{1}'.format(
+        #     reverse('reset_password'), q.urlencode()
+        # )
+        #
+        # return HttpResponseRedirect(reset_password_url)
+        pass
 
     def render_to_response(self, context, **response_kwargs):
-        random_security_question_idx = random.randint(
-            0, len(self.security_questions) - 1
-        )
-        random_security_question = self.security_questions[
-            random_security_question_idx
-        ]
-
-        context.update({
-            'random_security_question': random_security_question
-        })
-
-        self.request.session['random_security_question_idx'] = \
-            random_security_question_idx
-
-        return super(GemForgotPasswordView, self).render_to_response(
+        # random_security_question_idx = random.randint(
+        #     0, len(self.security_questions) - 1
+        # )
+        # random_security_question = self.security_questions[
+        #     random_security_question_idx
+        # ]
+        #
+        # context.update({
+        #     'random_security_question': random_security_question
+        # })
+        #
+        # self.request.session['random_security_question_idx'] = \
+        #     random_security_question_idx
+        #
+        return super(ForgotPasswordView, self).render_to_response(
             context, **response_kwargs
         )
