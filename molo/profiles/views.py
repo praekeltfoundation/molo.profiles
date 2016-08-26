@@ -150,6 +150,8 @@ class ForgotPasswordView(FormView):
             form.add_error(None, _(self.error_message))
             return self.render_to_response({'form': form})
 
+        # check security question answers
+
 
 
         return self.render_to_response({"form": form})
