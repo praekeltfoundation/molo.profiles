@@ -588,7 +588,6 @@ class ForgotPasswordViewTest(TestCase):
             })
         self.failUnless(error_message in response.content)
 
-
     def test_suspended_user_gets_error(self):
         error_message = "The username and security question(s) combination " \
                         "do not match."
@@ -606,7 +605,16 @@ class ForgotPasswordViewTest(TestCase):
         self.user.save()
 
     def test_incorrect_security_answer_gets_error(self):
-        pass
+        error_message = "The username and security question(s) combination " \
+                        "do not match."
+        response = self.client.post(
+            reverse("molo.profiles:forgot_password"), {
+                'username': 'tester',
+                'question_0': '20',
+                'question_1': 'Pretoria',
+                'question_2': 'Gauteng',
+            })
+        self.failUnless(error_message in response.content)
 
     # TODO: test that all goes well when username and security
     # question are valid and correct
