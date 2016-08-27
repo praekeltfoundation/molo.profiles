@@ -543,7 +543,9 @@ class ProfilePasswordChangeViewTest(TestCase):
         user = User.objects.get(pk=self.user.pk)
         self.assertTrue(user.check_password('1234'))
 
-
+@override_settings(
+    ROOT_URLCONF='molo.profiles.tests.test_views',
+    SECURITY_QUESTION_ATEEMPT_RETRIES=3)
 class ForgotPasswordViewTest(TestCase):
 
     def setUp(self):
@@ -581,10 +583,10 @@ class ForgotPasswordViewTest(TestCase):
                         "do not match."
         response = self.client.post(
             reverse("molo.profiles:forgot_password"), {
-                'username': 'bogus',
-                'question_0': '20',
-                'question_1': 'Johannesburg',
-                'question_2': 'Gauteng',
+                "username": "bogus",
+                "question_0": "20",
+                "question_1": "Johannesburg",
+                "question_2": "Gauteng",
             })
         self.failUnless(error_message in response.content)
 
@@ -595,10 +597,10 @@ class ForgotPasswordViewTest(TestCase):
         self.user.save()
         response = self.client.post(
             reverse("molo.profiles:forgot_password"), {
-                'username': 'tester',
-                'question_0': '20',
-                'question_1': 'Johannesburg',
-                'question_2': 'Gauteng',
+                "username": "tester",
+                "question_0": "20",
+                "question_1": "Johannesburg",
+                "question_2": "Gauteng",
             })
         self.failUnless(error_message in response.content)
         self.user.is_active = True
@@ -609,12 +611,33 @@ class ForgotPasswordViewTest(TestCase):
                         "do not match."
         response = self.client.post(
             reverse("molo.profiles:forgot_password"), {
-                'username': 'tester',
-                'question_0': '20',
-                'question_1': 'Pretoria',
-                'question_2': 'Gauteng',
+                "username": "tester",
+                "question_0": "20",
+                "question_1": "Pretoria",
+                "question_2": "Gauteng",
             })
         self.failUnless(error_message in response.content)
+
+    def test_too_many_retries_result_in_error(self):
+        error_message = "Too many attempts. Please try again later."
+
+        # post more times than the set number of retries
+        for i in range(settings.SECURITY_QUESTION_ATEEMPT_RETRIES):
+            response = self.client.post(
+                reverse("molo.profiles:forgot_password"), {
+                    "username": "bogus",
+                    "question_0": "20",
+                    "question_1": "Johannesburg",
+                    "question_2": "Gauteng",
+                })
+
+        self.failUnless(error_message in response.content)
+
+    def test_questions_sent_correspond_to_answers_received(self):
+        # Random security questions should be used for the ForgotPassword
+        # form. The answers POSTed back should be checked against
+        # corresponding questions, irrespective of order.
+        pass
 
     # TODO: test that all goes well when username and security
     # question are valid and correct

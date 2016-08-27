@@ -1,3 +1,5 @@
+import random
+
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate
@@ -123,9 +125,14 @@ class ForgotPasswordView(FormView):
 
     # Retrieve the required number of security questions (at random)
     num_security_questions = settings.SECURITY_QUESTION_COUNT \
-        if hasattr(settings, "SECURITY_QUESTION_COUNT") else 1
-    security_questions = \
-        SecurityQuestion.objects.order_by("?")[:num_security_questions]
+        if hasattr(settings, "SECURITY_QUESTION_COUNT") else 2
+    security_questions = list(SecurityQuestion.objects.all())
+    # random.shuffle(security_questions)
+    # security_questions = security_questions[:num_security_questions]
+
+    # Retrieve max allowed retries from settings if set
+    retries = settings.SECURITY_QUESTION_ATEEMPT_RETRIES \
+        if hasattr(settings, "SECURITY_QUESTION_ATEEMPT_RETRIES") else 5
 
     # Display message for form errors should be generic. Specificity
     # could allow for a correct combination of username and security
@@ -135,31 +142,59 @@ class ForgotPasswordView(FormView):
 
     def form_valid(self, form):
         if not hasattr(self.request.session, "forgot_password_attempts"):
-            self.request.session["forgot_password_attempts"] = 0
+            self.request.session["forgot_password_attempts"] = self.retries
 
         username = form.cleaned_data["username"]
         try:
             user = User.objects.get_by_natural_key(username)
         except User.DoesNotExist:
             # add non_field_error
+            print "\n"
+            print "===== user was not found ========"
+            print "\n"
             form.add_error(None, _(self.error_message))
-            return self.render_to_response({'form': form})
+            self.request.session["forgot_password_attempts"] -= 1
+            # return self.render_to_response({'form': form})
+            return HttpResponseRedirect(reverse("molo.profiles:forgot_password"))
 
         if not user.is_active:
             # add non_field_error
             form.add_error(None, _(self.error_message))
+            self.request.session["forgot_password_attempts"] -= 1
+            return self.render_to_response({'form': form})
+
+        if self.request.session["forgot_password_attempts"] <= 0:
+            form.add_error(
+                None,
+                _("Too many attempts. Please try again later.")
+            )
             return self.render_to_response({'form': form})
 
         # check security question answers
+        answer_checks = []
+        for i in range(self.num_security_questions):
+            user_answer = form.cleaned_data["question_%s" % (i,)]
+            saved_answer = user.profile.securityanswer_set.get(
+                user=user.profile,
+                question=self.security_questions[i]
+            )
+            answer_checks.append(
+                saved_answer.check_answer(user_answer)
+            )
 
-
+        # redirect to login page if username and security questions were matched
+        if all(answer_checks):
+            return HttpResponseRedirect(reverse("molo.profiles:auth_login"))
+        else:
+            return self.render_to_response({"form": form})
 
         return self.render_to_response({"form": form})
 
     def get_form_kwargs(self):
         # add security questions for form field generation
         kwargs = super(ForgotPasswordView, self).get_form_kwargs()
-        kwargs["questions"] = self.security_questions
+        random.shuffle(self.security_questions)
+        kwargs["questions"] = self.security_questions[:self.num_security_questions]
         return kwargs
 
 

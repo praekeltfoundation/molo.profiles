@@ -248,10 +248,15 @@ class ForgotPasswordForm(forms.Form):
     )
 
     def __init__(self, *args, **kwargs):
-        self.questions = kwargs.pop("questions")
+        print "\n"
+        print "==============="
+        print kwargs
+        print "==============="
+        print "\n"
+        questions = kwargs.pop("questions")
         super(ForgotPasswordForm, self).__init__(*args, **kwargs)
 
-        for index, question in enumerate(self.questions):
+        for index, question in enumerate(questions):
             self.fields["question_%s" % index] = forms.CharField(
                 label=_(str(question)),
                 widget=forms.TextInput(
