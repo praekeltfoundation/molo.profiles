@@ -545,16 +545,16 @@ class ProfilePasswordChangeViewTest(TestCase):
         self.assertTrue(user.check_password('1234'))
 
 @override_settings(
-    ROOT_URLCONF='molo.profiles.tests.test_views',
-    SECURITY_QUESTION_ATEEMPT_RETRIES=3)
+    ROOT_URLCONF="molo.profiles.tests.test_views",
+    SECURITY_QUESTION_ATTEMPT_RETRIES=3)
 class ForgotPasswordViewTest(TestCase):
 
     def setUp(self):
         self.client = Client()
         self.user = User.objects.create_user(
-            username='tester',
-            email='tester@example.com',
-            password='0000')
+            username="tester",
+            email="tester@example.com",
+            password="0000")
 
         # create a few security questions
         q1 = SecurityQuestion.objects.create(question="How old are you?")
@@ -620,10 +620,10 @@ class ForgotPasswordViewTest(TestCase):
         self.failUnless(error_message in response.content)
 
     def test_too_many_retries_result_in_error(self):
-        error_message = "Too many attempts. Please try again later."
+        error_message = "Too many attempts"
 
         # post more times than the set number of retries
-        for i in range(settings.SECURITY_QUESTION_ATEEMPT_RETRIES):
+        for i in range(settings.SECURITY_QUESTION_ATTEMPT_RETRIES + 5):
             response = self.client.post(
                 reverse("molo.profiles:forgot_password"), {
                     "username": "bogus",

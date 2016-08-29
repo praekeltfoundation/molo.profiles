@@ -118,17 +118,13 @@ class ForgotPasswordView(FormView):
     form_class = forms.ForgotPasswordForm
     template_name = "profiles/forgot_password.html"
 
-    # TODO: get random security question for user's questions
-    # add attribute in settings to configure how many security
-    # questions must be shown
-
     # Retrieve the required number of security questions (at random)
     num_security_questions = settings.SECURITY_QUESTION_COUNT \
         if hasattr(settings, "SECURITY_QUESTION_COUNT") else 2
 
     # Retrieve max allowed retries from settings if set
-    retries = settings.SECURITY_QUESTION_ATEEMPT_RETRIES \
-        if hasattr(settings, "SECURITY_QUESTION_ATEEMPT_RETRIES") else 5
+    retries = settings.SECURITY_QUESTION_ATTEMPT_RETRIES \
+        if hasattr(settings, "SECURITY_QUESTION_ATTEMPT_RETRIES") else 5
 
     # Display message for form errors should be generic. Specificity
     # could allow for a correct combination of username and security
@@ -137,8 +133,17 @@ class ForgotPasswordView(FormView):
                     "do not match."
 
     def form_valid(self, form):
-        if not hasattr(self.request.session, "forgot_password_attempts"):
+        if "forgot_password_attempts" not in self.request.session:
             self.request.session["forgot_password_attempts"] = self.retries
+
+        # max retries exceeded
+        # TODO: a "time-limited" lockout was requested when this is the case
+        if self.request.session["forgot_password_attempts"] <= 0:
+            form.add_error(
+                None,
+                _("Too many attempts. Please try again later.")
+            )
+            return self.render_to_response({'form': form})
 
         username = form.cleaned_data["username"]
         try:
@@ -147,20 +152,12 @@ class ForgotPasswordView(FormView):
             # add non_field_error
             form.add_error(None, _(self.error_message))
             self.request.session["forgot_password_attempts"] -= 1
-            # return self.render_to_response({'form': form})
-            return HttpResponseRedirect(reverse("molo.profiles:forgot_password"))
+            return self.render_to_response({'form': form})
 
         if not user.is_active:
             # add non_field_error
             form.add_error(None, _(self.error_message))
             self.request.session["forgot_password_attempts"] -= 1
-            return self.render_to_response({'form': form})
-
-        if self.request.session["forgot_password_attempts"] <= 0:
-            form.add_error(
-                None,
-                _("Too many attempts. Please try again later.")
-            )
             return self.render_to_response({'form': form})
 
         # check security question answers
@@ -187,7 +184,9 @@ class ForgotPasswordView(FormView):
             )
             return HttpResponseRedirect(reset_password_url)
         else:
-            return self.render_to_response({"form": form})
+            form.add_error(None, _(self.error_message))
+            self.request.session["forgot_password_attempts"] -= 1
+            return self.render_to_response({'form': form})
 
     def get_form_kwargs(self):
         # add security questions for form field generation
@@ -196,25 +195,6 @@ class ForgotPasswordView(FormView):
         random.shuffle(self.security_questions)
         kwargs["questions"] = self.security_questions[:self.num_security_questions]
         return kwargs
-
-    # def render_to_response(self, context, **response_kwargs):
-        # random_security_question_idx = random.randint(
-        #     0, len(self.security_questions) - 1
-        # )
-        # random_security_question = self.security_questions[
-        #     random_security_question_idx
-        # ]
-        #
-        # context.update({
-        #     'random_security_question': random_security_question
-        # })
-        #
-        # self.request.session['random_security_question_idx'] = \
-        #     random_security_question_idx
-        #
-        # return super(ForgotPasswordView, self).render_to_response(
-        #     context, **response_kwargs
-        # )
 
 
 class ResetPasswordView(FormView):
