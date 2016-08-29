@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from datetime import date
-import pytest
 
 from django.conf.urls import patterns, url, include
 from django.conf import settings
@@ -544,9 +543,12 @@ class ProfilePasswordChangeViewTest(TestCase):
         user = User.objects.get(pk=self.user.pk)
         self.assertTrue(user.check_password('1234'))
 
+
 @override_settings(
     ROOT_URLCONF="molo.profiles.tests.test_views",
-    SECURITY_QUESTION_ATTEMPT_RETRIES=3)
+    SECURITY_QUESTION_ATTEMPT_RETRIES=3,
+    SECURITY_QUESTION_COUNT=3
+)
 class ForgotPasswordViewTest(TestCase):
 
     def setUp(self):
@@ -588,7 +590,8 @@ class ForgotPasswordViewTest(TestCase):
                 "question_0": "20",
                 "question_1": "Johannesburg",
                 "question_2": "Gauteng",
-            })
+            }
+        )
         self.failUnless(error_message in response.content)
 
     def test_suspended_user_gets_error(self):
@@ -602,7 +605,8 @@ class ForgotPasswordViewTest(TestCase):
                 "question_0": "20",
                 "question_1": "Johannesburg",
                 "question_2": "Gauteng",
-            })
+            }
+        )
         self.failUnless(error_message in response.content)
         self.user.is_active = True
         self.user.save()
@@ -616,7 +620,8 @@ class ForgotPasswordViewTest(TestCase):
                 "question_0": "20",
                 "question_1": "Pretoria",
                 "question_2": "Gauteng",
-            })
+            }
+        )
         self.failUnless(error_message in response.content)
 
     def test_too_many_retries_result_in_error(self):
@@ -630,15 +635,7 @@ class ForgotPasswordViewTest(TestCase):
                     "question_0": "20",
                     "question_1": "Johannesburg",
                     "question_2": "Gauteng",
-                })
+                }
+            )
 
         self.failUnless(error_message in response.content)
-
-    def test_questions_sent_correspond_to_answers_received(self):
-        # Random security questions should be used for the ForgotPassword
-        # form. The answers POSTed back should be checked against
-        # corresponding questions, irrespective of order.
-        pass
-
-    # TODO: test that all goes well when username and security
-    # question are valid and correct

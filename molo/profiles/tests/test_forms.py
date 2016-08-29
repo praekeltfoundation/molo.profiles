@@ -81,14 +81,3 @@ class RegisterTestCase(MoloTestCaseMixin, TestCase):
         }
         form = RegistrationForm(data=form_data)
         self.assertEqual(form.is_valid(), False)
-
-
-class ForgotPasswordTestCase(TestCase):
-
-    def setUp(self):
-        self.user = User.objects.create_user(
-            username='tester',
-            email='tester@example.com',
-            password='0000')
-
-

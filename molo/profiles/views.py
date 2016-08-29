@@ -193,7 +193,9 @@ class ForgotPasswordView(FormView):
         kwargs = super(ForgotPasswordView, self).get_form_kwargs()
         self.security_questions = list(SecurityQuestion.objects.all())
         random.shuffle(self.security_questions)
-        kwargs["questions"] = self.security_questions[:self.num_security_questions]
+        kwargs["questions"] = self.security_questions[
+            :self.num_security_questions
+        ]
         return kwargs
 
 
@@ -229,7 +231,9 @@ class ResetPasswordView(FormView):
         user.save()
         self.request.session.flush()
 
-        return HttpResponseRedirect(reverse("molo.profiles:reset_password_success"))
+        return HttpResponseRedirect(
+            reverse("molo.profiles:reset_password_success")
+        )
 
     def render_to_response(self, context, **response_kwargs):
         username = self.request.GET.get("user")
