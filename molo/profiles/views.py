@@ -4,19 +4,18 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate
 from django.contrib.auth import login, logout
+from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.http import HttpResponseRedirect
+from django.http.request import QueryDict
+from django.http.response import HttpResponseForbidden
 from django.shortcuts import render
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import FormView, UpdateView
 
-from molo.profiles.forms import DateOfBirthForm
-from molo.profiles.forms import EditProfileForm
-from molo.profiles.forms import ForgotPasswordForm
-from molo.profiles.forms import ProfilePasswordChangeForm
-from molo.profiles.forms import RegistrationForm
+from molo.profiles import forms
 from molo.profiles.models import SecurityQuestion
 from molo.profiles.models import UserProfile
 
@@ -25,7 +24,7 @@ class RegistrationView(FormView):
     """
     Handles user registration
     """
-    form_class = RegistrationForm
+    form_class = forms.RegistrationForm
     template_name = 'profiles/register.html'
 
     def form_valid(self, form):
@@ -48,7 +47,7 @@ class RegistrationDone(FormView):
     """
     Enables updating of the user's date of birth
     """
-    form_class = DateOfBirthForm
+    form_class = forms.DateOfBirthForm
     template_name = 'profiles/done.html'
 
     def form_valid(self, form):
@@ -76,7 +75,7 @@ class MyProfileEdit(UpdateView):
     Enables editing of the user's profile in the HTML site
     """
     model = UserProfile
-    form_class = EditProfileForm
+    form_class = forms.EditProfileForm
     template_name = 'profiles/editprofile.html'
     success_url = reverse_lazy('molo.profiles:view_my_profile')
 
@@ -97,7 +96,7 @@ class MyProfileEdit(UpdateView):
 
 
 class ProfilePasswordChangeView(FormView):
-    form_class = ProfilePasswordChangeForm
+    form_class = forms.ProfilePasswordChangeForm
     template_name = 'profiles/change_password.html'
 
     def form_valid(self, form):
@@ -116,7 +115,7 @@ class ProfilePasswordChangeView(FormView):
 
 
 class ForgotPasswordView(FormView):
-    form_class = ForgotPasswordForm
+    form_class = forms.ForgotPasswordForm
     template_name = "profiles/forgot_password.html"
 
     # TODO: get random security question for user's questions
@@ -126,9 +125,6 @@ class ForgotPasswordView(FormView):
     # Retrieve the required number of security questions (at random)
     num_security_questions = settings.SECURITY_QUESTION_COUNT \
         if hasattr(settings, "SECURITY_QUESTION_COUNT") else 2
-    security_questions = list(SecurityQuestion.objects.all())
-    # random.shuffle(security_questions)
-    # security_questions = security_questions[:num_security_questions]
 
     # Retrieve max allowed retries from settings if set
     retries = settings.SECURITY_QUESTION_ATEEMPT_RETRIES \
@@ -149,9 +145,6 @@ class ForgotPasswordView(FormView):
             user = User.objects.get_by_natural_key(username)
         except User.DoesNotExist:
             # add non_field_error
-            print "\n"
-            print "===== user was not found ========"
-            print "\n"
             form.add_error(None, _(self.error_message))
             self.request.session["forgot_password_attempts"] -= 1
             # return self.render_to_response({'form': form})
@@ -182,98 +175,29 @@ class ForgotPasswordView(FormView):
                 saved_answer.check_answer(user_answer)
             )
 
-        # redirect to login page if username and security questions were matched
+        # redirect to reset password page if username and security
+        # questions were matched
         if all(answer_checks):
-            return HttpResponseRedirect(reverse("molo.profiles:auth_login"))
+            token = default_token_generator.make_token(user)
+            q = QueryDict(mutable=True)
+            q["user"] = username
+            q["token"] = token
+            reset_password_url = "{0}?{1}".format(
+                reverse("molo.profiles:reset_password"), q.urlencode()
+            )
+            return HttpResponseRedirect(reset_password_url)
         else:
             return self.render_to_response({"form": form})
-
-        return self.render_to_response({"form": form})
 
     def get_form_kwargs(self):
         # add security questions for form field generation
         kwargs = super(ForgotPasswordView, self).get_form_kwargs()
+        self.security_questions = list(SecurityQuestion.objects.all())
         random.shuffle(self.security_questions)
         kwargs["questions"] = self.security_questions[:self.num_security_questions]
         return kwargs
 
-
-    # def form_valid(self, form):
-        # if 'random_security_question_idx' not in self.request.session:
-        #     # the session expired between the time that the form was loaded
-        #     # and submitted, restart the process
-        #     return HttpResponseRedirect(reverse('forgot_password'))
-        #
-        # if 'forgot_password_attempts' not in self.request.session:
-        #     self.request.session['forgot_password_attempts'] = 0
-        #
-        # if self.request.session['forgot_password_attempts'] >= 5:
-        #     # GEM-195 implemented a 10 min session timeout, so effectively
-        #     # the user can only try again once their anonymous session expires.
-        #     # If they make another request within the 10 min time window the
-        #     # expiration will be reset to 10 mins in the future.
-        #     # This is obviously not bulletproof as an attacker could simply
-        #     # not send the session cookie to circumvent this.
-        #     form.add_error(None,
-        #                    _('Too many attempts. Please try again later.'))
-        #     return self.render_to_response({'form': form})
-        #
-        # username = form.cleaned_data['username']
-        # random_security_question_idx = self.request.session[
-        #     'random_security_question_idx'
-        # ]
-        # random_security_question_answer = form.cleaned_data[
-        #     'random_security_question_answer'
-        # ]
-        #
-        # # TODO: consider moving these checks to GemForgotPasswordForm.clean()
-        # see django.contrib.auth.forms.AuthenticationForm for reference
-        # try:
-        #     user = User.objects.get_by_natural_key(username)
-        # except User.DoesNotExist:
-        #     self.request.session['forgot_password_attempts'] += 1
-        #     form.add_error('username',
-        #                    _('The username that you entered appears to be '
-        #                      'invalid. Please try again.'))
-        #     return self.render_to_response({'form': form})
-        #
-        # if not user.is_active:
-        #     form.add_error('username', 'This account is inactive.')
-        #     return self.render_to_response({'form': form})
-        #
-        # is_answer_correct = False
-        # if random_security_question_idx == 0:
-        #     is_answer_correct = \
-        #         user.gem_profile.check_security_question_1_answer(
-        #             random_security_question_answer
-        #         )
-        # elif random_security_question_idx == 1:
-        #     is_answer_correct = \
-        #         user.gem_profile.check_security_question_2_answer(
-        #             random_security_question_answer
-        #         )
-        # else:
-        #     logging.warn('Unhandled security question index')
-        #
-        # if not is_answer_correct:
-        #     self.request.session['forgot_password_attempts'] += 1
-        #     form.add_error('random_security_question_answer',
-        #                    _('Your answer to the security question was '
-        #                      'invalid. Please try again.'))
-        #     return self.render_to_response({'form': form})
-        #
-        # token = default_token_generator.make_token(user)
-        # q = QueryDict(mutable=True)
-        # q['user'] = username
-        # q['token'] = token
-        # reset_password_url = '{0}?{1}'.format(
-        #     reverse('reset_password'), q.urlencode()
-        # )
-        #
-        # return HttpResponseRedirect(reset_password_url)
-        pass
-
-    def render_to_response(self, context, **response_kwargs):
+    # def render_to_response(self, context, **response_kwargs):
         # random_security_question_idx = random.randint(
         #     0, len(self.security_questions) - 1
         # )
@@ -288,6 +212,57 @@ class ForgotPasswordView(FormView):
         # self.request.session['random_security_question_idx'] = \
         #     random_security_question_idx
         #
-        return super(ForgotPasswordView, self).render_to_response(
+        # return super(ForgotPasswordView, self).render_to_response(
+        #     context, **response_kwargs
+        # )
+
+
+class ResetPasswordView(FormView):
+    form_class = forms.ResetPasswordForm
+    template_name = "profiles/reset_password.html"
+
+    def form_valid(self, form):
+        username = form.cleaned_data["username"]
+        token = form.cleaned_data["token"]
+
+        try:
+            user = User.objects.get_by_natural_key(username)
+        except User.DoesNotExist:
+            return HttpResponseForbidden()
+
+        if not user.is_active:
+            return HttpResponseForbidden()
+
+        if not default_token_generator.check_token(user, token):
+            return HttpResponseForbidden()
+
+        password = form.cleaned_data["password"]
+        confirm_password = form.cleaned_data["confirm_password"]
+
+        if password != confirm_password:
+            form.add_error(None,
+                           _("The two PINs that you entered do not match. "
+                             "Please try again."))
+            return self.render_to_response({"form": form})
+
+        user.set_password(password)
+        user.save()
+        self.request.session.flush()
+
+        return HttpResponseRedirect(reverse("molo.profiles:reset_password_success"))
+
+    def render_to_response(self, context, **response_kwargs):
+        username = self.request.GET.get("user")
+        token = self.request.GET.get("token")
+
+        if not username or not token:
+            return HttpResponseForbidden()
+
+        context["form"].initial.update({
+            "username": username,
+            "token": token
+        })
+
+        return super(ResetPasswordView, self).render_to_response(
             context, **response_kwargs
         )
