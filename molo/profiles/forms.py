@@ -248,11 +248,6 @@ class ForgotPasswordForm(forms.Form):
     )
 
     def __init__(self, *args, **kwargs):
-        print "\n"
-        print "==============="
-        print kwargs
-        print "==============="
-        print "\n"
         questions = kwargs.pop("questions")
         super(ForgotPasswordForm, self).__init__(*args, **kwargs)
 
@@ -267,3 +262,46 @@ class ForgotPasswordForm(forms.Form):
                 )
             )
 
+
+class ResetPasswordForm(forms.Form):
+    username = forms.CharField(
+        widget=forms.HiddenInput()
+    )
+
+    token = forms.CharField(
+        widget=forms.HiddenInput()
+    )
+
+    password = forms.RegexField(
+        regex=r'^\d{4}$',
+        widget=forms.PasswordInput(
+            attrs=dict(
+                required=True,
+                render_value=False,
+                type='password',
+            )
+        ),
+        max_length=4,
+        min_length=4,
+        error_messages={
+            'invalid': _("This value must contain only numbers."),
+        },
+        label=_("PIN")
+    )
+
+    confirm_password = forms.RegexField(
+        regex=r'^\d{4}$',
+        widget=forms.PasswordInput(
+            attrs=dict(
+                required=True,
+                render_value=False,
+                type='password',
+            )
+        ),
+        max_length=4,
+        min_length=4,
+        error_messages={
+            'invalid': _("This value must contain only numbers."),
+        },
+        label=_("Confirm PIN")
+    )
