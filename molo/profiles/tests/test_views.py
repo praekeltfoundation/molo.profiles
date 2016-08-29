@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from datetime import date
+import pytest
 
 from django.conf.urls import patterns, url, include
 from django.conf import settings

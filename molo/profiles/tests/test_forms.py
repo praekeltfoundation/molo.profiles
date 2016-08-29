@@ -86,4 +86,9 @@ class RegisterTestCase(MoloTestCaseMixin, TestCase):
 class ForgotPasswordTestCase(TestCase):
 
     def setUp(self):
-        pass
+        self.user = User.objects.create_user(
+            username='tester',
+            email='tester@example.com',
+            password='0000')
+
+
