@@ -491,9 +491,10 @@ class ProfileDateOfBirthEditTest(MoloTestCaseMixin, TestCase):
 
 @override_settings(
     ROOT_URLCONF='molo.profiles.tests.test_views')
-class ProfilePasswordChangeViewTest(TestCase):
+class ProfilePasswordChangeViewTest(TestCase, MoloTestCaseMixin):
 
     def setUp(self):
+        self.mk_main()
         self.user = User.objects.create_user(
             username='tester',
             email='tester@example.com',
