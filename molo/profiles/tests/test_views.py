@@ -550,9 +550,10 @@ class ProfilePasswordChangeViewTest(TestCase, MoloTestCaseMixin):
     SECURITY_QUESTION_ATTEMPT_RETRIES=3,
     SECURITY_QUESTION_COUNT=3
 )
-class ForgotPasswordViewTest(TestCase):
+class ForgotPasswordViewTest(TestCase, MoloTestCaseMixin):
 
     def setUp(self):
+        self.mk_main()
         self.client = Client()
         self.user = User.objects.create_user(
             username="tester",
