@@ -1,6 +1,10 @@
 CHANGE LOG
 ==========
 
+1.2.6
+-----
+- Updated change password error messages
+
 1.2.5
 -----
 - Assigned label to view profile template
