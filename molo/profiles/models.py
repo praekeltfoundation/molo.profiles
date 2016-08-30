@@ -21,13 +21,13 @@ class UserProfilesSettings(BaseSetting):
     mobile_number_required = models.BooleanField(
         default=False,
         editable=True,
-        verbose_name=_('Mobile number required'),
+        verbose_name=_("Mobile number required"),
     )
 
     prevent_phone_number_in_username = models.BooleanField(
         default=False,
         editable=True,
-        verbose_name=_('Prevent phone number in username / display name'),
+        verbose_name=_("Prevent phone number in username / display name"),
     )
 
     show_email_field = models.BooleanField(
@@ -44,7 +44,18 @@ class UserProfilesSettings(BaseSetting):
     prevent_email_in_username = models.BooleanField(
         default=False,
         editable=True,
-        verbose_name=_('Prevent email in username / display name'),
+        verbose_name=_("Prevent email in username / display name"),
+    )
+
+    show_security_question_fields = models.BooleanField(
+        default=False,
+        editable=True,
+        verbose_name=_("Add security question fields to registration")
+    )
+    security_questions_required = models.BooleanField(
+        default=False,
+        editable=True,
+        verbose_name=_("Security questions required")
     )
 
     panels = [
@@ -54,14 +65,20 @@ class UserProfilesSettings(BaseSetting):
                 FieldPanel('mobile_number_required'),
                 FieldPanel('prevent_phone_number_in_username'),
             ],
-            heading="Mobile Number Settings",),
+            heading="Mobile Number Settings", ),
         MultiFieldPanel(
             [
                 FieldPanel('show_email_field'),
                 FieldPanel('email_required'),
                 FieldPanel('prevent_email_in_username'),
             ],
-            heading="Email Settings",)
+            heading="Email Settings", ),
+        MultiFieldPanel(
+            [
+                FieldPanel("show_security_question_fields"),
+                FieldPanel("security_questions_required"),
+            ],
+            heading="Security Question Settings", )
     ]
     # TODO: mobile_number_required field shouldn't be shown
     # if show_mobile_number_field is False
@@ -112,7 +129,6 @@ class SecurityAnswer(models.Model):
         self.answer = hashers.make_password(raw_answer.strip().lower())
 
     def check_answer(self, raw_answer):
-
         def setter(raw_answer):
             self.set_answer(raw_answer)
             self.save(update_fields=["answer"])
