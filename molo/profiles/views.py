@@ -1,6 +1,5 @@
 import random
 
-from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate
 from django.contrib.auth import login, logout
@@ -15,9 +14,12 @@ from django.utils.translation import ugettext_lazy as _
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import FormView, UpdateView
 
+from wagtail.wagtailcore.models import Site
+from wagtail.contrib.settings.context_processors import SettingsProxy
+
 from molo.profiles import forms
 from molo.profiles.models import SecurityQuestion
-from molo.profiles.models import UserProfile
+from molo.profiles.models import UserProfile, UserProfilesSettings
 
 
 class RegistrationView(FormView):
@@ -41,6 +43,11 @@ class RegistrationView(FormView):
         authed_user = authenticate(username=username, password=password)
         login(self.request, authed_user)
         return HttpResponseRedirect(form.cleaned_data.get('next', '/'))
+
+    def get_form_kwargs(self):
+        kwargs = super(RegistrationView, self).get_form_kwargs()
+        kwargs["questions"] = SecurityQuestion.objects.all()
+        return kwargs
 
 
 class RegistrationDone(FormView):
@@ -118,19 +125,21 @@ class ForgotPasswordView(FormView):
     form_class = forms.ForgotPasswordForm
     template_name = "profiles/forgot_password.html"
 
-    # Retrieve the required number of security questions (at random)
-    num_security_questions = settings.SECURITY_QUESTION_COUNT \
-        if hasattr(settings, "SECURITY_QUESTION_COUNT") else 2
+    def __init__(self):
+        site = Site.objects.get(is_default_site=True)
+        settings = SettingsProxy(site)
+        profile_settings = settings['profiles']['UserProfilesSettings']
 
-    # Retrieve max allowed retries from settings if set
-    retries = settings.SECURITY_QUESTION_ATTEMPT_RETRIES \
-        if hasattr(settings, "SECURITY_QUESTION_ATTEMPT_RETRIES") else 5
+        # Retrieve the required number of security questions (at random)
+        # as well as the max number of retries allowed
+        self.num_security_questions = profile_settings.num_security_questions
+        self.retries = profile_settings.password_recovery_retries
 
-    # Display message for form errors should be generic. Specificity
-    # could allow for a correct combination of username and security
-    # question(s) to be guessed.
-    error_message = "The username and security question(s) combination " \
-                    "do not match."
+        # Display message for form errors should be generic. Specificity
+        # could allow for a correct combination of username and security
+        # question(s) to be guessed.
+        self.error_message = "The username and security question(s) combination " \
+                        "do not match."
 
     def form_valid(self, form):
         if "forgot_password_attempts" not in self.request.session:

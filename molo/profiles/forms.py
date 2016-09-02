@@ -101,6 +101,7 @@ class RegistrationForm(forms.Form):
     next = forms.CharField(required=False)
 
     def __init__(self, *args, **kwargs):
+        questions = kwargs.pop("questions")
         super(RegistrationForm, self).__init__(*args, **kwargs)
         site = Site.objects.get(is_default_site=True)
         settings = SettingsProxy(site)
@@ -111,6 +112,32 @@ class RegistrationForm(forms.Form):
         self.fields['email'].required = (
             profile_settings.email_required and
             profile_settings.show_email_field)
+
+        # Security questions fields have to created dynamically to
+        # allow flexibility. That way, any number of security questions
+        # can be specified as required.
+        for index, question in enumerate(questions):
+            self.fields["question_%s" % index] = forms.CharField(
+                label=_(str(question)),
+                widget=forms.TextInput(
+                    attrs=dict(
+                        max_length=150,
+                    )
+                )
+            )
+            self.fields["question_%s" % index].required = (
+                profile_settings.show_security_question_fields and
+                profile_settings.security_questions_required
+            )
+
+        print "\n====================="
+        print self.list_of_questions
+        print "======================\n"
+        print self.fields
+        print "======================\n"
+
+    def security_questions(self):
+        return [self[name] for name in filter(lambda x: x.startswith('question_'), self.fields.keys())]
 
     def clean_username(self):
         validation_msg_fragment = get_validation_msg_fragment()
