@@ -113,9 +113,8 @@ class RegistrationForm(forms.Form):
             profile_settings.email_required and
             profile_settings.show_email_field)
 
-        # Security questions fields have to created dynamically to
-        # allow flexibility. That way, any number of security questions
-        # can be specified as required.
+        # Security questions fields are created dynamically.
+        # This allows any number of security questions to be specified
         for index, question in enumerate(questions):
             self.fields["question_%s" % index] = forms.CharField(
                 label=_(str(question)),
@@ -130,14 +129,12 @@ class RegistrationForm(forms.Form):
                 profile_settings.security_questions_required
             )
 
-        print "\n====================="
-        print self.list_of_questions
-        print "======================\n"
-        print self.fields
-        print "======================\n"
-
     def security_questions(self):
-        return [self[name] for name in filter(lambda x: x.startswith('question_'), self.fields.keys())]
+        return [
+            self[name] for name in filter(
+                lambda x: x.startswith('question_'), self.fields.keys()
+            )
+        ]
 
     def clean_username(self):
         validation_msg_fragment = get_validation_msg_fragment()
