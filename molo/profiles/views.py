@@ -18,8 +18,8 @@ from wagtail.wagtailcore.models import Site
 from wagtail.contrib.settings.context_processors import SettingsProxy
 
 from molo.profiles import forms
-from molo.profiles.models import SecurityQuestion
-from molo.profiles.models import UserProfile, UserProfilesSettings
+from molo.profiles.models import SecurityAnswer, SecurityQuestion
+from molo.profiles.models import UserProfile
 
 
 class RegistrationView(FormView):
@@ -27,22 +27,31 @@ class RegistrationView(FormView):
     Handles user registration
     """
     form_class = forms.RegistrationForm
-    template_name = 'profiles/register.html'
+    template_name = "profiles/register.html"
 
     def form_valid(self, form):
-        username = form.cleaned_data['username']
-        password = form.cleaned_data['password']
-        mobile_number = form.cleaned_data['mobile_number']
+        username = form.cleaned_data["username"]
+        password = form.cleaned_data["password"]
+        mobile_number = form.cleaned_data["mobile_number"]
         user = User.objects.create_user(username=username, password=password)
         user.profile.mobile_number = mobile_number
-        if form.cleaned_data['email']:
-            user.email = form.cleaned_data['email']
+        if form.cleaned_data["email"]:
+            user.email = form.cleaned_data["email"]
             user.save()
         user.profile.save()
 
+        # TODO: save security questions
+        for index, question in enumerate(SecurityQuestion.objects.all()):
+            answer = form.cleaned_data["question_%s" % index]
+            SecurityAnswer.objects.create(
+                user=user.profile,
+                question=question,
+                answer=answer
+            )
+
         authed_user = authenticate(username=username, password=password)
         login(self.request, authed_user)
-        return HttpResponseRedirect(form.cleaned_data.get('next', '/'))
+        return HttpResponseRedirect(form.cleaned_data.get("next", "/"))
 
     def get_form_kwargs(self):
         kwargs = super(RegistrationView, self).get_form_kwargs()
@@ -138,8 +147,8 @@ class ForgotPasswordView(FormView):
         # Display message for form errors should be generic. Specificity
         # could allow for a correct combination of username and security
         # question(s) to be guessed.
-        self.error_message = "The username and security question(s) combination " \
-                        "do not match."
+        self.error_message = "The username and security question(s) " \
+            "combination do not match."
 
     def form_valid(self, form):
         if "forgot_password_attempts" not in self.request.session:
