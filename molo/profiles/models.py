@@ -63,12 +63,12 @@ class UserProfilesSettings(BaseSetting):
     num_security_questions = models.PositiveSmallIntegerField(
         default=3,
         verbose_name=_("Number of security questions asked for "
-                     "password recovery")
+            "password recovery")
     )
     password_recovery_retries = models.PositiveSmallIntegerField(
         default=5,
         verbose_name=_("Max number of password recovery retries before "
-                     "lockout")
+            "lockout")
     )
 
     panels = [
