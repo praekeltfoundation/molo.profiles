@@ -19,7 +19,7 @@ from wagtail.contrib.settings.context_processors import SettingsProxy
 
 from molo.profiles import forms
 from molo.profiles.models import SecurityAnswer, SecurityQuestion
-from molo.profiles.models import UserProfile
+from molo.profiles.models import UserProfile, UserProfilesSettings
 
 
 class RegistrationView(FormView):
@@ -134,25 +134,12 @@ class ForgotPasswordView(FormView):
     form_class = forms.ForgotPasswordForm
     template_name = "profiles/forgot_password.html"
 
-    def __init__(self):
-        site = Site.objects.get(is_default_site=True)
-        settings = SettingsProxy(site)
-        profile_settings = settings['profiles']['UserProfilesSettings']
-
-        # Retrieve the required number of security questions (at random)
-        # as well as the max number of retries allowed
-        self.num_security_questions = profile_settings.num_security_questions
-        self.retries = profile_settings.password_recovery_retries
-
-        # Display message for form errors should be generic. Specificity
-        # could allow for a correct combination of username and security
-        # question(s) to be guessed.
-        self.error_message = "The username and security question(s) " \
-            "combination do not match."
-
     def form_valid(self, form):
+        profile_settings = UserProfilesSettings.for_site(self.request.site)
+
         if "forgot_password_attempts" not in self.request.session:
-            self.request.session["forgot_password_attempts"] = self.retries
+            self.request.session["forgot_password_attempts"] = \
+                profile_settings.password_recovery_retries
 
         # max retries exceeded
         # TODO: a "time-limited" lockout was requested when this is the case
@@ -179,16 +166,19 @@ class ForgotPasswordView(FormView):
             return self.render_to_response({'form': form})
 
         # check security question answers
+        # TODO: fix indexes - num_security_questions should not exceed object.all()
+        # this will resolve possible AttributeErrors  when some question indexes
+        # don't exist
         answer_checks = []
-        for i in range(self.num_security_questions):
-            user_answer = form.cleaned_data["question_%s" % (i,)]
-            saved_answer = user.profile.securityanswer_set.get(
-                user=user.profile,
-                question=self.security_questions[i]
-            )
-            answer_checks.append(
-                saved_answer.check_answer(user_answer)
-            )
+        for i in range(profile_settings.num_security_questions):
+                user_answer = form.cleaned_data["question_%s" % (i,)]
+                saved_answer = user.profile.securityanswer_set.get(
+                    user=user.profile,
+                    question=self.security_questions[i]
+                )
+                answer_checks.append(
+                    saved_answer.check_answer(user_answer)
+                )
 
         # redirect to reset password page if username and security
         # questions were matched
@@ -211,8 +201,9 @@ class ForgotPasswordView(FormView):
         kwargs = super(ForgotPasswordView, self).get_form_kwargs()
         self.security_questions = list(SecurityQuestion.objects.all())
         random.shuffle(self.security_questions)
+        profile_settings = UserProfilesSettings.for_site(self.request.site)
         kwargs["questions"] = self.security_questions[
-            :self.num_security_questions
+            :profile_settings.num_security_questions
         ]
         return kwargs
 
