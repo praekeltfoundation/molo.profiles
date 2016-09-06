@@ -14,9 +14,6 @@ from django.utils.translation import ugettext_lazy as _
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import FormView, UpdateView
 
-from wagtail.wagtailcore.models import Site
-from wagtail.contrib.settings.context_processors import SettingsProxy
-
 from molo.profiles import forms
 from molo.profiles.models import SecurityAnswer, SecurityQuestion
 from molo.profiles.models import UserProfile, UserProfilesSettings
@@ -135,6 +132,8 @@ class ForgotPasswordView(FormView):
     template_name = "profiles/forgot_password.html"
 
     def form_valid(self, form):
+        error_message = "The username and security question(s) combination " \
+                        + "do not match."
         profile_settings = UserProfilesSettings.for_site(self.request.site)
 
         if "forgot_password_attempts" not in self.request.session:
@@ -155,20 +154,20 @@ class ForgotPasswordView(FormView):
             user = User.objects.get_by_natural_key(username)
         except User.DoesNotExist:
             # add non_field_error
-            form.add_error(None, _(self.error_message))
+            form.add_error(None, _(error_message))
             self.request.session["forgot_password_attempts"] -= 1
             return self.render_to_response({'form': form})
 
         if not user.is_active:
             # add non_field_error
-            form.add_error(None, _(self.error_message))
+            form.add_error(None, _(error_message))
             self.request.session["forgot_password_attempts"] -= 1
             return self.render_to_response({'form': form})
 
         # check security question answers
-        # TODO: fix indexes - num_security_questions should not exceed object.all()
-        # this will resolve possible AttributeErrors  when some question indexes
-        # don't exist
+        # TODO: fix indexes - num_security_questions should not
+        # exceed object.all(). This will resolve possible AttributeErrors
+        # when some question indexes don't exist
         answer_checks = []
         for i in range(profile_settings.num_security_questions):
                 user_answer = form.cleaned_data["question_%s" % (i,)]
@@ -192,7 +191,7 @@ class ForgotPasswordView(FormView):
             )
             return HttpResponseRedirect(reset_password_url)
         else:
-            form.add_error(None, _(self.error_message))
+            form.add_error(None, _(error_message))
             self.request.session["forgot_password_attempts"] -= 1
             return self.render_to_response({'form': form})
 
