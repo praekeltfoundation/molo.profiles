@@ -4,7 +4,9 @@ from datetime import date
 from django.conf.urls import patterns, url, include
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.contrib.auth.tokens import default_token_generator
 from django.core.urlresolvers import reverse
+from django.http import QueryDict
 from django.test import TestCase, override_settings, Client
 
 from molo.profiles.forms import (
@@ -547,8 +549,6 @@ class ProfilePasswordChangeViewTest(TestCase, MoloTestCaseMixin):
 
 @override_settings(
     ROOT_URLCONF="molo.profiles.tests.test_views",
-    SECURITY_QUESTION_ATTEMPT_RETRIES=3,
-    SECURITY_QUESTION_COUNT=3
 )
 class ForgotPasswordViewTest(TestCase, MoloTestCaseMixin):
 
@@ -562,20 +562,11 @@ class ForgotPasswordViewTest(TestCase, MoloTestCaseMixin):
 
         # create a few security questions
         q1 = SecurityQuestion.objects.create(question="How old are you?")
-        q2 = SecurityQuestion.objects.create(question="Where were you born?")
-        q3 = SecurityQuestion.objects.create(
-            question="What's the name of your province?"
-        )
 
         # create answers for this user
         self.a1 = SecurityAnswer.objects.create(
             user=self.user.profile, question=q1, answer="20"
         )
-        self.a2 = SecurityAnswer.objects.create(
-            user=self.user.profile, question=q2, answer="Johannesburg"
-        )
-        self.a3 = SecurityAnswer.objects.create(
-            user=self.user.profile, question=q3, answer="Gauteng")
 
     def test_view(self):
         response = self.client.get(
@@ -590,8 +581,6 @@ class ForgotPasswordViewTest(TestCase, MoloTestCaseMixin):
             reverse("molo.profiles:forgot_password"), {
                 "username": "bogus",
                 "question_0": "20",
-                "question_1": "Johannesburg",
-                "question_2": "Gauteng",
             }
         )
         self.failUnless(error_message in response.content)
@@ -605,8 +594,6 @@ class ForgotPasswordViewTest(TestCase, MoloTestCaseMixin):
             reverse("molo.profiles:forgot_password"), {
                 "username": "tester",
                 "question_0": "20",
-                "question_1": "Johannesburg",
-                "question_2": "Gauteng",
             }
         )
         self.failUnless(error_message in response.content)
@@ -619,25 +606,143 @@ class ForgotPasswordViewTest(TestCase, MoloTestCaseMixin):
         response = self.client.post(
             reverse("molo.profiles:forgot_password"), {
                 "username": "tester",
-                "question_0": "20",
-                "question_1": "Pretoria",
-                "question_2": "Gauteng",
+                "question_0": "21",
             }
         )
         self.failUnless(error_message in response.content)
 
     def test_too_many_retries_result_in_error(self):
         error_message = "Too many attempts"
+        site = Site.objects.get(is_default_site=True)
+        settings = SettingsProxy(site)
+        profile_settings = settings['profiles']['UserProfilesSettings']
 
         # post more times than the set number of retries
-        for i in range(settings.SECURITY_QUESTION_ATTEMPT_RETRIES + 5):
+        for i in range(profile_settings.password_recovery_retries + 5):
             response = self.client.post(
                 reverse("molo.profiles:forgot_password"), {
                     "username": "bogus",
                     "question_0": "20",
-                    "question_1": "Johannesburg",
-                    "question_2": "Gauteng",
                 }
             )
 
         self.failUnless(error_message in response.content)
+
+
+class ResetPasswordViewTest(TestCase, MoloTestCaseMixin):
+    def setUp(self):
+        self.mk_main()
+        self.client = Client()
+        self.user = User.objects.create_user(
+            username="tester",
+            email="tester@example.com",
+            password="0000")
+
+        # create a few security questions
+        q1 = SecurityQuestion.objects.create(question="How old are you?")
+
+        # create answers for this user
+        self.a1 = SecurityAnswer.objects.create(
+            user=self.user.profile, question=q1, answer="20"
+        )
+
+    def proceed_to_reset_password_page(self):
+        expected_token = default_token_generator.make_token(self.user)
+        expected_query_params = QueryDict(mutable=True)
+        expected_query_params["user"] = self.user.username
+        expected_query_params["token"] = expected_token
+        expected_redirect_url = "{0}?{1}".format(
+            reverse("molo.profiles:reset_password"),
+            expected_query_params.urlencode()
+        )
+
+        response = self.client.post(
+            reverse("molo.profiles:forgot_password"), {
+                "username": "tester",
+                "question_0": "20",
+            }
+        )
+
+        self.assertRedirects(response, expected_redirect_url)
+
+        return expected_token, expected_redirect_url
+
+    def test_reset_password_view_pin_mismatch(self):
+        expected_token, expected_redirect_url = \
+            self.proceed_to_reset_password_page()
+
+        response = self.client.post(expected_redirect_url, {
+            "username": self.user.username,
+            "token": expected_token,
+            "password": "1234",
+            "confirm_password": "4321"
+        })
+
+        self.assertContains(response, "The two PINs that you entered do not "
+                                      "match. Please try again.")
+
+    def test_reset_password_view_requires_query_params(self):
+        response = self.client.get(reverse("molo.profiles:reset_password"))
+        self.assertEqual(403, response.status_code)
+
+    def test_reset_password_view_invalid_username(self):
+        expected_token, expected_redirect_url = \
+            self.proceed_to_reset_password_page()
+
+        response = self.client.post(expected_redirect_url, {
+            "username": "invalid",
+            "token": expected_token,
+            "password": "1234",
+            "confirm_password": "1234"
+        })
+
+        self.assertEqual(403, response.status_code)
+
+    def test_reset_password_view_inactive_user(self):
+        expected_token, expected_redirect_url = \
+            self.proceed_to_reset_password_page()
+
+        self.user.is_active = False
+        self.user.save()
+
+        response = self.client.post(expected_redirect_url, {
+            "username": self.user.username,
+            "token": expected_token,
+            "password": "1234",
+            "confirm_password": "1234"
+        })
+
+        self.assertEqual(403, response.status_code)
+
+    def test_reset_password_view_invalid_token(self):
+        expected_token, expected_redirect_url = \
+            self.proceed_to_reset_password_page()
+
+        response = self.client.post(expected_redirect_url, {
+            "username": self.user.username,
+            "token": "invalid",
+            "password": "1234",
+            "confirm_password": "1234"
+        })
+
+        self.assertEqual(403, response.status_code)
+
+    def test_happy_path(self):
+        expected_token, expected_redirect_url = \
+            self.proceed_to_reset_password_page()
+
+        response = self.client.post(expected_redirect_url, {
+            "username": self.user.username,
+            "token": expected_token,
+            "password": "1234",
+            "confirm_password": "1234"
+        })
+
+        self.assertRedirects(
+            response,
+            reverse("molo.profiles:reset_password_success")
+        )
+
+        self.assertTrue(
+            self.client.login(username="tester", password="1234")
+        )
