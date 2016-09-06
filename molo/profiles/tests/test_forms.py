@@ -1,7 +1,8 @@
 from django.test import TestCase
 from django.contrib.auth.models import User
 
-from molo.profiles.forms import RegistrationForm, ProfilePasswordChangeForm
+from molo.profiles.forms import (
+    ForgotPasswordForm, RegistrationForm, ProfilePasswordChangeForm)
 from molo.core.tests.base import MoloTestCaseMixin
 from molo.profiles.models import SecurityQuestion
 
@@ -103,3 +104,26 @@ class RegisterTestCase(MoloTestCaseMixin, TestCase):
             questions=[self.question, ]
         )
         self.assertEqual(form.is_valid(), False)
+
+
+class PasswordRecoveryTestCase(MoloTestCaseMixin, TestCase):
+
+    def setUp(self):
+        self.mk_main()
+        self.user = User.objects.create_user(
+            username="tester",
+            email="tester@example.com",
+            password="tester")
+
+        self.question = SecurityQuestion(question="What is this?")
+
+    def test_username_and_security_answer(self):
+        form_data = {
+            "username": "tester",
+            "question_0": "20"
+        }
+        form = ForgotPasswordForm(
+            data=form_data,
+            questions=[self.question, ]
+        )
+        self.assertEqual(form.is_valid(), True)
