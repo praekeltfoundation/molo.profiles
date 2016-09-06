@@ -25,7 +25,7 @@ class RegisterTestCase(MoloTestCaseMixin, TestCase):
         }
         form = RegistrationForm(
             data=form_data,
-            questions=[self.question,]
+            questions=[self.question, ]
         )
         self.assertEqual(form.is_valid(), True)
 
@@ -38,7 +38,7 @@ class RegisterTestCase(MoloTestCaseMixin, TestCase):
         }
         form = RegistrationForm(
             data=form_data,
-            questions=[self.question,]
+            questions=[self.question, ]
         )
         self.assertEqual(form.is_valid(), False)
 
@@ -51,7 +51,7 @@ class RegisterTestCase(MoloTestCaseMixin, TestCase):
         }
         form = RegistrationForm(
             data=form_data,
-            questions=[self.question,]
+            questions=[self.question, ]
         )
         self.assertEqual(form.is_valid(), False)
 
@@ -86,7 +86,7 @@ class RegisterTestCase(MoloTestCaseMixin, TestCase):
         }
         form = RegistrationForm(
             data=form_data,
-            questions=[self.question,]
+            questions=[self.question, ]
         )
         self.assertFalse(form.is_valid())
         [validation_error] = form.errors.as_data()['username']
@@ -100,6 +100,6 @@ class RegisterTestCase(MoloTestCaseMixin, TestCase):
         }
         form = RegistrationForm(
             data=form_data,
-            questions=[self.question,]
+            questions=[self.question, ]
         )
         self.assertEqual(form.is_valid(), False)

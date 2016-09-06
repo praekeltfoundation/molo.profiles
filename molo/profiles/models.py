@@ -10,6 +10,7 @@ from wagtail.contrib.settings.models import BaseSetting, register_setting
 from wagtail.wagtailadmin.edit_handlers import (
     FieldPanel, MultiFieldPanel)
 
+
 # TODO: add num_security_questions to wagtail settings
 # as well as the retries
 
@@ -63,12 +64,12 @@ class UserProfilesSettings(BaseSetting):
     num_security_questions = models.PositiveSmallIntegerField(
         default=3,
         verbose_name=_("Number of security questions asked for "
-            "password recovery")
+                       "password recovery")
     )
     password_recovery_retries = models.PositiveSmallIntegerField(
         default=5,
         verbose_name=_("Max number of password recovery retries before "
-            "lockout")
+                       "lockout")
     )
 
     panels = [
