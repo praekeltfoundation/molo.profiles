@@ -62,7 +62,7 @@ class UserProfilesSettings(BaseSetting):
         verbose_name=_("Security questions required")
     )
     num_security_questions = models.PositiveSmallIntegerField(
-        default=3,
+        default=1,
         verbose_name=_("Number of security questions asked for "
                        "password recovery")
     )
