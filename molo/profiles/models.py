@@ -103,15 +103,18 @@ class UserProfilesSettings(BaseSetting):
 
 
 class SecurityQuestion(TranslatablePageMixin, Page):
-    question = models.CharField(
-        max_length=250,
-        null=False,
-        blank=False,
-        help_text="The question to be asked."
-    )
+
+    class Meta:
+        verbose_name = _("Security Question")
 
     def __str__(self):
-        return self.question
+        return self.title
+
+SecurityQuestion.content_panels = [
+    FieldPanel("title", classname="full title")
+]
+SecurityQuestion.promote_panels = []
+SecurityQuestion.settings_panels = []
 
 
 class SecurityQuestionIndexPage(Page):

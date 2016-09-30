@@ -1,7 +1,6 @@
-from molo.profiles.admin import (
-    FrontendUsersModelAdmin, SecurityQuestionModelAdmin)
+from molo.profiles.admin import FrontendUsersModelAdmin
 from wagtailmodeladmin.options import wagtailmodeladmin_register
 
 
 wagtailmodeladmin_register(FrontendUsersModelAdmin)
-wagtailmodeladmin_register(SecurityQuestionModelAdmin)
+

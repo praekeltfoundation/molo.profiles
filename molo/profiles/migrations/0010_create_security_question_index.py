@@ -17,7 +17,7 @@ def create_section_index(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('profiles', '0010_add_securityquestionindexpage'),
+        ('profiles', '0009_change_security_question_to_page_model'),
     ]
 
     operations = [
