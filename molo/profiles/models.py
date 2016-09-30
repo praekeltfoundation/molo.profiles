@@ -5,7 +5,9 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
 
+from molo.core.models import TranslatablePageMixin
 from phonenumber_field.modelfields import PhoneNumberField
+from wagtail.wagtailcore.models import Page
 from wagtail.contrib.settings.models import BaseSetting, register_setting
 from wagtail.wagtailadmin.edit_handlers import (
     FieldPanel, MultiFieldPanel)
@@ -100,12 +102,26 @@ class UserProfilesSettings(BaseSetting):
     # if show_mobile_number_field is False
 
 
-class SecurityQuestion(models.Model):
-    # TODO: consider enforcing questions to be unique
-    question = models.CharField(max_length=250, null=False, blank=False)
+class SecurityQuestion(TranslatablePageMixin, Page):
+    question = models.CharField(
+        max_length=250,
+        null=False,
+        blank=False,
+        help_text="The question to be asked."
+    )
 
     def __str__(self):
         return self.question
+
+
+class SecurityQuestionIndexPage(Page):
+    parent_page_types = []
+    subpage_types = ["SecurityQuestion"]
+
+
+SecurityQuestionIndexPage.content_panels = [
+    FieldPanel('title', classname='full title'),
+]
 
 
 class UserProfile(models.Model):
