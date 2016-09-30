@@ -16,7 +16,12 @@ class RegisterTestCase(MoloTestCaseMixin, TestCase):
             email='tester@example.com',
             password='tester')
 
-        self.question = SecurityQuestion(question="What is this?")
+        self.question = SecurityQuestion.objects.create(
+            title="How old are you?",
+            slug="how-old-are-you",
+            path="0002",
+            depth=1,
+        )
 
     def test_register_username_correct(self):
         form_data = {
@@ -115,7 +120,12 @@ class PasswordRecoveryTestCase(MoloTestCaseMixin, TestCase):
             email="tester@example.com",
             password="tester")
 
-        self.question = SecurityQuestion(question="What is this?")
+        self.question = SecurityQuestion.objects.create(
+            title="How old are you?",
+            slug="how-old-are-you",
+            path="0002",
+            depth=1,
+        )
 
     def test_username_and_security_answer(self):
         form_data = {

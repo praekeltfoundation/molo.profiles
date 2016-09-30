@@ -561,7 +561,12 @@ class ForgotPasswordViewTest(TestCase, MoloTestCaseMixin):
             password="0000")
 
         # create a few security questions
-        q1 = SecurityQuestion.objects.create(question="How old are you?")
+        q1 = SecurityQuestion.objects.create(
+            title="How old are you?",
+            slug="how-old-are-you",
+            path="0002",
+            depth=1,
+        )
 
         # create answers for this user
         self.a1 = SecurityAnswer.objects.create(
@@ -639,7 +644,12 @@ class ResetPasswordViewTest(TestCase, MoloTestCaseMixin):
             password="0000")
 
         # create a few security questions
-        q1 = SecurityQuestion.objects.create(question="How old are you?")
+        q1 = SecurityQuestion.objects.create(
+            title="How old are you?",
+            slug="how-old-are-you",
+            path="0002",
+            depth=1,
+        )
 
         # create answers for this user
         self.a1 = SecurityAnswer.objects.create(
