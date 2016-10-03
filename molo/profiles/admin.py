@@ -1,14 +1,15 @@
 import csv
 
-from daterange_filter.filter import DateRangeFilter
 from django.contrib import admin
 from django.http import HttpResponse
 from django.contrib.auth.models import User
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.admin.sites import NotRegistered
-from molo.profiles.admin_views import FrontendUsersAdminView
-from molo.profiles.models import SecurityQuestion
+
+from daterange_filter.filter import DateRangeFilter
 from wagtailmodeladmin.options import ModelAdmin as WagtailModelAdmin
+
+from molo.profiles.admin_views import FrontendUsersAdminView
 
 try:
     admin.site.unregister(User)
@@ -83,10 +84,3 @@ class FrontendUsersModelAdmin(WagtailModelAdmin, ProfileUserAdmin):
     def get_queryset(self, request):
         queryset = User.objects.filter(is_staff=False)
         return queryset
-
-
-class SecurityQuestionModelAdmin(WagtailModelAdmin):
-    model = SecurityQuestion
-    menu_label = "Security Questions"
-    add_to_settings_menu = True
-    search_fields = ("questions",)

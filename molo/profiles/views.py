@@ -141,7 +141,6 @@ class ForgotPasswordView(FormView):
                 profile_settings.password_recovery_retries
 
         # max retries exceeded
-        # TODO: a "time-limited" lockout was requested when this is the case
         if self.request.session["forgot_password_attempts"] <= 0:
             form.add_error(
                 None,
@@ -165,9 +164,6 @@ class ForgotPasswordView(FormView):
             return self.render_to_response({'form': form})
 
         # check security question answers
-        # TODO: fix indexes - num_security_questions should not
-        # exceed object.all(). This will resolve possible AttributeErrors
-        # when some question indexes don't exist
         answer_checks = []
         for i in range(profile_settings.num_security_questions):
                 user_answer = form.cleaned_data["question_%s" % (i,)]

@@ -4,4 +4,3 @@ wagtailmodeladmin
 django-phonenumber-field
 django-import-export
 django-daterange-filter
-django-modeltranslation==0.12
