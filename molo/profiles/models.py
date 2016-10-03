@@ -13,10 +13,6 @@ from wagtail.wagtailadmin.edit_handlers import (
     FieldPanel, MultiFieldPanel)
 
 
-# TODO: add num_security_questions to wagtail settings
-# as well as the retries
-
-
 @register_setting
 class UserProfilesSettings(BaseSetting):
     show_mobile_number_field = models.BooleanField(

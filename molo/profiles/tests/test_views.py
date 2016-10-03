@@ -339,6 +339,25 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
 
         self.assertContains(response, expected_validation_message)
 
+    def test_security_questions_are_rendered(self):
+        site = Site.objects.get(is_default_site=True)
+        settings = SettingsProxy(site)
+
+        SecurityQuestion.objects.create(
+            title="What is your name?",
+            slug="what-is-your-name",
+            path="0002",
+            depth=1,
+        )
+
+        profile_settings = settings['profiles']['UserProfilesSettings']
+        profile_settings.show_security_question_fields = True
+        profile_settings.save()
+
+        response = self.client.get(reverse('molo.profiles:user_register'))
+        self.assertContains(response, "What is your name")
+
+
 
 @override_settings(
     ROOT_URLCONF='molo.profiles.tests.test_views')
