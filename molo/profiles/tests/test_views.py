@@ -339,7 +339,7 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
 
         self.assertContains(response, expected_validation_message)
 
-    def test_security_questions_are_rendered(self):
+    def test_security_questions(self):
         site = Site.objects.get(is_default_site=True)
         settings = SettingsProxy(site)
 
@@ -352,10 +352,23 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
 
         profile_settings = settings['profiles']['UserProfilesSettings']
         profile_settings.show_security_question_fields = True
+        profile_settings.security_questions_required = True
         profile_settings.save()
 
         response = self.client.get(reverse('molo.profiles:user_register'))
         self.assertContains(response, "What is your name")
+
+        # register with security questions
+        response = self.client.post(
+            reverse('molo.profiles:user_register'),
+            {
+                "username": "tester",
+                "password": "0000",
+                "question_0": "answer"
+            },
+            follow=True
+        )
+        self.assertEqual(response.status_code, 200)
 
 
 @override_settings(
