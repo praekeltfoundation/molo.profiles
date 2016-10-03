@@ -34,7 +34,7 @@
 	<input type="submit" value="{% trans "Log in" %}">
 	<input type="hidden" name="next" value="{% if request.GET.next %}{{ request.GET.next }}{% else %}{{request.site.root_page.url}}{% endif %}" />
 	</form>
-	<a href="{% url "password_reset" %}" class="profiles__forgotten-password">{% trans "Forgotten your password?" %}</a>
+	<a href="{% url "molo.profiles:forgot_password" %}" class="profiles__forgotten-password">{% trans "Forgotten your password?" %}</a>
 </div>
 
 {% endblock %}
