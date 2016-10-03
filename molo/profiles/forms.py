@@ -101,6 +101,7 @@ class RegistrationForm(forms.Form):
     next = forms.CharField(required=False)
 
     def __init__(self, *args, **kwargs):
+        questions = kwargs.pop("questions")
         super(RegistrationForm, self).__init__(*args, **kwargs)
         site = Site.objects.get(is_default_site=True)
         settings = SettingsProxy(site)
@@ -111,6 +112,29 @@ class RegistrationForm(forms.Form):
         self.fields['email'].required = (
             profile_settings.email_required and
             profile_settings.show_email_field)
+
+        # Security questions fields are created dynamically.
+        # This allows any number of security questions to be specified
+        for index, question in enumerate(questions):
+            self.fields["question_%s" % index] = forms.CharField(
+                label=_(str(question)),
+                widget=forms.TextInput(
+                    attrs=dict(
+                        max_length=150,
+                    )
+                )
+            )
+            self.fields["question_%s" % index].required = (
+                profile_settings.show_security_question_fields and
+                profile_settings.security_questions_required
+            )
+
+    def security_questions(self):
+        return [
+            self[name] for name in filter(
+                lambda x: x.startswith('question_'), self.fields.keys()
+            )
+        ]
 
     def clean_username(self):
         validation_msg_fragment = get_validation_msg_fragment()
@@ -229,3 +253,79 @@ class ProfilePasswordChangeForm(forms.Form):
             return self.cleaned_data
         else:
             raise forms.ValidationError(_('New passwords do not match.'))
+
+
+class ForgotPasswordForm(forms.Form):
+    username = forms.RegexField(
+        regex=r'^[\w.@+-]+$',
+        widget=forms.TextInput(
+            attrs=dict(
+                required=True,
+                max_length=30,
+            )
+        ),
+        label=_("Username"),
+        error_messages={
+            'invalid': _("This value must contain only letters, "
+                         "numbers and underscores."),
+        }
+    )
+
+    def __init__(self, *args, **kwargs):
+        questions = kwargs.pop("questions")
+        super(ForgotPasswordForm, self).__init__(*args, **kwargs)
+
+        for index, question in enumerate(questions):
+            self.fields["question_%s" % index] = forms.CharField(
+                label=_(str(question)),
+                widget=forms.TextInput(
+                    attrs=dict(
+                        required=True,
+                        max_length=150,
+                    )
+                )
+            )
+
+
+class ResetPasswordForm(forms.Form):
+    username = forms.CharField(
+        widget=forms.HiddenInput()
+    )
+
+    token = forms.CharField(
+        widget=forms.HiddenInput()
+    )
+
+    password = forms.RegexField(
+        regex=r'^\d{4}$',
+        widget=forms.PasswordInput(
+            attrs=dict(
+                required=True,
+                render_value=False,
+                type='password',
+            )
+        ),
+        max_length=4,
+        min_length=4,
+        error_messages={
+            'invalid': _("This value must contain only numbers."),
+        },
+        label=_("PIN")
+    )
+
+    confirm_password = forms.RegexField(
+        regex=r'^\d{4}$',
+        widget=forms.PasswordInput(
+            attrs=dict(
+                required=True,
+                render_value=False,
+                type='password',
+            )
+        ),
+        max_length=4,
+        min_length=4,
+        error_messages={
+            'invalid': _("This value must contain only numbers."),
+        },
+        label=_("Confirm PIN")
+    )
