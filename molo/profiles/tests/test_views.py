@@ -360,11 +360,12 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
 
         # register with security questions
         response = self.client.post(
-            reverse('molo.profiles:user_register'),
+            reverse("molo.profiles:user_register"),
             {
                 "username": "tester",
                 "password": "0000",
-                "question_0": "answer"
+                "question_0": "answer",
+                'terms_and_conditions': True
             },
             follow=True
         )
