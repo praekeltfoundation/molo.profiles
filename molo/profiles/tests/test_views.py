@@ -358,7 +358,6 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
         self.assertContains(response, "What is your name")
 
 
-
 @override_settings(
     ROOT_URLCONF='molo.profiles.tests.test_views')
 class RegistrationDone(TestCase, MoloTestCaseMixin):
