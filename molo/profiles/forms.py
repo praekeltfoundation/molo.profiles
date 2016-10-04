@@ -134,8 +134,7 @@ class RegistrationForm(forms.Form):
 class DateOfBirthForm(forms.Form):
     date_of_birth = forms.DateField(
         widget=SelectDateWidget(
-            years=reversed([y for y in range(1930,
-                            timezone.now().year + 1)])
+            years=list(reversed(range(1930, timezone.now().year + 1)))
         )
     )
 
@@ -147,8 +146,7 @@ class EditProfileForm(forms.ModelForm):
     )
     date_of_birth = forms.DateField(
         widget=SelectDateWidget(
-            years=reversed([y for y in range(1930,
-                            timezone.now().year + 1)])
+            years=list(reversed(range(1930, timezone.now().year + 1)))
         ),
         required=False
     )
