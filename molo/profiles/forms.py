@@ -1,4 +1,4 @@
-from datetime import datetime
+from django.utils import timezone
 
 import re
 
@@ -134,8 +134,8 @@ class RegistrationForm(forms.Form):
 class DateOfBirthForm(forms.Form):
     date_of_birth = forms.DateField(
         widget=SelectDateWidget(
-            years=list(reversed([y for y in range(1930,
-                                datetime.now().year + 1)]))
+            years=reversed([y for y in range(1930,
+                            timezone.now().year + 1)])
         )
     )
 
@@ -147,8 +147,8 @@ class EditProfileForm(forms.ModelForm):
     )
     date_of_birth = forms.DateField(
         widget=SelectDateWidget(
-            years=list(reversed([y for y in range(1930,
-                                datetime.now().year + 1)]))
+            years=reversed([y for y in range(1930,
+                            timezone.now().year + 1)])
         ),
         required=False
     )
