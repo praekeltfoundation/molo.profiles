@@ -14,9 +14,37 @@ from django.utils.translation import ugettext_lazy as _
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import FormView, UpdateView
 
+from molo.core.models import SiteLanguage, SiteSettings
 from molo.profiles import forms
 from molo.profiles.models import SecurityAnswer, SecurityQuestion
 from molo.profiles.models import UserProfile, UserProfilesSettings
+
+
+def get_pages(request, qs, locale):
+    language = SiteLanguage.objects.filter(locale=locale).first()
+    site_settings = SiteSettings.for_site(request.site)
+    if site_settings.show_only_translated_pages:
+        if language and language.is_main_language:
+            return [a for a in qs.live()]
+        else:
+            pages = []
+            for a in qs:
+                translation = a.get_translation_for(locale)
+                if translation:
+                    pages.append(translation)
+            return pages
+    else:
+        if language and language.is_main_language:
+            return [a for a in qs.live()]
+        else:
+            pages = []
+            for a in qs:
+                translation = a.get_translation_for(locale)
+                if translation:
+                    pages.append(translation)
+                elif a.live:
+                    pages.append(a)
+            return pages
 
 
 class RegistrationView(FormView):
@@ -37,8 +65,10 @@ class RegistrationView(FormView):
             user.save()
         user.profile.save()
 
-        # TODO: save security questions
-        for index, question in enumerate(SecurityQuestion.objects.all()):
+        for index, question in enumerate(
+                SecurityQuestion.objects.live().filter(
+                    languages__language__is_main_language=True)
+        ):
             answer = form.cleaned_data["question_%s" % index]
             SecurityAnswer.objects.create(
                 user=user.profile,
@@ -52,7 +82,9 @@ class RegistrationView(FormView):
 
     def get_form_kwargs(self):
         kwargs = super(RegistrationView, self).get_form_kwargs()
-        kwargs["questions"] = SecurityQuestion.objects.all()
+        queryset = SecurityQuestion.objects.live().filter(
+            languages__language__is_main_language=True)
+        kwargs["questions"] = get_pages(self.request, queryset, self.request.LANGUAGE_CODE)
         return kwargs
 
 
@@ -194,7 +226,11 @@ class ForgotPasswordView(FormView):
     def get_form_kwargs(self):
         # add security questions for form field generation
         kwargs = super(ForgotPasswordView, self).get_form_kwargs()
-        self.security_questions = list(SecurityQuestion.objects.all())
+        queryset = SecurityQuestion.objects.live().filter(
+            languages__language__is_main_language=True
+        )
+        self.security_questions = get_pages(
+            self.request, queryset, self.request.LANGUAGE_CODE)
         random.shuffle(self.security_questions)
         profile_settings = UserProfilesSettings.for_site(self.request.site)
         kwargs["questions"] = self.security_questions[
