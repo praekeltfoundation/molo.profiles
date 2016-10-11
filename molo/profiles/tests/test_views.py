@@ -14,6 +14,7 @@ from molo.profiles.forms import (
     ProfilePasswordChangeForm, ForgotPasswordForm)
 from molo.profiles.models import (
     SecurityQuestion, SecurityAnswer, UserProfile)
+from molo.core.models import SiteLanguage
 from molo.core.tests.base import MoloTestCaseMixin
 
 from wagtail.wagtailcore.models import Site
@@ -36,6 +37,8 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
     def setUp(self):
         self.client = Client()
         self.mk_main()
+        # Creates Main language
+        SiteLanguage.objects.create(locale='en')
 
     def test_register_view(self):
         response = self.client.get(reverse('molo.profiles:user_register'))
@@ -591,6 +594,8 @@ class ForgotPasswordViewTest(TestCase, MoloTestCaseMixin):
             username="tester",
             email="tester@example.com",
             password="0000")
+        # Creates Main language
+        SiteLanguage.objects.create(locale='en')
 
         # create a few security questions
         q1 = SecurityQuestion.objects.create(
@@ -674,6 +679,9 @@ class ResetPasswordViewTest(TestCase, MoloTestCaseMixin):
             username="tester",
             email="tester@example.com",
             password="0000")
+
+        # Creates Main language
+        SiteLanguage.objects.create(locale='en')
 
         # create a few security questions
         q1 = SecurityQuestion.objects.create(
