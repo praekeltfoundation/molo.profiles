@@ -84,7 +84,9 @@ class RegistrationView(FormView):
         kwargs = super(RegistrationView, self).get_form_kwargs()
         queryset = SecurityQuestion.objects.live().filter(
             languages__language__is_main_language=True)
-        kwargs["questions"] = get_pages(self.request, queryset, self.request.LANGUAGE_CODE)
+        kwargs["questions"] = get_pages(
+            self.request, queryset, self.request.LANGUAGE_CODE
+        )
         return kwargs
 
 
