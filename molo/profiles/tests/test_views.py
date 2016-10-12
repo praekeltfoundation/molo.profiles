@@ -670,6 +670,16 @@ class ForgotPasswordViewTest(TestCase, MoloTestCaseMixin):
 
         self.failUnless(error_message in response.content)
 
+    def test_correct_username_and_answer_results_in_redirect(self):
+        response = self.client.post(
+            reverse("molo.profiles:forgot_password"), {
+                "username": "tester",
+                "question_0": "20",
+            },
+            follow=True
+        )
+        self.assertContains(response, "Reset PIN")
+
 
 class ResetPasswordViewTest(TestCase, MoloTestCaseMixin):
     def setUp(self):
