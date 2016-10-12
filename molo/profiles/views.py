@@ -79,11 +79,11 @@ class RegistrationView(FormView):
 
     def get_form_kwargs(self):
         kwargs = super(RegistrationView, self).get_form_kwargs()
-        queryset = SecurityQuestion.objects.live().filter(
+        self.questions = SecurityQuestion.objects.live().filter(
             languages__language__is_main_language=True)
-        self.questions = get_pages(
-            self.request, queryset, self.request.LANGUAGE_CODE)
-        kwargs["questions"] = self.questions
+        self.translated_questions = get_pages(
+            self.request, self.questions, self.request.LANGUAGE_CODE)
+        kwargs["questions"] = self.translated_questions
         return kwargs
 
 
@@ -225,16 +225,19 @@ class ForgotPasswordView(FormView):
     def get_form_kwargs(self):
         # add security questions for form field generation
         kwargs = super(ForgotPasswordView, self).get_form_kwargs()
-        queryset = SecurityQuestion.objects.live().filter(
+        profile_settings = UserProfilesSettings.for_site(self.request.site)
+        self.security_questions = SecurityQuestion.objects.live().filter(
             languages__language__is_main_language=True
         )
-        self.security_questions = get_pages(
-            self.request, queryset, self.request.LANGUAGE_CODE)
-        random.shuffle(self.security_questions)
-        profile_settings = UserProfilesSettings.for_site(self.request.site)
-        kwargs["questions"] = self.security_questions[
-            :profile_settings.num_security_questions
-        ]
+        self.translated_questions = get_pages(
+            self.request, self.security_questions, self.request.LANGUAGE_CODE
+        )
+        random.shuffle(self.translated_questions)
+        kwargs["questions"] = self.translated_questions
+        # limit security questions - done here because query in get_pages()
+        # cannot be performed once queryset is sliced
+        self.security_questions = self.security_questions[
+            :profile_settings.num_security_questions]
         return kwargs
 
 
