@@ -15,36 +15,10 @@ from django.views.generic.base import TemplateView
 from django.views.generic.edit import FormView, UpdateView
 
 from molo.core.models import SiteLanguage, SiteSettings
+from molo.core.templatetags.core_tags import get_pages
 from molo.profiles import forms
 from molo.profiles.models import SecurityAnswer, SecurityQuestion
 from molo.profiles.models import UserProfile, UserProfilesSettings
-
-
-def get_pages(request, qs, locale):
-    language = SiteLanguage.objects.filter(locale=locale).first()
-    site_settings = SiteSettings.for_site(request.site)
-    if site_settings.show_only_translated_pages:
-        if language and language.is_main_language:
-            return [a for a in qs.live()]
-        else:
-            pages = []
-            for a in qs:
-                translation = a.get_translation_for(locale)
-                if translation:
-                    pages.append(translation)
-            return pages
-    else:
-        if language and language.is_main_language:
-            return [a for a in qs.live()]
-        else:
-            pages = []
-            for a in qs:
-                translation = a.get_translation_for(locale)
-                if translation:
-                    pages.append(translation)
-                elif a.live:
-                    pages.append(a)
-            return pages
 
 
 class RegistrationView(FormView):
@@ -81,8 +55,11 @@ class RegistrationView(FormView):
         kwargs = super(RegistrationView, self).get_form_kwargs()
         self.questions = SecurityQuestion.objects.live().filter(
             languages__language__is_main_language=True)
+
+        # create context dictionary with request for get_pages()
+        request = {"request": self.request}
         self.translated_questions = get_pages(
-            self.request, self.questions, self.request.LANGUAGE_CODE)
+            request, self.questions, self.request.LANGUAGE_CODE)
         kwargs["questions"] = self.translated_questions
         return kwargs
 
@@ -229,8 +206,10 @@ class ForgotPasswordView(FormView):
         self.security_questions = SecurityQuestion.objects.live().filter(
             languages__language__is_main_language=True
         )
+        # create context dictionary with request for get_pages()
+        request = {"request": self.request}
         self.translated_questions = get_pages(
-            self.request, self.security_questions, self.request.LANGUAGE_CODE
+            request, self.security_questions, self.request.LANGUAGE_CODE
         )
         random.shuffle(self.translated_questions)
         kwargs["questions"] = self.translated_questions
