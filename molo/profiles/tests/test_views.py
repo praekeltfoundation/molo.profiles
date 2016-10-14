@@ -705,10 +705,6 @@ class TranslatedSecurityQuestionsTest(TestCase, MoloTestCaseMixin):
 
     def test_translated_question_appears_on_registration(self):
         # make translation for the security question
-        # fr_question = self.mk_article_translation(
-        #     self.q1, self.french,
-        #     title=self.q1.title + " in french",
-        # )
         fr_question = SecurityQuestion.objects.create(
             title="How old are you in french",
             slug="how-old-are-you-in-french",
