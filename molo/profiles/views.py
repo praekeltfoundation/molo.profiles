@@ -14,7 +14,6 @@ from django.utils.translation import ugettext_lazy as _
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import FormView, UpdateView
 
-from molo.core.models import SiteLanguage, SiteSettings
 from molo.core.templatetags.core_tags import get_pages
 from molo.profiles import forms
 from molo.profiles.models import SecurityAnswer, SecurityQuestion
