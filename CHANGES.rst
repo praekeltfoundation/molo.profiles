@@ -1,6 +1,11 @@
 CHANGE LOG
 ==========
 
+1.3.0
+-----
+- Added password recovery functionality
+- Added security questions for password recovery
+
 1.2.6
 -----
 - Updated change password error messages
