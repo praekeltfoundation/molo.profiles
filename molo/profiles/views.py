@@ -14,6 +14,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import FormView, UpdateView
 
+from molo.core.templatetags.core_tags import get_pages
 from molo.profiles import forms
 from molo.profiles.models import SecurityAnswer, SecurityQuestion
 from molo.profiles.models import UserProfile, UserProfilesSettings
@@ -37,8 +38,7 @@ class RegistrationView(FormView):
             user.save()
         user.profile.save()
 
-        # TODO: save security questions
-        for index, question in enumerate(SecurityQuestion.objects.all()):
+        for index, question in enumerate(self.questions):
             answer = form.cleaned_data["question_%s" % index]
             SecurityAnswer.objects.create(
                 user=user.profile,
@@ -52,7 +52,14 @@ class RegistrationView(FormView):
 
     def get_form_kwargs(self):
         kwargs = super(RegistrationView, self).get_form_kwargs()
-        kwargs["questions"] = SecurityQuestion.objects.all()
+        self.questions = SecurityQuestion.objects.live().filter(
+            languages__language__is_main_language=True)
+
+        # create context dictionary with request for get_pages()
+        request = {"request": self.request}
+        self.translated_questions = get_pages(
+            request, self.questions, self.request.LANGUAGE_CODE)
+        kwargs["questions"] = self.translated_questions
         return kwargs
 
 
@@ -194,12 +201,21 @@ class ForgotPasswordView(FormView):
     def get_form_kwargs(self):
         # add security questions for form field generation
         kwargs = super(ForgotPasswordView, self).get_form_kwargs()
-        self.security_questions = list(SecurityQuestion.objects.all())
-        random.shuffle(self.security_questions)
         profile_settings = UserProfilesSettings.for_site(self.request.site)
-        kwargs["questions"] = self.security_questions[
-            :profile_settings.num_security_questions
-        ]
+        self.security_questions = SecurityQuestion.objects.live().filter(
+            languages__language__is_main_language=True
+        )
+        # create context dictionary with request for get_pages()
+        request = {"request": self.request}
+        self.translated_questions = get_pages(
+            request, self.security_questions, self.request.LANGUAGE_CODE
+        )
+        random.shuffle(self.translated_questions)
+        kwargs["questions"] = self.translated_questions
+        # limit security questions - done here because query in get_pages()
+        # cannot be performed once queryset is sliced
+        self.security_questions = self.security_questions[
+            :profile_settings.num_security_questions]
         return kwargs
 
 

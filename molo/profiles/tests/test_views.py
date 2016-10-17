@@ -14,6 +14,7 @@ from molo.profiles.forms import (
     ProfilePasswordChangeForm, ForgotPasswordForm)
 from molo.profiles.models import (
     SecurityQuestion, SecurityAnswer, UserProfile)
+from molo.core.models import PageTranslation, SiteLanguage
 from molo.core.tests.base import MoloTestCaseMixin
 
 from wagtail.wagtailcore.models import Site
@@ -36,6 +37,8 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
     def setUp(self):
         self.client = Client()
         self.mk_main()
+        # Creates Main language
+        SiteLanguage.objects.create(locale='en')
 
     def test_register_view(self):
         response = self.client.get(reverse('molo.profiles:user_register'))
@@ -591,6 +594,8 @@ class ForgotPasswordViewTest(TestCase, MoloTestCaseMixin):
             username="tester",
             email="tester@example.com",
             password="0000")
+        # Creates Main language
+        SiteLanguage.objects.create(locale='en')
 
         # create a few security questions
         q1 = SecurityQuestion.objects.create(
@@ -665,6 +670,64 @@ class ForgotPasswordViewTest(TestCase, MoloTestCaseMixin):
 
         self.failUnless(error_message in response.content)
 
+    def test_correct_username_and_answer_results_in_redirect(self):
+        response = self.client.post(
+            reverse("molo.profiles:forgot_password"), {
+                "username": "tester",
+                "question_0": "20",
+            },
+            follow=True
+        )
+        self.assertContains(response, "Reset PIN")
+
+
+class TranslatedSecurityQuestionsTest(TestCase, MoloTestCaseMixin):
+
+    def setUp(self):
+        self.mk_main()
+        self.client = Client()
+        self.questions_section = self.mk_section(
+            self.section_index, title='Security Questions')
+
+        # Creates Main language
+        SiteLanguage.objects.create(locale="en")
+
+        # Creates translation Language
+        self.french = SiteLanguage.objects.create(locale="fr")
+
+        # create a few security questions
+        self.q1 = SecurityQuestion.objects.create(
+            title="How old are you?",
+            slug="how-old-are-you",
+            path="0002",
+            depth=1,
+        )
+
+    def test_translated_question_appears_on_registration(self):
+        # make translation for the security question
+        fr_question = SecurityQuestion.objects.create(
+            title="How old are you in french",
+            slug="how-old-are-you-in-french",
+            path="0003",
+            depth=1,
+        )
+        language_relation = fr_question.languages.first()
+        language_relation.language = self.french
+        language_relation.save()
+        fr_question.save_revision().publish()
+        PageTranslation.objects.get_or_create(
+            page=self.q1, translated_page=fr_question)
+
+        self.client.get('/locale/fr/')
+        response = self.client.get(reverse("molo.profiles:forgot_password"))
+        self.assertContains(response, "How old are you in french")
+
+        # switch locale to english and check that the english question
+        # is asked
+        self.client.get('/locale/en/')
+        response = self.client.get(reverse("molo.profiles:forgot_password"))
+        self.failIf("How old are you in french" in response.content)
+
 
 class ResetPasswordViewTest(TestCase, MoloTestCaseMixin):
     def setUp(self):
@@ -674,6 +737,9 @@ class ResetPasswordViewTest(TestCase, MoloTestCaseMixin):
             username="tester",
             email="tester@example.com",
             password="0000")
+
+        # Creates Main language
+        SiteLanguage.objects.create(locale='en')
 
         # create a few security questions
         q1 = SecurityQuestion.objects.create(
