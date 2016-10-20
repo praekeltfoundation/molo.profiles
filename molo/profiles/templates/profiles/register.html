@@ -27,7 +27,7 @@
       <label for="id_password">{% trans "Choose a 4-digit pin" %}</label>
       {{ form.password.errors}}
       {{ form.password }}
-      <span class="input-hint">({% trans "Eg.: 2086" %})</span>
+      <span class="input-hint">({% trans "e.g. 2086" %})</span>
     </fieldset>
 
     {% if settings.profiles.UserProfilesSettings.show_mobile_number_field %}
@@ -41,11 +41,23 @@
 
     {% if settings.profiles.UserProfilesSettings.show_email_field %}
     <fieldset>
-      <label for="id_email">{% trans "Enter your email addresss" %}</label>
+      <label for="id_email">{% trans "Enter your email address" %}</label>
       {{ form.email.errors}}
       {{ form.email }}
       <span class="input-hint">{% trans "(e.g. example@foo.com)" %}</span>
     </fieldset>
+    {% endif %}
+
+    {% if settings.profiles.UserProfilesSettings.show_security_question_fields  %}
+      {% for field in form %}
+        {% if field in form.security_questions %}
+          <fieldset>
+            <label for="id_email">{% trans field.label_tag %}</label>
+            {{ field.errors}}
+            {{ field }}
+          </fieldset>
+        {% endif %}
+      {% endfor %}
     {% endif %}
 
     <fieldset>

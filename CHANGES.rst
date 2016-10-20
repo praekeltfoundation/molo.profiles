@@ -1,6 +1,27 @@
 CHANGE LOG
 ==========
 
+1.3.1
+-----
+- Fix error relating to non-existing questions on Registration Form
+
+1.3.0
+-----
+- Added password recovery functionality
+- Added security questions for password recovery
+
+1.2.6
+-----
+- Updated change password error messages
+
+1.2.5
+-----
+- Assigned label to view profile template
+
+1.2.4
+-----
+- Added BEM class rules to Viewprofiles template
+
 1.2.3
 -----
 - Added encoding to username when downloading CSV
