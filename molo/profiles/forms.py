@@ -272,7 +272,7 @@ class ForgotPasswordForm(forms.Form):
     )
 
     def __init__(self, *args, **kwargs):
-        questions = kwargs.get("questions", [])
+        questions = kwargs.pop("questions")
         super(ForgotPasswordForm, self).__init__(*args, **kwargs)
 
         for index, question in enumerate(questions):
