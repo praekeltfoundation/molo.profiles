@@ -101,7 +101,7 @@ class RegistrationForm(forms.Form):
     next = forms.CharField(required=False)
 
     def __init__(self, *args, **kwargs):
-        questions = kwargs.pop("questions")
+        questions = kwargs.get("questions", [])
         super(RegistrationForm, self).__init__(*args, **kwargs)
         site = Site.objects.get(is_default_site=True)
         settings = SettingsProxy(site)
@@ -272,7 +272,7 @@ class ForgotPasswordForm(forms.Form):
     )
 
     def __init__(self, *args, **kwargs):
-        questions = kwargs.pop("questions")
+        questions = kwargs.get("questions", [])
         super(ForgotPasswordForm, self).__init__(*args, **kwargs)
 
         for index, question in enumerate(questions):
