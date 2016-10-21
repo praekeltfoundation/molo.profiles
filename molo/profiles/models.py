@@ -27,6 +27,7 @@ class UserProfilesSettings(BaseSetting):
     )
     country_code = models.CharField(
         max_length=4,
+        null=True, blank=True,
         verbose_name=_(
             "The country code that should be added to a user from this site"
             "e.g +27")
