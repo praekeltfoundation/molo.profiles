@@ -183,6 +183,7 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
 
         profile_settings.show_mobile_number_field = True
         profile_settings.mobile_number_required = True
+        profile_settings.country_code = '+27'
         profile_settings.save()
 
         response = self.client.post(reverse('molo.profiles:user_register'), {

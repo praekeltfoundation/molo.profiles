@@ -166,8 +166,8 @@ class RegistrationForm(forms.Form):
                 number = profile_settings.country_code + \
                     number
                 self.data['mobile_number'] = number
-            valid = super(RegistrationForm, self).is_valid()
-            return valid
+        valid = super(RegistrationForm, self).is_valid()
+        return valid
 
 
 class DateOfBirthForm(forms.Form):
