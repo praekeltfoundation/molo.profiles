@@ -1,6 +1,14 @@
 CHANGE LOG
 ==========
 
+1.3.2
+-----
+- Return random subset of security questions for password recovery
+
+1.3.1
+-----
+- Fix error relating to non-existing questions on Registration Form
+
 1.3.0
 -----
 - Added password recovery functionality
@@ -16,7 +24,7 @@ CHANGE LOG
 
 1.2.4
 -----
-- Added BEM class rules to Viewprofiles template 
+- Added BEM class rules to Viewprofiles template
 
 1.2.3
 -----
