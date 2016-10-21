@@ -1,6 +1,10 @@
 CHANGE LOG
 ==========
 
+1.3.2
+-----
+- Return random subset of security questions for password recovery
+
 1.3.1
 -----
 - Fix error relating to non-existing questions on Registration Form
