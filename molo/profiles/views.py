@@ -1,5 +1,3 @@
-import random
-
 from django.contrib import messages
 from django.contrib.auth import authenticate
 from django.contrib.auth import login, logout
@@ -214,7 +212,7 @@ class ForgotPasswordView(FormView):
             request, self.security_questions, self.request.LANGUAGE_CODE
         )
         kwargs["questions"] = translated_questions[
-                :profile_settings.num_security_questions]
+            :profile_settings.num_security_questions]
         # limit security questions - done here because query in get_pages()
         # cannot be performed once queryset is sliced
         self.security_questions = self.security_questions[
