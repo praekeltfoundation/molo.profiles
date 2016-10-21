@@ -25,7 +25,12 @@ class UserProfilesSettings(BaseSetting):
         editable=True,
         verbose_name=_("Mobile number required"),
     )
-
+    country_code = models.CharField(
+        max_length=4,
+        verbose_name=_(
+            "The country code that should be added to a user from this site"
+            "e.g +27")
+    )
     prevent_phone_number_in_username = models.BooleanField(
         default=False,
         editable=True,
@@ -75,6 +80,7 @@ class UserProfilesSettings(BaseSetting):
             [
                 FieldPanel('show_mobile_number_field'),
                 FieldPanel('mobile_number_required'),
+                FieldPanel('country_code'),
                 FieldPanel('prevent_phone_number_in_username'),
             ],
             heading="Mobile Number Settings", ),
