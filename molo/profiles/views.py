@@ -1,5 +1,3 @@
-import random
-
 from django.contrib import messages
 from django.contrib.auth import authenticate
 from django.contrib.auth import login, logout
@@ -200,18 +198,21 @@ class ForgotPasswordView(FormView):
 
     def get_form_kwargs(self):
         # add security questions for form field generation
+        # the security questions should be a random subset of
+        # all the questions the user has answered
         kwargs = super(ForgotPasswordView, self).get_form_kwargs()
         profile_settings = UserProfilesSettings.for_site(self.request.site)
         self.security_questions = SecurityQuestion.objects.live().filter(
             languages__language__is_main_language=True
-        )
+        ).order_by("?")
+
         # create context dictionary with request for get_pages()
         request = {"request": self.request}
-        self.translated_questions = get_pages(
+        translated_questions = get_pages(
             request, self.security_questions, self.request.LANGUAGE_CODE
         )
-        random.shuffle(self.translated_questions)
-        kwargs["questions"] = self.translated_questions
+        kwargs["questions"] = translated_questions[
+            :profile_settings.num_security_questions]
         # limit security questions - done here because query in get_pages()
         # cannot be performed once queryset is sliced
         self.security_questions = self.security_questions[
