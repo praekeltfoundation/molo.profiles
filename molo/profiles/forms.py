@@ -165,6 +165,7 @@ class RegistrationForm(forms.Form):
                     number = number[1:]
                 number = profile_settings.country_code + \
                     number
+                self.data = self.data.copy()
                 self.data['mobile_number'] = number
         valid = super(RegistrationForm, self).is_valid()
         return valid

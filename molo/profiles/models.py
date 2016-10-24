@@ -29,8 +29,9 @@ class UserProfilesSettings(BaseSetting):
         max_length=4,
         null=True, blank=True,
         verbose_name=_(
-            "The country code that should be added to a user from this site"
-            "e.g +27")
+            "The country code that should be added to a user's number for "
+            "this site"),
+        help_text=_("For example: +27 for South Africa, +44 for England")
     )
     prevent_phone_number_in_username = models.BooleanField(
         default=False,
