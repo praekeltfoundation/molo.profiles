@@ -161,7 +161,7 @@ class RegistrationForm(forms.Form):
                 settings = SettingsProxy(site)
                 profile_settings = settings['profiles']['UserProfilesSettings']
                 number = self.data['mobile_number']
-                if number[0] == '0':
+                if number.startswith('0'):
                     number = number[1:]
                 number = profile_settings.country_code + \
                     number
