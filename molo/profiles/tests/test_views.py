@@ -201,6 +201,13 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
         })
         self.assertFormError(
             response, 'form', 'mobile_number', ['Enter a valid phone number.'])
+        response = self.client.post(reverse('molo.profiles:user_register'), {
+            'username': 'test',
+            'password': '1234',
+            'mobile_number': '+089885577743'
+        })
+        self.assertFormError(
+            response, 'form', 'mobile_number', ['Enter a valid phone number.'])
 
     def test_invalid_email(self):
         site = Site.objects.get(is_default_site=True)
@@ -247,7 +254,7 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
         self.client.post(reverse('molo.profiles:user_register'), {
             'username': 'test',
             'password': '1234',
-            'mobile_number': '0784500003',
+            'mobile_number': '+27784500003',
             'terms_and_conditions': True
         })
         self.assertEqual(UserProfile.objects.get().mobile_number,
