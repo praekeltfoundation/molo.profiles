@@ -35,7 +35,7 @@
       <label for="mobile_number">{% trans "Enter your mobile number" %}</label>
       {{ form.mobile_number.errors}}
       {{ form.mobile_number }}
-      <span class="input-hint">{% trans "(e.g. +27900000013)" %}</span>
+      <span class="input-hint">{% trans "(e.g. 0900000013)" %}</span>
     </fieldset>
     {% endif %}
 
@@ -64,7 +64,7 @@
       {% if form.terms_and_conditions.errors %}
         <span class="error">
           {% trans "Please accept the T&amp;Cs in order to complete the registration" %}
-        </span> 
+        </span>
       {% endif %}
       {{ form.terms_and_conditions }}
       <label for="id_terms_and_conditions" class="profiles__terms">{% trans "I accept the Terms and Conditions" %}</label>
