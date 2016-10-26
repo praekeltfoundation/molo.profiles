@@ -1,6 +1,10 @@
 CHANGE LOG
 ==========
 
+1.3.3
+-----
+- HTML templates Bem class names to reinforce modularity 
+
 1.3.2
 -----
 - Return random subset of security questions for password recovery
