@@ -1,9 +1,13 @@
 CHANGE LOG
 ==========
 
+1.3.4
+-----
+- Allow download as csv for admin users only
+
 1.3.3
 -----
-- HTML templates Bem class names to reinforce modularity 
+- HTML templates Bem class names to reinforce modularity
 
 1.3.2
 -----
