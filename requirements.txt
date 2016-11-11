@@ -1,4 +1,4 @@
-molo.core<4.0.0,>=3.1.2
+molo.core<4.0.0,>=3.14.0
 celery
 wagtailmodeladmin
 django-phonenumber-field
