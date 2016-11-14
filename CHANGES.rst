@@ -1,6 +1,22 @@
 CHANGE LOG
 ==========
 
+1.3.5
+-----
+- ensure migration doesn't fail if indexpage already exists
+
+1.3.4
+-----
+- Allow download as csv for admin users only
+
+1.3.3
+-----
+- HTML templates Bem class names to reinforce modularity
+
+1.3.2
+-----
+- Return random subset of security questions for password recovery
+
 1.3.1
 -----
 - Fix error relating to non-existing questions on Registration Form
