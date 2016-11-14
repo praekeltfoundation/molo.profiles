@@ -1,6 +1,10 @@
 CHANGE LOG
 ==========
 
+1.4.0
+-----
+- enable admin to input country code via wagtail
+
 1.3.5
 -----
 - ensure migration doesn't fail if indexpage already exists
