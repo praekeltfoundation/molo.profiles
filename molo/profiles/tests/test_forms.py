@@ -1,8 +1,10 @@
 from django.test import TestCase
 from django.contrib.auth.models import User
 
-from molo.profiles.forms import RegistrationForm, ProfilePasswordChangeForm
+from molo.profiles.forms import (
+    ForgotPasswordForm, RegistrationForm, ProfilePasswordChangeForm)
 from molo.core.tests.base import MoloTestCaseMixin
+from molo.profiles.models import SecurityQuestion
 
 
 class RegisterTestCase(MoloTestCaseMixin, TestCase):
@@ -14,13 +16,23 @@ class RegisterTestCase(MoloTestCaseMixin, TestCase):
             email='tester@example.com',
             password='tester')
 
+        self.question = SecurityQuestion.objects.create(
+            title="How old are you?",
+            slug="how-old-are-you",
+            path="0002",
+            depth=1,
+        )
+
     def test_register_username_correct(self):
         form_data = {
             'username': 'Jeyabal@-1',
             'password': '1234',
             'terms_and_conditions': True
         }
-        form = RegistrationForm(data=form_data)
+        form = RegistrationForm(
+            data=form_data,
+            questions=[self.question, ]
+        )
         self.assertEqual(form.is_valid(), True)
 
     def test_register_username_incorrect(self):
@@ -30,7 +42,10 @@ class RegisterTestCase(MoloTestCaseMixin, TestCase):
             'terms_and_conditions': True
 
         }
-        form = RegistrationForm(data=form_data)
+        form = RegistrationForm(
+            data=form_data,
+            questions=[self.question, ]
+        )
         self.assertEqual(form.is_valid(), False)
 
     def test_register_password_incorrect(self):
@@ -40,7 +55,10 @@ class RegisterTestCase(MoloTestCaseMixin, TestCase):
             'terms_and_conditions': True
 
         }
-        form = RegistrationForm(data=form_data)
+        form = RegistrationForm(
+            data=form_data,
+            questions=[self.question, ]
+        )
         self.assertEqual(form.is_valid(), False)
 
     def test_password_change_incorrect(self):
@@ -49,7 +67,9 @@ class RegisterTestCase(MoloTestCaseMixin, TestCase):
             'new_password': 'jey123',
             'confirm_password': 'jey123',
         }
-        form = ProfilePasswordChangeForm(data=form_data)
+        form = ProfilePasswordChangeForm(
+            data=form_data,
+        )
         self.assertEqual(form.is_valid(), False)
 
     def test_password_change_correct(self):
@@ -58,7 +78,9 @@ class RegisterTestCase(MoloTestCaseMixin, TestCase):
             'new_password': '3456',
             'confirm_password': '3456',
         }
-        form = ProfilePasswordChangeForm(data=form_data)
+        form = ProfilePasswordChangeForm(
+            data=form_data,
+        )
         self.assertEqual(form.is_valid(), True)
 
     def test_username_exists(self):
@@ -68,7 +90,10 @@ class RegisterTestCase(MoloTestCaseMixin, TestCase):
             'username': 'testing',
             'password': '12345',
         }
-        form = RegistrationForm(data=form_data)
+        form = RegistrationForm(
+            data=form_data,
+            questions=[self.question, ]
+        )
         self.assertFalse(form.is_valid())
         [validation_error] = form.errors.as_data()['username']
         self.assertEqual(
@@ -79,5 +104,36 @@ class RegisterTestCase(MoloTestCaseMixin, TestCase):
             'username': 'test',
             'password': '12345',
         }
-        form = RegistrationForm(data=form_data)
+        form = RegistrationForm(
+            data=form_data,
+            questions=[self.question, ]
+        )
         self.assertEqual(form.is_valid(), False)
+
+
+class PasswordRecoveryTestCase(MoloTestCaseMixin, TestCase):
+
+    def setUp(self):
+        self.mk_main()
+        self.user = User.objects.create_user(
+            username="tester",
+            email="tester@example.com",
+            password="tester")
+
+        self.question = SecurityQuestion.objects.create(
+            title="How old are you?",
+            slug="how-old-are-you",
+            path="0002",
+            depth=1,
+        )
+
+    def test_username_and_security_answer(self):
+        form_data = {
+            "username": "tester",
+            "question_0": "20"
+        }
+        form = ForgotPasswordForm(
+            data=form_data,
+            questions=[self.question, ]
+        )
+        self.assertEqual(form.is_valid(), True)

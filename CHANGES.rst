@@ -1,6 +1,67 @@
 CHANGE LOG
 ==========
 
+1.4.0
+-----
+- enable admin to input country code via wagtail
+
+1.3.5
+-----
+- ensure migration doesn't fail if indexpage already exists
+
+1.3.4
+-----
+- Allow download as csv for admin users only
+
+1.3.3
+-----
+- HTML templates Bem class names to reinforce modularity
+
+1.3.2
+-----
+- Return random subset of security questions for password recovery
+
+1.3.1
+-----
+- Fix error relating to non-existing questions on Registration Form
+
+1.3.0
+-----
+- Added password recovery functionality
+- Added security questions for password recovery
+
+1.2.6
+-----
+- Updated change password error messages
+
+1.2.5
+-----
+- Assigned label to view profile template
+
+1.2.4
+-----
+- Added BEM class rules to Viewprofiles template
+
+1.2.3
+-----
+- Added encoding to username when downloading CSV
+
+1.2.2
+-----
+- Make sure we only encode for users that have alias
+
+1.2.1
+-----
+- Added encoding to user alias when downloading CSV
+
+1.2.0
+-----
+- Added End Users view to Wagtail Admin
+
+1.1.0
+-----
+- Adding BEM rules to the templates
+
 1.0.1
 -----
 - Removed clean method from EditProfileForm

@@ -3,22 +3,45 @@
 {% get_settings %}
 
 {% block content %}
+<h1 class="heading heading--profiles">{% trans "Hello " %}{{ user.username }}</h1>
+<div class="profiles">
 
-<div class="profile-style">
+    <fieldset>
+      <label>{% trans "As you type your name comment will appear as:" %}</label>
+      <p class="profile__alias">{{ user.profile.alias | default:" Anonymous " }}</p>
+    </fieldset>
 
-  <h3>{% trans "Hello " %}{{ user.username }}</h3>
-  <label class="label-wide">{% trans "Display Name: " %}{{ user.profile.alias | default:'Anonymous' }}</label>
-  <label class="label-wide">{% trans "Date of Birth: " %}{{ user.profile.date_of_birth | date:"M d, Y" }}</label>
-  {% if settings.profiles.UserProfilesSettings.show_mobile_number_field %}
-    <label class="label-wide">{% trans "Mobile Number: " %}{{ user.profile.mobile_number | default:'' }}</label>
-  {% endif %}
-  {% if settings.profiles.UserProfilesSettings.show_email_field %}
-    <label class="label-wide">{% trans "Email Address: " %}{{ user.email | default:'' }}</label>
-  {% endif %}
-  <a href="{% url 'molo.profiles:auth_logout' %}" class="btn btn-wide"><input type="button" value='{% trans "log out" %}' class="btn btn-wide" /></a>
-  <a href="{% url 'molo.profiles:edit_my_profile' %}" class="btn btn-wide"><input type="button" value='{% trans "Edit My Profile" %}' class="btn btn-wide" /></a>
-  <a href="{% url 'molo.profiles:profile_password_change' %}" class="btn btn-wide"><input type="button" value='{% trans "Change My Password" %}' class="btn btn-wide" /></a>
+    <fieldset>
+      <label>{% trans "Date of Birth: " %}</label>
+      <p class="profile__dob">
+        {% if user.profile.date_of_birth %}
+          {{ user.profile.date_of_birth | date:"M d, Y" }}
+        {% else %}
+          {% trans " Not set." %}
+        {% endif %}
+      </p>
+    </fieldset>
 
+    {% if settings.profiles.UserProfilesSettings.show_mobile_number_field %}
+  	<fieldset>
+  		<label for="id_mobile_number">{% trans "Mobile number:" %}</label>
+  		<p class="profile__mobile-number">{{ user.profile.mobile_number | default:"Not set" }}</p>
+  		{{ form.mobile_number.errors }}
+  		{{ form.mobile_number }}
+  		<span class="input-hint">{% trans "(e.g. 0914556789)" %}</span>
+  	</fieldset>
+  	{% endif %}
+
+  <fieldset>
+    {% if settings.profiles.UserProfilesSettings.show_email_field %}
+      <label>{% trans "Email Address:" %}</label>
+      <p class="profile__email">{{ user.email | default:"Not set" }}</p>
+    {% endif %}
+  </fieldset>
+  <div class="call-to-action call-to-action--profile call-to-action--view-profile">
+    <a href="{% url "molo.profiles:auth_logout" %}" class="call-to-action__nav-item call-to-action__nav-item--logout">{% trans "log out" %}</a>
+    <a href="{% url "molo.profiles:edit_my_profile" %}" class="call-to-action__nav-item call-to-action__nav-item--editprofile">{% trans "Edit My Profile" %}</a>
+    <a href="{% url "molo.profiles:profile_password_change" %}" class="call-to-action__nav-item call-to-action__nav-item--change-password">{% trans "Change My Password" %}</a>
+  </div>
 </div>
-
 {% endblock %}
