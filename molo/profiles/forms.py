@@ -154,6 +154,22 @@ class RegistrationForm(forms.Form):
 
         return self.cleaned_data['username']
 
+    def is_valid(self):
+        if 'mobile_number' in self.data:
+            if not self.data['mobile_number'].startswith('+'):
+                site = Site.objects.get(is_default_site=True)
+                settings = SettingsProxy(site)
+                profile_settings = settings['profiles']['UserProfilesSettings']
+                number = self.data['mobile_number']
+                if number.startswith('0'):
+                    number = number[1:]
+                number = profile_settings.country_code + \
+                    number
+                self.data = self.data.copy()
+                self.data['mobile_number'] = number
+        valid = super(RegistrationForm, self).is_valid()
+        return valid
+
 
 class DateOfBirthForm(forms.Form):
     date_of_birth = forms.DateField(
@@ -196,6 +212,22 @@ class EditProfileForm(forms.ModelForm):
             )
 
         return alias
+
+    def is_valid(self):
+        if 'mobile_number' in self.data:
+            if not self.data['mobile_number'].startswith('+'):
+                site = Site.objects.get(is_default_site=True)
+                settings = SettingsProxy(site)
+                profile_settings = settings['profiles']['UserProfilesSettings']
+                number = self.data['mobile_number']
+                if number.startswith('0'):
+                    number = number[1:]
+                number = profile_settings.country_code + \
+                    number
+                self.data = self.data.copy()
+                self.data['mobile_number'] = number
+        valid = super(EditProfileForm, self).is_valid()
+        return valid
 
 
 class ProfilePasswordChangeForm(forms.Form):

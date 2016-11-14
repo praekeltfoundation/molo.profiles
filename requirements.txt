@@ -1,5 +1,5 @@
-molo.core<4.0.0,>=3.1.2
-celery
+molo.core<4.0.0,>=3.14.0
+celery<4.0
 wagtailmodeladmin
 django-phonenumber-field
 django-import-export
