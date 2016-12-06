@@ -21,10 +21,10 @@ class FrontendUsersResource(resources.ModelResource):
 
     # unfortunately Field's 'attribute' parameter does not work for these
     def dehydrate_date_of_birth(self, user):
-        return user.profile.date_of_birth
+        return user.profile.date_of_birth if hasattr(user, 'profile') else ''
 
     def dehydrate_alias(self, user):
-        return user.profile.alias
+        return user.profile.alias if hasattr(user, 'profile') else ''
 
     def dehydrate_mobile_number(self, user):
-        return user.profile.mobile_number
+        return user.profile.mobile_number if hasattr(user, 'profile') else ''

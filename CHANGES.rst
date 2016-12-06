@@ -1,6 +1,10 @@
 CHANGE LOG
 ==========
 
+1.5.0
+-----
+- email CSV
+
 1.4.0
 -----
 - enable admin to input country code via wagtail

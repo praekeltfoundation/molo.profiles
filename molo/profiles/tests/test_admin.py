@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
-from datetime import date
-
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.contrib.auth.models import User
 from django.test.client import Client
-
+from datetime import date
 from molo.core.tests.base import MoloTestCaseMixin
 
 from molo.profiles.admin import ProfileUserAdmin, download_as_csv
@@ -96,19 +94,13 @@ class TestFrontendUsersAdminView(TestCase):
         self.assertContains(response, self.user.username)
         self.assertNotContains(response, self.superuser.email)
 
-    def test_export_csv(self):
+    @override_settings(CELERY_ALWAYS_EAGER=True)
+    def test_export_csv_redirects(self):
         profile = self.user.profile
         profile.alias = 'The Alias'
         profile.date_of_birth = date(1985, 1, 1)
         profile.mobile_number = '+27784667723'
         profile.save()
-
         response = self.client.post('/admin/modeladmin/auth/user/')
 
-        expected_output = (
-            'username,alias,first_name,last_name,date_of_birth,'
-            'email,mobile_number,is_active,date_joined,last_login\r\n'
-            'tester,The Alias,,,1985-01-01,tester@example.com,+27784667723,1,'
-        )
-
-        self.assertContains(response, expected_output)
+        self.assertEquals(response.status_code, 302)

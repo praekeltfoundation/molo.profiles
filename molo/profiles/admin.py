@@ -34,6 +34,8 @@ def download_as_csv(ProfileUserAdmin, request, queryset):
             [getattr(obj, field) for field in user_model_fields] +
             [getattr(obj.profile, field) for field in profile_fields])
     return response
+
+
 download_as_csv.short_description = "Download selected as csv"
 
 
