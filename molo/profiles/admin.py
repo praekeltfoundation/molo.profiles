@@ -84,5 +84,5 @@ class FrontendUsersModelAdmin(WagtailModelAdmin, ProfileUserAdmin):
     search_fields = ('username',)
 
     def get_queryset(self, request):
-        queryset = User.objects.filter(is_staff=False)
+        queryset = User.objects.filter(is_staff=False, groups__isnull=True)
         return queryset
