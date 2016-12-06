@@ -102,10 +102,4 @@ class TestFrontendUsersAdminView(TestCase):
         profile.save()
         response = self.client.post('/admin/modeladmin/auth/user/')
 
-        expected_output = (
-            'username,alias,first_name,last_name,date_of_birth,'
-            'email,mobile_number,is_active,date_joined,last_login\r\n'
-            'tester,The Alias,,,1985-01-01,tester@example.com,+27784667723,1,'
-        )
-
         self.assertEquals(response.status_code, 302)
