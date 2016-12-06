@@ -6,6 +6,9 @@ from django.shortcuts import redirect
 
 
 class FrontendUsersAdminView(IndexView):
+    def send_export_email_to_celery(self, email, arguments):
+        send_export_email.delay(email, arguments)
+
     def post(self, request, *args, **kwargs):
         if not request.user.email:
             messages.error(
@@ -31,8 +34,7 @@ class FrontendUsersAdminView(IndexView):
             if value:
                 arguments[key] = value
 
-        send_export_email.delay(
-            request.user.email, arguments)
+        self.send_export_email_to_celery(request.user.email, arguments)
         messages.success(request, _(
             "CSV emailed to '{0}'").format(request.user.email))
         return redirect(request.path)

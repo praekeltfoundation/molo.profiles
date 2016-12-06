@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.contrib.auth.models import User
 from django.test.client import Client
 from datetime import date
@@ -94,6 +94,7 @@ class TestFrontendUsersAdminView(TestCase):
         self.assertContains(response, self.user.username)
         self.assertNotContains(response, self.superuser.email)
 
+    @override_settings(CELERY_ALWAYS_EAGER=True)
     def test_export_csv_redirects(self):
         profile = self.user.profile
         profile.alias = 'The Alias'
