@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-from datetime import date
-
 from django.test import TestCase
 from django.contrib.auth.models import User
 from django.test.client import Client
@@ -95,20 +93,3 @@ class TestFrontendUsersAdminView(TestCase):
 
         self.assertContains(response, self.user.username)
         self.assertNotContains(response, self.superuser.email)
-
-    def test_export_csv(self):
-        profile = self.user.profile
-        profile.alias = 'The Alias'
-        profile.date_of_birth = date(1985, 1, 1)
-        profile.mobile_number = '+27784667723'
-        profile.save()
-
-        response = self.client.post('/admin/modeladmin/auth/user/')
-
-        expected_output = (
-            'username,alias,first_name,last_name,date_of_birth,'
-            'email,mobile_number,is_active,date_joined,last_login\r\n'
-            'tester,The Alias,,,1985-01-01,tester@example.com,+27784667723,1,'
-        )
-
-        self.assertContains(response, expected_output)
