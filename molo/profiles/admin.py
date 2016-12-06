@@ -86,3 +86,22 @@ class FrontendUsersModelAdmin(WagtailModelAdmin, ProfileUserAdmin):
     def get_queryset(self, request):
         queryset = User.objects.filter(is_staff=False, groups__isnull=True)
         return queryset
+
+
+class AdminUsersModel(WagtailModelAdmin, ProfileUserAdmin):
+    model = User
+    menu_label = 'End Users'
+    menu_icon = 'user'
+    menu_order = 600
+    index_view_class = FrontendUsersAdminView
+    add_to_settings_menu = True
+    list_display = ('username', '_alias', '_mobile_number', '_date_of_birth',
+                    'email', 'date_joined', 'is_active')
+
+    list_filter = (('date_joined', FrontendUsersDateRangeFilter), 'is_active')
+
+    search_fields = ('username',)
+
+    def get_queryset(self, request):
+        queryset = User.objects.exclude(is_staff=False, groups__isnull=True)
+        return queryset
