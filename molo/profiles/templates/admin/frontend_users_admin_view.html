@@ -33,7 +33,7 @@
               <form method="post" action="">
                   {% csrf_token %}
                   {% if user.is_superuser %}
-                    <button type="submit" class="button bicolor icon icon-download">{% trans "Download CSV" %}</button>
+                    <button type="submit" class="button bicolor icon icon-download">{% trans "Email CSV" %}</button>
                   {% endif %}
               </form>
              </div>

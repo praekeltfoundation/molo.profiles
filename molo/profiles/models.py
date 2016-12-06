@@ -114,6 +114,7 @@ class SecurityQuestion(TranslatablePageMixin, Page):
     def __str__(self):
         return self.title
 
+
 SecurityQuestion.content_panels = [
     FieldPanel("title", classname="full title")
 ]
