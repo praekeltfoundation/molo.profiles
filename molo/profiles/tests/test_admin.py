@@ -77,6 +77,12 @@ class TestFrontendUsersAdminView(TestCase):
             password='0000',
             is_staff=False)
 
+        # self.user2 = User.objects.create_user(
+        # username='tester',
+        # email='tester@example.com',
+        # password='0000',
+        # groups__isnull=True)
+
         self.superuser = User.objects.create_superuser(
             username='superuser',
             email='admin@example.com',
@@ -90,8 +96,8 @@ class TestFrontendUsersAdminView(TestCase):
         response = self.client.get(
             '/admin/modeladmin/auth/user/'
         )
-
         self.assertContains(response, self.user.username)
+        # self.assertNotContains(response, self.user2.username)
         self.assertNotContains(response, self.superuser.email)
 
     @override_settings(CELERY_ALWAYS_EAGER=True)
@@ -104,3 +110,35 @@ class TestFrontendUsersAdminView(TestCase):
         response = self.client.post('/admin/modeladmin/auth/user/')
 
         self.assertEquals(response.status_code, 302)
+
+
+class TestAdminUserView(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username='tester',
+            email='tester@example.com',
+            password='0000',
+            is_staff=False)
+
+        # self.user2 = User.objects.create_user(
+        #     username='tester',
+        #     email='tester@example.com',
+        #     password='0000',
+        #     groups__isnull=True)
+
+        self.superuser = User.objects.create_superuser(
+            username='superuser',
+            email='admin@example.com',
+            password='0000',
+            is_staff=True)
+
+        self.client = Client()
+        self.client.login(username='superuser', password='0000')
+
+    def test_exclude_all_end_users(self):
+        response = self.client.get(
+            '/admin/modeladmin/auth/user/'
+        )
+        self.assertContains(response, self.superuser.username)
+        # self.assertContains(response, self.user2.username)
+        self.assertNotContains(response, self.user.username)

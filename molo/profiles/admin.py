@@ -8,7 +8,6 @@ from django.contrib.admin.sites import NotRegistered
 
 from daterange_filter.filter import DateRangeFilter
 from wagtailmodeladmin.options import ModelAdmin as WagtailModelAdmin
-
 from molo.profiles.admin_views import FrontendUsersAdminView
 
 try:
@@ -88,19 +87,19 @@ class FrontendUsersModelAdmin(WagtailModelAdmin, ProfileUserAdmin):
         return queryset
 
 
-class AdminUsersModel(WagtailModelAdmin, ProfileUserAdmin):
+class AdminUsersModel(WagtailModelAdmin):
+
+    def __init__(self, *args, **kwargs):
+        super(AdminUsersModel, self).__init__(*args, **kwargs)
+        self.opts.model_name = 'adminuser'
+
     model = User
-    menu_label = 'End Users'
+    menu_label = 'Admin Users'
     menu_icon = 'user'
     menu_order = 600
-    index_view_class = FrontendUsersAdminView
     add_to_settings_menu = True
     list_display = ('username', '_alias', '_mobile_number', '_date_of_birth',
                     'email', 'date_joined', 'is_active')
-
-    list_filter = (('date_joined', FrontendUsersDateRangeFilter), 'is_active')
-
-    search_fields = ('username',)
 
     def get_queryset(self, request):
         queryset = User.objects.exclude(is_staff=False, groups__isnull=True)
