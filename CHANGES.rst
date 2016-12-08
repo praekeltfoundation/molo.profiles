@@ -1,6 +1,10 @@
 CHANGE LOG
 ==========
 
+1.5.1
+-----
+- Fix duplicated users via wagtail admin 
+
 1.5.0
 -----
 - email CSV
