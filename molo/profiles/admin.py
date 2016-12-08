@@ -9,6 +9,7 @@ from django.contrib.admin.sites import NotRegistered
 from daterange_filter.filter import DateRangeFilter
 from wagtailmodeladmin.options import ModelAdmin as WagtailModelAdmin
 from molo.profiles.admin_views import FrontendUsersAdminView
+from molo.profiles.models import AdminUser
 
 try:
     admin.site.unregister(User)
@@ -87,13 +88,13 @@ class FrontendUsersModelAdmin(WagtailModelAdmin, ProfileUserAdmin):
         return queryset
 
 
-class AdminUsersModel(WagtailModelAdmin):
+@admin.register(AdminUser)
+class AdminProfileUserAdmin(UserAdmin):
+    pass
 
-    def __init__(self, *args, **kwargs):
-        super(AdminUsersModel, self).__init__(*args, **kwargs)
-        self.opts.model_name = 'adminuser'
 
-    model = User
+class AdminUsersModelAdmin(WagtailModelAdmin, AdminProfileUserAdmin):
+    model = AdminUser
     menu_label = 'Admin Users'
     menu_icon = 'user'
     menu_order = 600
