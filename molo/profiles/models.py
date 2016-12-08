@@ -183,8 +183,3 @@ class SecurityAnswer(models.Model):
         if not self.id:
             self.set_answer(self.answer)
         super(SecurityAnswer, self).save(*args, **kwargs)
-
-
-class AdminUser(User):
-    class Meta:
-        proxy = True

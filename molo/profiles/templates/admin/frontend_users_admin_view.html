@@ -23,12 +23,6 @@
                     {% block search %}{% search_form %}{% endblock %}
                 </div>
 
-            {% if has_add_permission and view.button_helper.add_button %}
-                <div class="addbutton right" style="margin-left: 15px;">
-                    {% include 'wagtailmodeladmin/includes/button.html' with button=view.button_helper.add_button %}
-                </div>
-            {% endif %}
-
             <div class="right">
               <form method="post" action="">
                   {% csrf_token %}
