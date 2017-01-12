@@ -1,5 +1,5 @@
 from molo.profiles.admin import FrontendUsersModelAdmin
-from wagtailmodeladmin.options import wagtailmodeladmin_register
+from wagtail.contrib.modeladmin.options import modeladmin_register
 
 
-wagtailmodeladmin_register(FrontendUsersModelAdmin)
+modeladmin_register(FrontendUsersModelAdmin)
