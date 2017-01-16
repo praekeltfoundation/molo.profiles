@@ -8,7 +8,7 @@ from django.contrib.admin.sites import NotRegistered
 from django.utils.translation import ugettext_lazy as _
 
 from daterange_filter.filter import DateRangeFilter
-from wagtailmodeladmin.options import ModelAdmin as WagtailModelAdmin
+from wagtail.contrib.modeladmin.options import ModelAdmin as WagtailModelAdmin
 from molo.profiles.admin_views import FrontendUsersAdminView
 
 try:
