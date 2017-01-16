@@ -88,7 +88,7 @@ class TestFrontendUsersAdminView(TestCase):
 
     def test_staff_users_are_not_shown(self):
         response = self.client.get(
-            '/admin/modeladmin/auth/user/?usertype=frontend'
+            '/admin/auth/user/?usertype=frontend'
         )
         self.assertContains(response, self.user.username)
         self.assertNotContains(response, self.superuser.email)
@@ -100,7 +100,7 @@ class TestFrontendUsersAdminView(TestCase):
         profile.date_of_birth = date(1985, 1, 1)
         profile.mobile_number = '+27784667723'
         profile.save()
-        response = self.client.post('/admin/modeladmin/auth/user/')
+        response = self.client.post('/admin/auth/user/')
 
         self.assertEquals(response.status_code, 302)
 
@@ -124,7 +124,7 @@ class TestAdminUserView(TestCase):
 
     def test_exclude_all_end_users(self):
         response = self.client.get(
-            '/admin/modeladmin/auth/user/?usertype=admin'
+            '/admin/auth/user/?usertype=admin'
         )
         self.assertContains(response, self.superuser.username)
         self.assertNotContains(response, self.user.username)
