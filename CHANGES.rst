@@ -1,6 +1,10 @@
 CHANGE LOG
 ==========
 
+2.0.1
+-----
+- Updated templates in order to reflect styling changes in modeladmin
+
 2.0.0
 -----
 - Removed dependency on wagtailmodeladmin
