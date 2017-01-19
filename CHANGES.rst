@@ -1,6 +1,10 @@
 CHANGE LOG
 ==========
 
+2.0.2
+-----
+- Added missing button class for templates
+
 2.0.1
 -----
 - Updated templates in order to reflect styling changes in modeladmin
