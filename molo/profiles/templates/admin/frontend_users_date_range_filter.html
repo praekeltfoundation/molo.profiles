@@ -56,8 +56,8 @@
         {% for k, v in i.get_query.items %}
                 <input type="hidden" name="{{ k }}" value="{{ v }}">
         {% endfor %}
-    <button type="submit">{% trans "Search" %}</button>
-    <button type="submit" id="resetbtn">{% trans "Clear" %}</button>
+    <button class="button" type="submit">{% trans "Search" %}</button>
+    <button class="button" type="submit" id="resetbtn">{% trans "Clear" %}</button>
     </p>
 </form>
 {% endwith %}
