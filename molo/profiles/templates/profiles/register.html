@@ -30,7 +30,7 @@
       <span class="input-hint">({% trans "e.g. 2086" %})</span>
     </fieldset>
 
-    {% if settings.profiles.UserProfilesSettings.show_mobile_number_field %}
+    {% if settings.profiles.UserProfilesSettings.show_mobile_number_field and settings.profiles.UserProfilesSettings.country_code %}
     <fieldset>
       <label for="mobile_number">{% trans "Enter your mobile number" %}</label>
       {{ form.mobile_number.errors}}
