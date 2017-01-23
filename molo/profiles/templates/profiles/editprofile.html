@@ -16,7 +16,7 @@
 		{{ form.date_of_birth }}
 	</fieldset>
 
-	{% if settings.profiles.UserProfilesSettings.show_mobile_number_field %}
+	{% if settings.profiles.UserProfilesSettings.show_mobile_number_field and settings.profiles.UserProfilesSettings.country_code %}
 	<fieldset>
 		<label for="id_mobile_number">{% trans "Update your mobile number:" %}</label>
 		{{ form.mobile_number.errors }}
