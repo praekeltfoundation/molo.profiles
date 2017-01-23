@@ -82,7 +82,7 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
         response = self.client.get(reverse('molo.profiles:auth_login'))
         self.assertContains(response, 'Forgotten your password')
 
-    def test_warrning_message_shown_in_wagtail_if_no_country_code(self):
+    def test_warning_message_shown_in_wagtail_if_no_country_code(self):
         site = Site.objects.get(is_default_site=True)
         settings = SettingsProxy(site)
         profile_settings = settings['profiles']['UserProfilesSettings']
