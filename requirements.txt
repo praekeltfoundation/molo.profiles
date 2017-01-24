@@ -1,6 +1,5 @@
-molo.core<4.0.0,>=3.1.2
-celery
-wagtailmodeladmin
+molo.core<5.0.0,>=4.0.0
+celery<4.0
 django-phonenumber-field
 django-import-export
 django-daterange-filter

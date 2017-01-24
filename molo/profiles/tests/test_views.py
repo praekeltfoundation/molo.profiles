@@ -82,6 +82,23 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
         response = self.client.get(reverse('molo.profiles:auth_login'))
         self.assertContains(response, 'Forgotten your password')
 
+    def test_warning_message_shown_in_wagtail_if_no_country_code(self):
+        site = Site.objects.get(is_default_site=True)
+        settings = SettingsProxy(site)
+        profile_settings = settings['profiles']['UserProfilesSettings']
+
+        profile_settings.show_mobile_number_field = True
+        profile_settings.save()
+
+        User.objects.create_superuser(
+            username='testuser', password='password', email='test@email.com')
+        self.client.login(username='testuser', password='password')
+
+        response = self.client.get(reverse('wagtailadmin_home'))
+        self.assertContains(
+            response, 'You have activated mobile number in registration form,'
+            ' but you have not added a country calling code for this site.')
+
     def test_mobile_number_field_exists_in_registration_form(self):
         site = Site.objects.get(is_default_site=True)
         settings = SettingsProxy(site)
@@ -91,6 +108,12 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
         self.assertNotContains(response, 'Enter your mobile number')
 
         profile_settings.show_mobile_number_field = True
+        profile_settings.save()
+
+        response = self.client.get(reverse('molo.profiles:user_register'))
+        self.assertNotContains(response, 'Enter your mobile number')
+
+        profile_settings.country_code = '+27'
         profile_settings.save()
 
         response = self.client.get(reverse('molo.profiles:user_register'))
@@ -117,6 +140,7 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
 
         profile_settings.show_mobile_number_field = True
         profile_settings.mobile_number_required = True
+        profile_settings.country_code = '+27'
         profile_settings.save()
 
         response = self.client.post(reverse('molo.profiles:user_register'), {
@@ -183,15 +207,8 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
 
         profile_settings.show_mobile_number_field = True
         profile_settings.mobile_number_required = True
+        profile_settings.country_code = '+27'
         profile_settings.save()
-
-        response = self.client.post(reverse('molo.profiles:user_register'), {
-            'username': 'test',
-            'password': '1234',
-            'mobile_number': '0785577743'
-        })
-        self.assertFormError(
-            response, 'form', 'mobile_number', ['Enter a valid phone number.'])
 
         response = self.client.post(reverse('molo.profiles:user_register'), {
             'username': 'test',
@@ -205,6 +222,13 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
             'username': 'test',
             'password': '1234',
             'mobile_number': '+2785577743'
+        })
+        self.assertFormError(
+            response, 'form', 'mobile_number', ['Enter a valid phone number.'])
+        response = self.client.post(reverse('molo.profiles:user_register'), {
+            'username': 'test',
+            'password': '1234',
+            'mobile_number': '+089885577743'
         })
         self.assertFormError(
             response, 'form', 'mobile_number', ['Enter a valid phone number.'])
@@ -227,6 +251,52 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
             response, 'form', 'email', ['Enter a valid email address.'])
 
     def test_valid_mobile_number(self):
+        site = Site.objects.get(is_default_site=True)
+        settings = SettingsProxy(site)
+        profile_settings = settings['profiles']['UserProfilesSettings']
+        profile_settings.show_mobile_number_field = True
+        profile_settings.mobile_number_required = True
+        profile_settings.country_code = '+27'
+        profile_settings.save()
+        self.client.post(reverse('molo.profiles:user_register'), {
+            'username': 'test',
+            'password': '1234',
+            'mobile_number': '0784500003',
+            'terms_and_conditions': True
+        })
+        self.assertEqual(UserProfile.objects.get().mobile_number,
+                         '+27784500003')
+
+    def test_valid_mobile_number_edit_profile(self):
+        site = Site.objects.get(is_default_site=True)
+        settings = SettingsProxy(site)
+        profile_settings = settings['profiles']['UserProfilesSettings']
+        profile_settings.show_mobile_number_field = True
+        profile_settings.mobile_number_required = True
+        profile_settings.country_code = '+27'
+        profile_settings.save()
+        self.client.post(reverse('molo.profiles:user_register'), {
+            'username': 'test',
+            'password': '1234',
+            'mobile_number': '0784500003',
+            'terms_and_conditions': True
+        })
+        self.assertEqual(UserProfile.objects.get().mobile_number,
+                         '+27784500003')
+        self.client.post(reverse('molo.profiles:edit_my_profile'), {
+            'mobile_number': '0784500004',
+        })
+        self.assertEqual(UserProfile.objects.get().mobile_number,
+                         '+27784500004')
+
+    def test_valid_mobile_number_with_plus(self):
+        site = Site.objects.get(is_default_site=True)
+        settings = SettingsProxy(site)
+        profile_settings = settings['profiles']['UserProfilesSettings']
+        profile_settings.show_mobile_number_field = True
+        profile_settings.mobile_number_required = True
+        profile_settings.country_code = '+27'
+        profile_settings.save()
         self.client.post(reverse('molo.profiles:user_register'), {
             'username': 'test',
             'password': '1234',
@@ -235,6 +305,33 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
         })
         self.assertEqual(UserProfile.objects.get().mobile_number,
                          '+27784500003')
+        self.client.post(reverse('molo.profiles:edit_my_profile'), {
+            'mobile_number': '0784500004',
+        })
+        self.assertEqual(UserProfile.objects.get().mobile_number,
+                         '+27784500004')
+
+    def test_valid_mobile_number_without_zero(self):
+        site = Site.objects.get(is_default_site=True)
+        settings = SettingsProxy(site)
+        profile_settings = settings['profiles']['UserProfilesSettings']
+        profile_settings.show_mobile_number_field = True
+        profile_settings.mobile_number_required = True
+        profile_settings.country_code = '+27'
+        profile_settings.save()
+        self.client.post(reverse('molo.profiles:user_register'), {
+            'username': 'test',
+            'password': '1234',
+            'mobile_number': '784500003',
+            'terms_and_conditions': True
+        })
+        self.assertEqual(UserProfile.objects.get().mobile_number,
+                         '+27784500003')
+        self.client.post(reverse('molo.profiles:edit_my_profile'), {
+            'mobile_number': '+27784500005',
+        })
+        self.assertEqual(UserProfile.objects.get().mobile_number,
+                         '+27784500005')
 
     def test_valid_email(self):
         site = Site.objects.get(is_default_site=True)

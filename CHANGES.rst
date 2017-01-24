@@ -1,6 +1,46 @@
 CHANGE LOG
 ==========
 
+2.1.0
+-----
+- Update template to only show mobile number field if it's activated and has country calling code
+- Show a warning message on CMS if mobile number is activated but country calling code has not been set
+
+2.0.2
+-----
+- Added missing button class for templates
+
+2.0.1
+-----
+- Updated templates in order to reflect styling changes in modeladmin
+
+2.0.0
+-----
+- Removed dependency on wagtailmodeladmin
+
+Backwards incompatible changes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+- Removed use of ``wagtailmodeladmin``: use ``wagtail.contrib.modeladmin`` instead
+- ``{% load wagtailmodeladmin_tags %}`` has been replaced by ``{% load modeladmin_tags %}``
+
+NOTE: This release is not compatible with molo versions that are less than 4.0
+
+1.5.1
+-----
+- Fix duplicated users via wagtail admin
+
+1.5.0
+-----
+- email CSV
+
+1.4.0
+-----
+- enable admin to input country code via wagtail
+
+1.3.5
+-----
+- ensure migration doesn't fail if indexpage already exists
+
 1.3.4
 -----
 - Allow download as csv for admin users only

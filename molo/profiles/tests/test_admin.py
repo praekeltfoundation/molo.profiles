@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
-from datetime import date
-
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.contrib.auth.models import User
 from django.test.client import Client
-
+from datetime import date
 from molo.core.tests.base import MoloTestCaseMixin
 
 from molo.profiles.admin import ProfileUserAdmin, download_as_csv
@@ -90,25 +88,43 @@ class TestFrontendUsersAdminView(TestCase):
 
     def test_staff_users_are_not_shown(self):
         response = self.client.get(
-            '/admin/modeladmin/auth/user/'
+            '/admin/auth/user/?usertype=frontend'
         )
-
         self.assertContains(response, self.user.username)
         self.assertNotContains(response, self.superuser.email)
 
-    def test_export_csv(self):
+    @override_settings(CELERY_ALWAYS_EAGER=True)
+    def test_export_csv_redirects(self):
         profile = self.user.profile
         profile.alias = 'The Alias'
         profile.date_of_birth = date(1985, 1, 1)
         profile.mobile_number = '+27784667723'
         profile.save()
+        response = self.client.post('/admin/auth/user/')
 
-        response = self.client.post('/admin/modeladmin/auth/user/')
+        self.assertEquals(response.status_code, 302)
 
-        expected_output = (
-            'username,alias,first_name,last_name,date_of_birth,'
-            'email,mobile_number,is_active,date_joined,last_login\r\n'
-            'tester,The Alias,,,1985-01-01,tester@example.com,+27784667723,1,'
+
+class TestAdminUserView(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username='tester',
+            email='tester@example.com',
+            password='0000',
+            is_staff=False)
+
+        self.superuser = User.objects.create_superuser(
+            username='superuser',
+            email='admin@example.com',
+            password='0000',
+            is_staff=True)
+
+        self.client = Client()
+        self.client.login(username='superuser', password='0000')
+
+    def test_exclude_all_end_users(self):
+        response = self.client.get(
+            '/admin/auth/user/?usertype=admin'
         )
-
-        self.assertContains(response, expected_output)
+        self.assertContains(response, self.superuser.username)
+        self.assertNotContains(response, self.user.username)

@@ -17,18 +17,20 @@
         {% if user.profile.date_of_birth %}
           {{ user.profile.date_of_birth | date:"M d, Y" }}
         {% else %}
-          {% trans " Not set." %} 
+          {% trans " Not set." %}
         {% endif %}
       </p>
     </fieldset>
 
-    <fieldset>
-      {% if settings.profiles.UserProfilesSettings.show_mobile_number_field %}
-        <label>{% trans "Mobile Number: " %}</label
-        <p class="profile__mobile-number">{{ user.profile.mobile_number | default:"Not set" }}</p>
-      {% endif %}
-    </fieldset>
-  
+    {% if settings.profiles.UserProfilesSettings.show_mobile_number_field and settings.profiles.UserProfilesSettings.country_code %}
+  	<fieldset>
+  		<label for="id_mobile_number">{% trans "Mobile number:" %}</label>
+  		<p class="profile__mobile-number">{{ user.profile.mobile_number | default:"Not set" }}</p>
+  		{{ form.mobile_number.errors }}
+  		{{ form.mobile_number }}
+  	</fieldset>
+  	{% endif %}
+
   <fieldset>
     {% if settings.profiles.UserProfilesSettings.show_email_field %}
       <label>{% trans "Email Address:" %}</label>
