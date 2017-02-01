@@ -222,10 +222,11 @@ class EditProfileForm(forms.ModelForm):
                 settings = SettingsProxy(site)
                 profile_settings = settings['profiles']['UserProfilesSettings']
                 number = self.data['mobile_number']
-                if number.startswith('0'):
-                    number = number[1:]
-                number = profile_settings.country_code + \
-                    number
+                if number != '':
+                    if number.startswith('0'):
+                        number = number[1:]
+                    number = profile_settings.country_code + \
+                        number
                 self.data = self.data.copy()
                 self.data['mobile_number'] = number
         valid = super(EditProfileForm, self).is_valid()
