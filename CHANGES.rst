@@ -1,6 +1,10 @@
 CHANGE LOG
 ==========
 
+2.0.1
+-----
+- Fixed bug forcing users to add mobile number when not required
+
 2.1.0
 -----
 - Update template to only show mobile number field if it's activated and has country calling code
