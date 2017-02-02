@@ -628,7 +628,6 @@ class MyProfileEditTest(TestCase, MoloTestCaseMixin):
             response, reverse('molo.profiles:view_my_profile'))
 
 
-
 @override_settings(
     ROOT_URLCONF='molo.profiles.tests.test_views')
 class ProfileDateOfBirthEditTest(MoloTestCaseMixin, TestCase):
