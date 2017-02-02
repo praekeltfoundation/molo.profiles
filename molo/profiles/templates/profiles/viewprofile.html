@@ -22,13 +22,12 @@
       </p>
     </fieldset>
 
-    {% if settings.profiles.UserProfilesSettings.show_mobile_number_field %}
+    {% if settings.profiles.UserProfilesSettings.show_mobile_number_field and settings.profiles.UserProfilesSettings.country_code %}
   	<fieldset>
   		<label for="id_mobile_number">{% trans "Mobile number:" %}</label>
   		<p class="profile__mobile-number">{{ user.profile.mobile_number | default:"Not set" }}</p>
   		{{ form.mobile_number.errors }}
   		{{ form.mobile_number }}
-  		<span class="input-hint">{% trans "(e.g. 0914556789)" %}</span>
   	</fieldset>
   	{% endif %}
 

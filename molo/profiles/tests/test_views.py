@@ -82,6 +82,23 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
         response = self.client.get(reverse('molo.profiles:auth_login'))
         self.assertContains(response, 'Forgotten your password')
 
+    def test_warning_message_shown_in_wagtail_if_no_country_code(self):
+        site = Site.objects.get(is_default_site=True)
+        settings = SettingsProxy(site)
+        profile_settings = settings['profiles']['UserProfilesSettings']
+
+        profile_settings.show_mobile_number_field = True
+        profile_settings.save()
+
+        User.objects.create_superuser(
+            username='testuser', password='password', email='test@email.com')
+        self.client.login(username='testuser', password='password')
+
+        response = self.client.get(reverse('wagtailadmin_home'))
+        self.assertContains(
+            response, 'You have activated mobile number in registration form,'
+            ' but you have not added a country calling code for this site.')
+
     def test_mobile_number_field_exists_in_registration_form(self):
         site = Site.objects.get(is_default_site=True)
         settings = SettingsProxy(site)
@@ -91,6 +108,12 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
         self.assertNotContains(response, 'Enter your mobile number')
 
         profile_settings.show_mobile_number_field = True
+        profile_settings.save()
+
+        response = self.client.get(reverse('molo.profiles:user_register'))
+        self.assertNotContains(response, 'Enter your mobile number')
+
+        profile_settings.country_code = '+27'
         profile_settings.save()
 
         response = self.client.get(reverse('molo.profiles:user_register'))
@@ -110,6 +133,24 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
         response = self.client.get(reverse('molo.profiles:user_register'))
         self.assertContains(response, 'Enter your email')
 
+    def test_mobile_number_field_is_optional(self):
+        site = Site.objects.get(is_default_site=True)
+        settings = SettingsProxy(site)
+        profile_settings = settings['profiles']['UserProfilesSettings']
+
+        profile_settings.show_mobile_number_field = True
+        profile_settings.mobile_number_required = False
+        profile_settings.country_code = '+27'
+        profile_settings.save()
+
+        response = self.client.post(reverse('molo.profiles:user_register'), {
+            'username': 'test',
+            'password': '1234',
+            'mobile_number': '',
+            'terms_and_conditions': True
+        })
+        self.assertEqual(response.status_code, 302)
+
     def test_mobile_number_field_is_required(self):
         site = Site.objects.get(is_default_site=True)
         settings = SettingsProxy(site)
@@ -117,6 +158,7 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
 
         profile_settings.show_mobile_number_field = True
         profile_settings.mobile_number_required = True
+        profile_settings.country_code = '+27'
         profile_settings.save()
 
         response = self.client.post(reverse('molo.profiles:user_register'), {
@@ -569,6 +611,21 @@ class MyProfileEditTest(TestCase, MoloTestCaseMixin):
             response, reverse('molo.profiles:view_my_profile'))
         self.assertEqual(UserProfile.objects.get(user=self.user).user.email,
                          'example@foo.com')
+
+    def test_update_when_mobile_number_optional(self):
+        site = Site.objects.get(is_default_site=True)
+        settings = SettingsProxy(site)
+        profile_settings = settings['profiles']['UserProfilesSettings']
+
+        profile_settings.show_mobile_number_field = True
+        profile_settings.mobile_number_required = False
+        profile_settings.country_code = '+27'
+        profile_settings.save()
+        # user removes their mobile number
+        response = self.client.post(reverse('molo.profiles:edit_my_profile'), {
+                                    'mobile_number': ''})
+        self.assertRedirects(
+            response, reverse('molo.profiles:view_my_profile'))
 
 
 @override_settings(

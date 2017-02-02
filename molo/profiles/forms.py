@@ -108,7 +108,8 @@ class RegistrationForm(forms.Form):
         profile_settings = settings['profiles']['UserProfilesSettings']
         self.fields['mobile_number'].required = (
             profile_settings.mobile_number_required and
-            profile_settings.show_mobile_number_field)
+            profile_settings.show_mobile_number_field and
+            profile_settings.country_code)
         self.fields['email'].required = (
             profile_settings.email_required and
             profile_settings.show_email_field)
@@ -161,10 +162,11 @@ class RegistrationForm(forms.Form):
                 settings = SettingsProxy(site)
                 profile_settings = settings['profiles']['UserProfilesSettings']
                 number = self.data['mobile_number']
-                if number.startswith('0'):
-                    number = number[1:]
-                number = profile_settings.country_code + \
-                    number
+                if number != '':
+                    if number.startswith('0'):
+                        number = number[1:]
+                    number = profile_settings.country_code + \
+                        number
                 self.data = self.data.copy()
                 self.data['mobile_number'] = number
         valid = super(RegistrationForm, self).is_valid()
@@ -220,10 +222,11 @@ class EditProfileForm(forms.ModelForm):
                 settings = SettingsProxy(site)
                 profile_settings = settings['profiles']['UserProfilesSettings']
                 number = self.data['mobile_number']
-                if number.startswith('0'):
-                    number = number[1:]
-                number = profile_settings.country_code + \
-                    number
+                if number != '':
+                    if number.startswith('0'):
+                        number = number[1:]
+                    number = profile_settings.country_code + \
+                        number
                 self.data = self.data.copy()
                 self.data['mobile_number'] = number
         valid = super(EditProfileForm, self).is_valid()
