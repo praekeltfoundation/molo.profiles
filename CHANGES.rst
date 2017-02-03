@@ -1,7 +1,11 @@
 CHANGE LOG
 ==========
 
-2.0.1
+2.1.2
+-----
+- Use better python logic in forms
+
+2.1.1
 -----
 - Fixed bug forcing users to add mobile number when not required
 
