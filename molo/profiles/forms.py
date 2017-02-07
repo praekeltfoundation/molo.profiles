@@ -204,6 +204,9 @@ class EditProfileForm(forms.ModelForm):
             profile_settings.mobile_number_required and
             profile_settings.show_mobile_number_field and
             profile_settings.country_code)
+        self.fields['email'].required = (
+            profile_settings.email_required and
+            profile_settings.show_email_field)
 
     class Meta:
         model = UserProfile
