@@ -1,6 +1,10 @@
 CHANGE LOG
 ==========
 
+2.1.3
+-----
+- Fix bug that allowed user's mobile number and email to be deleted when updated despite being required fields
+
 2.1.2
 -----
 - Use better python logic in forms
