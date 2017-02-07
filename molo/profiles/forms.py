@@ -195,6 +195,16 @@ class EditProfileForm(forms.ModelForm):
     mobile_number = PhoneNumberField(required=False)
     email = forms.EmailField(required=False)
 
+    def __init__(self, *args, **kwargs):
+        super(EditProfileForm, self).__init__(*args, **kwargs)
+        site = Site.objects.get(is_default_site=True)
+        settings = SettingsProxy(site)
+        profile_settings = settings['profiles']['UserProfilesSettings']
+        self.fields['mobile_number'].required = (
+            profile_settings.mobile_number_required and
+            profile_settings.show_mobile_number_field and
+            profile_settings.country_code)
+
     class Meta:
         model = UserProfile
         fields = ['alias', 'date_of_birth', 'mobile_number']
