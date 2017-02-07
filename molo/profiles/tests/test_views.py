@@ -612,6 +612,34 @@ class MyProfileEditTest(TestCase, MoloTestCaseMixin):
         self.assertEqual(UserProfile.objects.get(user=self.user).user.email,
                          'example@foo.com')
 
+    def test_update_when_email_optional(self):
+        site = Site.objects.get(is_default_site=True)
+        settings = SettingsProxy(site)
+        profile_settings = settings['profiles']['UserProfilesSettings']
+
+        profile_settings.show_email_field = True
+        profile_settings.email_required = False
+        profile_settings.save()
+        # user removes their mobile number
+        response = self.client.post(reverse('molo.profiles:edit_my_profile'), {
+                                    'email': ''})
+        self.assertRedirects(
+            response, reverse('molo.profiles:view_my_profile'))
+
+    def test_update_when_email_required(self):
+        site = Site.objects.get(is_default_site=True)
+        settings = SettingsProxy(site)
+        profile_settings = settings['profiles']['UserProfilesSettings']
+
+        profile_settings.show_email_field = True
+        profile_settings.email_required = True
+        profile_settings.save()
+        # user removes their mobile number
+        response = self.client.post(reverse('molo.profiles:edit_my_profile'), {
+                                    'email': ''})
+        self.assertFormError(
+            response, 'form', 'email', ['This field is required.'])
+
     def test_update_when_mobile_number_optional(self):
         site = Site.objects.get(is_default_site=True)
         settings = SettingsProxy(site)
@@ -626,6 +654,20 @@ class MyProfileEditTest(TestCase, MoloTestCaseMixin):
                                     'mobile_number': ''})
         self.assertRedirects(
             response, reverse('molo.profiles:view_my_profile'))
+
+    def test_update_when_mobile_number_required(self):
+        site = Site.objects.get(is_default_site=True)
+        settings = SettingsProxy(site)
+        profile_settings = settings['profiles']['UserProfilesSettings']
+
+        profile_settings.show_mobile_number_field = True
+        profile_settings.mobile_number_required = True
+        profile_settings.country_code = '+27'
+        profile_settings.save()
+        response = self.client.post(reverse('molo.profiles:edit_my_profile'), {
+                                    'mobile_number': ''})
+        self.assertFormError(
+            response, 'form', 'mobile_number', ['This field is required.'])
 
 
 @override_settings(
