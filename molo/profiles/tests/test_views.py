@@ -632,7 +632,7 @@ class MyProfileEditTest(TestCase, MoloTestCaseMixin):
         profile_settings = settings['profiles']['UserProfilesSettings']
 
         profile_settings.show_email_field = True
-        profile_settings.email_required = False
+        profile_settings.email_required = True
         profile_settings.save()
         # user removes their mobile number
         response = self.client.post(reverse('molo.profiles:edit_my_profile'), {
