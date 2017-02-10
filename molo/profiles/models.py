@@ -5,7 +5,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
 
-from molo.core.models import TranslatablePageMixin
+from molo.core.models import TranslatablePageMixin, PreventDeleteMixin
 from phonenumber_field.modelfields import PhoneNumberField
 from wagtail.wagtailcore.models import Page
 from wagtail.contrib.settings.models import BaseSetting, register_setting
@@ -122,7 +122,7 @@ SecurityQuestion.promote_panels = []
 SecurityQuestion.settings_panels = []
 
 
-class SecurityQuestionIndexPage(Page):
+class SecurityQuestionIndexPage(Page, PreventDeleteMixin):
     parent_page_types = []
     subpage_types = ["SecurityQuestion"]
 
