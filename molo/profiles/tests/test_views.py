@@ -1033,6 +1033,7 @@ class ResetPasswordViewTest(TestCase, MoloTestCaseMixin):
             self.client.login(username="tester", password="1234")
         )
 
+
 @override_settings(
     ROOT_URLCONF='molo.profiles.tests.test_views')
 class TestDeleteButtonRemoved(TestCase, MoloTestCaseMixin):
