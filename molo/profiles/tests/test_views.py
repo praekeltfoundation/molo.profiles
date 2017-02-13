@@ -1043,8 +1043,6 @@ class TestDeleteButtonRemoved(TestCase, MoloTestCaseMixin):
         self.english = SiteLanguage.objects.create(locale='en')
         self.login()
 
-
-        # Create polls index page
         self.security_question_index = SecurityQuestionIndexPage(
             title='Security Questions',
             slug='security-questions')
