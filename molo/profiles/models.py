@@ -10,7 +10,7 @@ from phonenumber_field.modelfields import PhoneNumberField
 from wagtail.wagtailcore.models import Page
 from wagtail.contrib.settings.models import BaseSetting, register_setting
 from wagtail.wagtailadmin.edit_handlers import (
-    FieldPanel, MultiFieldPanel)
+    FieldPanel, MultiFieldPanel, PageChooserPanel)
 
 
 @register_setting
@@ -76,6 +76,14 @@ class UserProfilesSettings(BaseSetting):
         verbose_name=_("Max number of password recovery retries before "
                        "lockout")
     )
+    terms_and_conditions = models.ForeignKey(
+        'wagtailcore.Page',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='+',
+        help_text=_('Choose a footer page')
+    )
 
     panels = [
         MultiFieldPanel(
@@ -100,7 +108,12 @@ class UserProfilesSettings(BaseSetting):
                 FieldPanel("num_security_questions"),
                 FieldPanel("password_recovery_retries"),
             ],
-            heading="Security Question Settings", )
+            heading="Security Question Settings", ),
+        MultiFieldPanel(
+            [
+                PageChooserPanel('terms_and_conditions'),
+            ],
+            heading="Terms and Conditions on registration", )
     ]
     # TODO: mobile_number_required field shouldn't be shown
     # if show_mobile_number_field is False
