@@ -18,7 +18,9 @@ from molo.profiles.models import (
     UserProfile,
     SecurityQuestionIndexPage,
 )
-from molo.core.models import PageTranslation, SiteLanguage, Main
+from molo.core.models import (
+    PageTranslation, SiteLanguage, Main, FooterPage)
+
 from molo.core.tests.base import MoloTestCaseMixin
 
 from wagtail.wagtailcore.models import Site
@@ -517,6 +519,45 @@ class RegistrationDone(TestCase, MoloTestCaseMixin):
         self.assertEqual(response.status_code, 302)
         user = User.objects.get(username='tester')
         self.assertEqual(user.profile.date_of_birth, date(2000, 1, 1))
+
+
+@override_settings(
+    ROOT_URLCONF='molo.profiles.tests.test_views')
+class TestTermsAndConditions(TestCase, MoloTestCaseMixin):
+    def setUp(self):
+        self.mk_main()
+        self.footer = FooterPage(
+            title='terms and conditions', slug='terms-and-conditions')
+        self.footer_index.add_child(instance=self.footer)
+
+    def test_terms_and_conditions_linked_to_terms_and_conditions_page(self):
+        response = self.client.get(reverse('molo.profiles:user_register'))
+
+        self.assertNotContains(
+            response,
+            '<a href="/footer-pages/terms-and-conditions/"'
+            ' for="id_terms_and_conditions" class="profiles__terms">'
+            'I accept the Terms and Conditions</a>')
+        self.assertContains(
+            response,
+            '<label for="id_terms_and_conditions"'
+            ' class="profiles__terms">'
+            'I accept the Terms and Conditions</label>')
+
+        site = Site.objects.get(is_default_site=True)
+        settings = SettingsProxy(site)
+        profile_settings = settings['profiles']['UserProfilesSettings']
+
+        profile_settings.terms_and_conditions = self.footer
+        profile_settings.save()
+
+        response = self.client.get(reverse('molo.profiles:user_register'))
+
+        self.assertContains(
+            response,
+            '<a href="/footer-pages/terms-and-conditions/"'
+            ' for="id_terms_and_conditions" class="profiles__terms">'
+            'I accept the Terms and Conditions</a>')
 
 
 @override_settings(
