@@ -19,7 +19,7 @@ from molo.profiles.models import (
     SecurityQuestionIndexPage,
 )
 from molo.core.models import (
-    PageTranslation, SiteLanguage, Main, FooterPage
+    PageTranslation, SiteLanguage, Main, FooterPage)
 
 from molo.core.tests.base import MoloTestCaseMixin
 
