@@ -1,6 +1,14 @@
 CHANGE LOG
 ==========
 
+2.2.1
+-----
+- Updated minimum molo core dependency to 4.3.2
+
+2.2.0
+-----
+- Ensure that security question index page cannot be deleted
+
 2.1.3
 -----
 - Fix bug that allowed user's mobile number and email to be deleted when updated despite being required fields
