@@ -14,7 +14,7 @@ from molo.profiles.forms import (
     ProfilePasswordChangeForm, ForgotPasswordForm)
 from molo.profiles.models import (
     SecurityQuestion, SecurityAnswer, UserProfile)
-from molo.core.models import PageTranslation, SiteLanguage
+from molo.core.models import PageTranslation, SiteLanguage, FooterPage
 from molo.core.tests.base import MoloTestCaseMixin
 
 from wagtail.wagtailcore.models import Site
@@ -511,6 +511,64 @@ class RegistrationDone(TestCase, MoloTestCaseMixin):
         self.assertEqual(response.status_code, 302)
         user = User.objects.get(username='tester')
         self.assertEqual(user.profile.date_of_birth, date(2000, 1, 1))
+
+
+@override_settings(
+    ROOT_URLCONF='molo.profiles.tests.test_views')
+class TestTermsAndConditions(TestCase, MoloTestCaseMixin):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username='tester',
+            email='tester@example.com',
+            password='tester')
+        self.client = Client()
+        self.client.login(username='tester', password='tester')
+        self.mk_main()
+        self.french = SiteLanguage.objects.create(locale='fr')
+
+        self.footer = FooterPage(
+            title='terms and conditions', slug='terms-and-conditions')
+        self.footer_index.add_child(instance=self.footer)
+
+        self.mk_article_translation(
+            self.footer,
+            self.french,
+            title=self.footer.title + ' in french',)
+
+        # footer_french = self.mk_article_translation(
+        #     self.footer, self.french,
+        #     title=self.footer.title + 'in french')
+
+    def test_terms_and_conditions(self):
+        response = self.client.get(reverse('molo.profiles:user_register'))
+
+        self.assertNotContains(
+            response,
+            '<a href="/footer-pages/terms-and-conditions/"'
+            ' for="id_terms_and_conditions" class="profiles__terms">'
+            'I accept the Terms and Conditions</a>')
+
+        site = Site.objects.get(is_default_site=True)
+        settings = SettingsProxy(site)
+        profile_settings = settings['profiles']['UserProfilesSettings']
+
+        profile_settings.terms_and_conditions = self.footer
+        profile_settings.save()
+
+        response = self.client.get(reverse('molo.profiles:user_register'))
+
+        self.assertContains(
+            response,
+            '<a href="/footer-pages/terms-and-conditions/"'
+            ' for="id_terms_and_conditions" class="profiles__terms">'
+            'I accept the Terms and Conditions</a>')
+
+        self.client.get('/locale/fr/')
+        response = self.client.get(reverse('molo.profiles:user_register'))
+        self.assertContains(
+            response,
+            '<a href="/footer-pages/terms-and-conditions/">'
+            'terms and conditions</a>')
 
 
 @override_settings(
