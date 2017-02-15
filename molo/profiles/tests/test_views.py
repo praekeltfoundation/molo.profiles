@@ -13,12 +13,18 @@ from molo.profiles.forms import (
     RegistrationForm, EditProfileForm,
     ProfilePasswordChangeForm, ForgotPasswordForm)
 from molo.profiles.models import (
-    SecurityQuestion, SecurityAnswer, UserProfile)
-from molo.core.models import PageTranslation, SiteLanguage
+    SecurityQuestion,
+    SecurityAnswer,
+    UserProfile,
+    SecurityQuestionIndexPage,
+)
+from molo.core.models import PageTranslation, SiteLanguage, Main
 from molo.core.tests.base import MoloTestCaseMixin
 
 from wagtail.wagtailcore.models import Site
 from wagtail.contrib.settings.context_processors import SettingsProxy
+
+from bs4 import BeautifulSoup
 
 urlpatterns = patterns(
     '',
@@ -1026,3 +1032,62 @@ class ResetPasswordViewTest(TestCase, MoloTestCaseMixin):
         self.assertTrue(
             self.client.login(username="tester", password="1234")
         )
+
+
+@override_settings(
+    ROOT_URLCONF='molo.profiles.tests.test_views')
+class TestDeleteButtonRemoved(TestCase, MoloTestCaseMixin):
+
+    def setUp(self):
+        self.mk_main()
+        self.english = SiteLanguage.objects.create(locale='en')
+        self.login()
+
+        self.security_question_index = SecurityQuestionIndexPage(
+            title='Security Questions',
+            slug='security-questions')
+        self.main.add_child(instance=self.security_question_index)
+        self.security_question_index.save_revision().publish()
+
+    def test_delete_button_removed_for_sec_ques_index_page_in_main(self):
+        main_page = Main.objects.first()
+
+        response = self.client.get('/admin/pages/{0}/'
+                                   .format(str(main_page.pk)))
+        self.assertEquals(response.status_code, 200)
+
+        security_q_index_page_title = (
+            SecurityQuestionIndexPage.objects.first().title)
+
+        soup = BeautifulSoup(response.content, 'html.parser')
+        index_page_rows = soup.find_all('tbody')[0].find_all('tr')
+
+        for row in index_page_rows:
+            if row.h2.a.string == security_q_index_page_title:
+                self.assertTrue(row.find('a', string='Edit'))
+                self.assertFalse(row.find('a', string='Delete'))
+
+    def test_delete_button_removed_from_dropdown_menu_main(self):
+        security_q_index_page = SecurityQuestionIndexPage.objects.first()
+
+        response = self.client.get('/admin/pages/{0}/'
+                                   .format(str(security_q_index_page.pk)))
+        self.assertEquals(response.status_code, 200)
+
+        delete_link = ('<a href="/admin/pages/{0}/delete/" '
+                       'title="Delete this page" class="u-link '
+                       'is-live ">Delete</a>'
+                       .format(str(security_q_index_page.pk)))
+        self.assertNotContains(response, delete_link, html=True)
+
+    def test_delete_button_removed_in_edit_menu(self):
+        security_q_index_page = SecurityQuestionIndexPage.objects.first()
+
+        response = self.client.get('/admin/pages/{0}/edit/'
+                                   .format(str(security_q_index_page.pk)))
+        self.assertEquals(response.status_code, 200)
+
+        delete_button = ('<li><a href="/admin/pages/{0}/delete/" '
+                         'class="shortcut">Delete</a></li>'
+                         .format(str(security_q_index_page.pk)))
+        self.assertNotContains(response, delete_button, html=True)
