@@ -1,6 +1,10 @@
 CHANGE LOG
 ==========
 
+3.0.0
+-----
+- Add terms and conditions on registration
+
 2.2.1
 -----
 - Updated minimum molo core dependency to 4.3.2
