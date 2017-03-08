@@ -1,4 +1,4 @@
-molo.core<5.0.0,>=4.3.2
+-e git+https://github.com/praekelt/molo.git@4214465f09848ba1223b1d89b7f53add4af2a2b0#egg=molo.core
 celery<4.0
 django-phonenumber-field
 django-import-export
