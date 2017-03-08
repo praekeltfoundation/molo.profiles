@@ -5,6 +5,7 @@ from django.conf.urls import patterns, url, include
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.auth.tokens import default_token_generator
+
 from django.core.urlresolvers import reverse
 from django.http import QueryDict
 from django.test import TestCase, override_settings, Client
@@ -13,18 +14,15 @@ from molo.profiles.forms import (
     RegistrationForm, EditProfileForm,
     ProfilePasswordChangeForm, ForgotPasswordForm)
 from molo.profiles.models import (
-    SecurityQuestion,
-    SecurityAnswer,
-    UserProfile,
-    SecurityQuestionIndexPage,
+    SecurityQuestion, SecurityAnswer,
+    UserProfile, SecurityQuestionIndexPage, UserProfilesSettings
 )
 from molo.core.models import (
-    PageTranslation, SiteLanguage, Main, FooterPage)
+    PageTranslation, Main, FooterPage, Languages, SiteLanguageRelation)
 
 from molo.core.tests.base import MoloTestCaseMixin
 
 from wagtail.wagtailcore.models import Site
-from wagtail.contrib.settings.context_processors import SettingsProxy
 
 from bs4 import BeautifulSoup
 
@@ -45,8 +43,21 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
     def setUp(self):
         self.client = Client()
         self.mk_main()
-        # Creates Main language
-        SiteLanguage.objects.create(locale='en')
+        self.main = Main.objects.all().first()
+        self.language_setting = Languages.objects.create(
+            site_id=self.main.get_site().pk)
+        self.english = SiteLanguageRelation.objects.create(
+            language_setting=self.language_setting,
+            locale='en',
+            is_active=True)
+        self.mk_main2()
+        self.main2 = Main.objects.all().last()
+        self.language_setting2 = Languages.objects.create(
+            site_id=self.main2.get_site().pk)
+        self.english2 = SiteLanguageRelation.objects.create(
+            language_setting=self.language_setting2,
+            locale='en',
+            is_active=True)
 
     def test_register_view(self):
         response = self.client.get(reverse('molo.profiles:user_register'))
@@ -80,6 +91,65 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
         response = self.client.get(reverse('molo.profiles:edit_my_profile'))
         self.assertEqual(response.status_code, 200)
 
+    def test_superuser_user_can_log_into_any_admin(self):
+        self.login()
+        response = self.client.post('/admin/login/', {
+            'username': 'superuser',
+            'password': 'pass'
+        })
+        self.assertEquals(response['location'], '/admin/')
+        client = Client(HTTP_HOST=self.site2.hostname)
+        response = client.post('/admin/login/', {
+            'username': 'superuser',
+            'password': 'pass'
+        })
+        self.assertEquals(response['location'], '/admin/')
+
+    def test_superuser_only_users_from_site_show(self):
+        response = self.client.post(reverse('molo.profiles:user_register'), {
+            'username': 'testing1',
+            'password': '1234',
+            'terms_and_conditions': True
+
+        })
+        client = Client(HTTP_HOST=self.site2.hostname)
+        response = client.post('/profiles/register/', {
+            'username': 'testing2',
+            'password': '1234',
+            'terms_and_conditions': True
+
+        })
+        self.login()
+        self.client.login(username='superuser', password='pass')
+        response = self.client.get('/admin/auth/user/')
+        self.assertNotContains(response, 'testing2')
+        self.assertContains(response, 'testing1')
+        client.login(username='superuser', password='pass')
+        response = client.get('/admin/auth/user/')
+        self.assertContains(response, 'testing2')
+        self.assertNotContains(response, 'testing1')
+
+    def test_login_to_different_registration_site(self):
+        self.assertEquals(User.objects.count(), 0)
+        response = self.client.post(reverse('molo.profiles:user_register'), {
+            'username': 'testing',
+            'password': '1234',
+            'terms_and_conditions': True
+
+        })
+        user = User.objects.all().first()
+        self.assertEquals(User.objects.count(), 1)
+        self.assertTrue(user.profile)
+        self.assertEqual(user.profile.site, self.main.get_site())
+        client = Client(HTTP_HOST=self.site2.hostname)
+        response = client.post(reverse('molo.profiles:auth_login'), {
+            'username': user.username,
+            'password': user.password
+        })
+        # assert that logging into a different site throws permission denied
+        self.assertContains(
+            response, 'Your username and password does not match')
+
     def test_logout(self):
         response = self.client.get('%s?next=%s' % (
             reverse('molo.profiles:auth_logout'),
@@ -92,7 +162,7 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
 
     def test_warning_message_shown_in_wagtail_if_no_country_code(self):
         site = Site.objects.get(is_default_site=True)
-        settings = SettingsProxy(site)
+        profile_settings = UserProfilesSettings.for_site(site)
         profile_settings = settings['profiles']['UserProfilesSettings']
 
         profile_settings.show_mobile_number_field = True
@@ -109,8 +179,7 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
 
     def test_mobile_number_field_exists_in_registration_form(self):
         site = Site.objects.get(is_default_site=True)
-        settings = SettingsProxy(site)
-        profile_settings = settings['profiles']['UserProfilesSettings']
+        profile_settings = UserProfilesSettings.for_site(site)
 
         response = self.client.get(reverse('molo.profiles:user_register'))
         self.assertNotContains(response, 'Enter your mobile number')
@@ -129,8 +198,7 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
 
     def test_email_field_exists_in_registration_form(self):
         site = Site.objects.get(is_default_site=True)
-        settings = SettingsProxy(site)
-        profile_settings = settings['profiles']['UserProfilesSettings']
+        profile_settings = UserProfilesSettings.for_site(site)
 
         response = self.client.get(reverse('molo.profiles:user_register'))
         self.assertNotContains(response, 'Enter your email')
@@ -143,8 +211,7 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
 
     def test_mobile_number_field_is_optional(self):
         site = Site.objects.get(is_default_site=True)
-        settings = SettingsProxy(site)
-        profile_settings = settings['profiles']['UserProfilesSettings']
+        profile_settings = UserProfilesSettings.for_site(site)
 
         profile_settings.show_mobile_number_field = True
         profile_settings.mobile_number_required = False
@@ -161,8 +228,7 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
 
     def test_mobile_number_field_is_required(self):
         site = Site.objects.get(is_default_site=True)
-        settings = SettingsProxy(site)
-        profile_settings = settings['profiles']['UserProfilesSettings']
+        profile_settings = UserProfilesSettings.for_site(site)
 
         profile_settings.show_mobile_number_field = True
         profile_settings.mobile_number_required = True
@@ -179,8 +245,7 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
 
     def test_email_field_is_required(self):
         site = Site.objects.get(is_default_site=True)
-        settings = SettingsProxy(site)
-        profile_settings = settings['profiles']['UserProfilesSettings']
+        profile_settings = UserProfilesSettings.for_site(site)
 
         profile_settings.show_email_field = True
         profile_settings.email_required = True
@@ -196,8 +261,7 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
 
     def test_mobile_num_is_required_but_show_mobile_num_field_is_false(self):
         site = Site.objects.get(is_default_site=True)
-        settings = SettingsProxy(site)
-        profile_settings = settings['profiles']['UserProfilesSettings']
+        profile_settings = UserProfilesSettings.for_site(site)
 
         profile_settings.show_mobile_number_field = False
         profile_settings.mobile_number_required = True
@@ -212,13 +276,11 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
 
     def test_email_is_required_but_show_email_field_is_false(self):
         site = Site.objects.get(is_default_site=True)
-        settings = SettingsProxy(site)
-        profile_settings = settings['profiles']['UserProfilesSettings']
+        profile_settings = UserProfilesSettings.for_site(site)
 
         profile_settings.show_email_field = False
         profile_settings.email_required = True
         profile_settings.save()
-
         response = self.client.post(reverse('molo.profiles:user_register'), {
             'username': 'test',
             'password': '1234',
@@ -228,8 +290,7 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
 
     def test_invalid_mobile_number(self):
         site = Site.objects.get(is_default_site=True)
-        settings = SettingsProxy(site)
-        profile_settings = settings['profiles']['UserProfilesSettings']
+        profile_settings = UserProfilesSettings.for_site(site)
 
         profile_settings.show_mobile_number_field = True
         profile_settings.mobile_number_required = True
@@ -261,8 +322,7 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
 
     def test_invalid_email(self):
         site = Site.objects.get(is_default_site=True)
-        settings = SettingsProxy(site)
-        profile_settings = settings['profiles']['UserProfilesSettings']
+        profile_settings = UserProfilesSettings.for_site(site)
 
         profile_settings.show_email_field = True
         profile_settings.email_required = True
@@ -278,8 +338,7 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
 
     def test_valid_mobile_number(self):
         site = Site.objects.get(is_default_site=True)
-        settings = SettingsProxy(site)
-        profile_settings = settings['profiles']['UserProfilesSettings']
+        profile_settings = UserProfilesSettings.for_site(site)
         profile_settings.show_mobile_number_field = True
         profile_settings.mobile_number_required = True
         profile_settings.country_code = '+27'
@@ -295,8 +354,7 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
 
     def test_valid_mobile_number_edit_profile(self):
         site = Site.objects.get(is_default_site=True)
-        settings = SettingsProxy(site)
-        profile_settings = settings['profiles']['UserProfilesSettings']
+        profile_settings = UserProfilesSettings.for_site(site)
         profile_settings.show_mobile_number_field = True
         profile_settings.mobile_number_required = True
         profile_settings.country_code = '+27'
@@ -317,8 +375,7 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
 
     def test_valid_mobile_number_with_plus(self):
         site = Site.objects.get(is_default_site=True)
-        settings = SettingsProxy(site)
-        profile_settings = settings['profiles']['UserProfilesSettings']
+        profile_settings = UserProfilesSettings.for_site(site)
         profile_settings.show_mobile_number_field = True
         profile_settings.mobile_number_required = True
         profile_settings.country_code = '+27'
@@ -339,8 +396,7 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
 
     def test_valid_mobile_number_without_zero(self):
         site = Site.objects.get(is_default_site=True)
-        settings = SettingsProxy(site)
-        profile_settings = settings['profiles']['UserProfilesSettings']
+        profile_settings = UserProfilesSettings.for_site(site)
         profile_settings.show_mobile_number_field = True
         profile_settings.mobile_number_required = True
         profile_settings.country_code = '+27'
@@ -361,8 +417,7 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
 
     def test_valid_email(self):
         site = Site.objects.get(is_default_site=True)
-        settings = SettingsProxy(site)
-        profile_settings = settings['profiles']['UserProfilesSettings']
+        profile_settings = UserProfilesSettings.for_site(site)
 
         profile_settings.show_email_field = True
         profile_settings.email_required = True
@@ -378,9 +433,7 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
 
     def test_email_or_phone_not_allowed_in_username(self):
         site = Site.objects.get(is_default_site=True)
-        settings = SettingsProxy(site)
-
-        profile_settings = settings['profiles']['UserProfilesSettings']
+        profile_settings = UserProfilesSettings.for_site(site)
 
         profile_settings.prevent_phone_number_in_username = True
         profile_settings.prevent_email_in_username = True
@@ -402,9 +455,7 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
 
     def test_email_not_allowed_in_username(self):
         site = Site.objects.get(is_default_site=True)
-        settings = SettingsProxy(site)
-
-        profile_settings = settings['profiles']['UserProfilesSettings']
+        profile_settings = UserProfilesSettings.for_site(site)
 
         profile_settings.prevent_email_in_username = True
         profile_settings.save()
@@ -425,9 +476,7 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
 
     def test_ascii_code_not_allowed_in_username(self):
         site = Site.objects.get(is_default_site=True)
-        settings = SettingsProxy(site)
-
-        profile_settings = settings['profiles']['UserProfilesSettings']
+        profile_settings = UserProfilesSettings.for_site(site)
 
         profile_settings.prevent_email_in_username = True
         profile_settings.save()
@@ -445,9 +494,7 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
 
     def test_phone_number_not_allowed_in_username(self):
         site = Site.objects.get(is_default_site=True)
-        settings = SettingsProxy(site)
-
-        profile_settings = settings['profiles']['UserProfilesSettings']
+        profile_settings = UserProfilesSettings.for_site(site)
 
         profile_settings.prevent_phone_number_in_username = True
         profile_settings.save()
@@ -467,16 +514,13 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
 
     def test_security_questions(self):
         site = Site.objects.get(is_default_site=True)
-        settings = SettingsProxy(site)
-
+        profile_settings = UserProfilesSettings.for_site(site)
         SecurityQuestion.objects.create(
             title="What is your name?",
             slug="what-is-your-name",
             path="0002",
             depth=1,
         )
-
-        profile_settings = settings['profiles']['UserProfilesSettings']
         profile_settings.show_security_question_fields = True
         profile_settings.security_questions_required = True
         profile_settings.save()
@@ -545,8 +589,7 @@ class TestTermsAndConditions(TestCase, MoloTestCaseMixin):
             'I accept the Terms and Conditions</label>')
 
         site = Site.objects.get(is_default_site=True)
-        settings = SettingsProxy(site)
-        profile_settings = settings['profiles']['UserProfilesSettings']
+        profile_settings = UserProfilesSettings.for_site(site)
 
         profile_settings.terms_and_conditions = self.footer
         profile_settings.save()
@@ -614,8 +657,7 @@ class MyProfileEditTest(TestCase, MoloTestCaseMixin):
 
     def test_email_showing_in_edit_view(self):
         site = Site.objects.get(is_default_site=True)
-        settings = SettingsProxy(site)
-        profile_settings = settings['profiles']['UserProfilesSettings']
+        profile_settings = UserProfilesSettings.for_site(site)
 
         profile_settings.show_email_field = True
         profile_settings.email_required = True
@@ -661,8 +703,7 @@ class MyProfileEditTest(TestCase, MoloTestCaseMixin):
 
     def test_update_when_email_optional(self):
         site = Site.objects.get(is_default_site=True)
-        settings = SettingsProxy(site)
-        profile_settings = settings['profiles']['UserProfilesSettings']
+        profile_settings = UserProfilesSettings.for_site(site)
 
         profile_settings.show_email_field = True
         profile_settings.email_required = False
@@ -675,8 +716,7 @@ class MyProfileEditTest(TestCase, MoloTestCaseMixin):
 
     def test_update_when_email_required(self):
         site = Site.objects.get(is_default_site=True)
-        settings = SettingsProxy(site)
-        profile_settings = settings['profiles']['UserProfilesSettings']
+        profile_settings = UserProfilesSettings.for_site(site)
 
         profile_settings.show_email_field = True
         profile_settings.email_required = True
@@ -689,8 +729,7 @@ class MyProfileEditTest(TestCase, MoloTestCaseMixin):
 
     def test_update_when_mobile_number_optional(self):
         site = Site.objects.get(is_default_site=True)
-        settings = SettingsProxy(site)
-        profile_settings = settings['profiles']['UserProfilesSettings']
+        profile_settings = UserProfilesSettings.for_site(site)
 
         profile_settings.show_mobile_number_field = True
         profile_settings.mobile_number_required = False
@@ -704,8 +743,7 @@ class MyProfileEditTest(TestCase, MoloTestCaseMixin):
 
     def test_update_when_mobile_number_required(self):
         site = Site.objects.get(is_default_site=True)
-        settings = SettingsProxy(site)
-        profile_settings = settings['profiles']['UserProfilesSettings']
+        profile_settings = UserProfilesSettings.for_site(site)
 
         profile_settings.show_mobile_number_field = True
         profile_settings.mobile_number_required = True
@@ -813,8 +851,13 @@ class ForgotPasswordViewTest(TestCase, MoloTestCaseMixin):
             username="tester",
             email="tester@example.com",
             password="0000")
-        # Creates Main language
-        SiteLanguage.objects.create(locale='en')
+        self.main = Main.objects.all().first()
+        self.language_setting = Languages.objects.create(
+            site_id=self.main.get_site().pk)
+        self.english = SiteLanguageRelation.objects.create(
+            language_setting=self.language_setting,
+            locale='en',
+            is_active=True)
 
         # create a few security questions
         q1 = SecurityQuestion.objects.create(
@@ -875,8 +918,7 @@ class ForgotPasswordViewTest(TestCase, MoloTestCaseMixin):
     def test_too_many_retries_result_in_error(self):
         error_message = "Too many attempts"
         site = Site.objects.get(is_default_site=True)
-        settings = SettingsProxy(site)
-        profile_settings = settings['profiles']['UserProfilesSettings']
+        profile_settings = UserProfilesSettings.for_site(site)
 
         # post more times than the set number of retries
         for i in range(profile_settings.password_recovery_retries + 5):
@@ -909,10 +951,17 @@ class TranslatedSecurityQuestionsTest(TestCase, MoloTestCaseMixin):
             self.section_index, title='Security Questions')
 
         # Creates Main language
-        SiteLanguage.objects.create(locale="en")
-
-        # Creates translation Language
-        self.french = SiteLanguage.objects.create(locale="fr")
+        self.main = Main.objects.all().first()
+        self.language_setting = Languages.objects.create(
+            site_id=self.main.get_site().pk)
+        self.english = SiteLanguageRelation.objects.create(
+            language_setting=self.language_setting,
+            locale='en',
+            is_active=True)
+        self.french = SiteLanguageRelation.objects.create(
+            language_setting=self.language_setting,
+            locale='fr',
+            is_active=True)
 
         # create a few security questions
         self.q1 = SecurityQuestion.objects.create(
@@ -957,8 +1006,13 @@ class ResetPasswordViewTest(TestCase, MoloTestCaseMixin):
             email="tester@example.com",
             password="0000")
 
-        # Creates Main language
-        SiteLanguage.objects.create(locale='en')
+        self.main = Main.objects.all().first()
+        self.language_setting = Languages.objects.create(
+            site_id=self.main.get_site().pk)
+        self.english = SiteLanguageRelation.objects.create(
+            language_setting=self.language_setting,
+            locale='en',
+            is_active=True)
 
         # create a few security questions
         q1 = SecurityQuestion.objects.create(
@@ -1081,7 +1135,13 @@ class TestDeleteButtonRemoved(TestCase, MoloTestCaseMixin):
 
     def setUp(self):
         self.mk_main()
-        self.english = SiteLanguage.objects.create(locale='en')
+        self.main = Main.objects.all().first()
+        self.language_setting = Languages.objects.create(
+            site_id=self.main.get_site().pk)
+        self.english = SiteLanguageRelation.objects.create(
+            language_setting=self.language_setting,
+            locale='en',
+            is_active=True)
         self.login()
 
         self.security_question_index = SecurityQuestionIndexPage(
