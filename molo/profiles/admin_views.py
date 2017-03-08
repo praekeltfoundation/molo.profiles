@@ -28,12 +28,11 @@ class FrontendUsersAdminView(IndexView):
             'is_active': is_active_exact
         }
 
-        arguments = {}
+        arguments = {'profile__site': request.site}
 
         for key, value in filter_list.items():
             if value:
                 arguments[key] = value
-
         self.send_export_email_to_celery(request.user.email, arguments)
         messages.success(request, _(
             "CSV emailed to '{0}'").format(request.user.email))
