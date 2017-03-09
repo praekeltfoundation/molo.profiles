@@ -1,6 +1,6 @@
 CHANGE LOG
 ==========
-4.0.0-beta.1
+4.0.0-beta.2
 ------------
 - Pre-release to support molo v5
 
