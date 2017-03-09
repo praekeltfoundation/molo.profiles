@@ -5,12 +5,12 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
 
-from molo.core.models import TranslatablePageMixin
+from molo.core.models import TranslatablePageMixin, PreventDeleteMixin
 from phonenumber_field.modelfields import PhoneNumberField
 from wagtail.wagtailcore.models import Page
 from wagtail.contrib.settings.models import BaseSetting, register_setting
 from wagtail.wagtailadmin.edit_handlers import (
-    FieldPanel, MultiFieldPanel)
+    FieldPanel, MultiFieldPanel, PageChooserPanel)
 
 
 @register_setting
@@ -25,7 +25,14 @@ class UserProfilesSettings(BaseSetting):
         editable=True,
         verbose_name=_("Mobile number required"),
     )
-
+    country_code = models.CharField(
+        max_length=4,
+        null=True, blank=True,
+        verbose_name=_(
+            "The country code that should be added to a user's number for "
+            "this site"),
+        help_text=_("For example: +27 for South Africa, +44 for England")
+    )
     prevent_phone_number_in_username = models.BooleanField(
         default=False,
         editable=True,
@@ -69,12 +76,21 @@ class UserProfilesSettings(BaseSetting):
         verbose_name=_("Max number of password recovery retries before "
                        "lockout")
     )
+    terms_and_conditions = models.ForeignKey(
+        'wagtailcore.Page',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='+',
+        help_text=_('Choose a footer page')
+    )
 
     panels = [
         MultiFieldPanel(
             [
                 FieldPanel('show_mobile_number_field'),
                 FieldPanel('mobile_number_required'),
+                FieldPanel('country_code'),
                 FieldPanel('prevent_phone_number_in_username'),
             ],
             heading="Mobile Number Settings", ),
@@ -92,7 +108,12 @@ class UserProfilesSettings(BaseSetting):
                 FieldPanel("num_security_questions"),
                 FieldPanel("password_recovery_retries"),
             ],
-            heading="Security Question Settings", )
+            heading="Security Question Settings", ),
+        MultiFieldPanel(
+            [
+                PageChooserPanel('terms_and_conditions'),
+            ],
+            heading="Terms and Conditions on registration", )
     ]
     # TODO: mobile_number_required field shouldn't be shown
     # if show_mobile_number_field is False
@@ -106,6 +127,7 @@ class SecurityQuestion(TranslatablePageMixin, Page):
     def __str__(self):
         return self.title
 
+
 SecurityQuestion.content_panels = [
     FieldPanel("title", classname="full title")
 ]
@@ -113,7 +135,7 @@ SecurityQuestion.promote_panels = []
 SecurityQuestion.settings_panels = []
 
 
-class SecurityQuestionIndexPage(Page):
+class SecurityQuestionIndexPage(Page, PreventDeleteMixin):
     parent_page_types = []
     subpage_types = ["SecurityQuestion"]
 

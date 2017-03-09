@@ -13,12 +13,20 @@ from molo.profiles.forms import (
     RegistrationForm, EditProfileForm,
     ProfilePasswordChangeForm, ForgotPasswordForm)
 from molo.profiles.models import (
-    SecurityQuestion, SecurityAnswer, UserProfile)
-from molo.core.models import PageTranslation, SiteLanguage
+    SecurityQuestion,
+    SecurityAnswer,
+    UserProfile,
+    SecurityQuestionIndexPage,
+)
+from molo.core.models import (
+    PageTranslation, SiteLanguage, Main, FooterPage)
+
 from molo.core.tests.base import MoloTestCaseMixin
 
 from wagtail.wagtailcore.models import Site
 from wagtail.contrib.settings.context_processors import SettingsProxy
+
+from bs4 import BeautifulSoup
 
 urlpatterns = patterns(
     '',
@@ -82,6 +90,23 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
         response = self.client.get(reverse('molo.profiles:auth_login'))
         self.assertContains(response, 'Forgotten your password')
 
+    def test_warning_message_shown_in_wagtail_if_no_country_code(self):
+        site = Site.objects.get(is_default_site=True)
+        settings = SettingsProxy(site)
+        profile_settings = settings['profiles']['UserProfilesSettings']
+
+        profile_settings.show_mobile_number_field = True
+        profile_settings.save()
+
+        User.objects.create_superuser(
+            username='testuser', password='password', email='test@email.com')
+        self.client.login(username='testuser', password='password')
+
+        response = self.client.get(reverse('wagtailadmin_home'))
+        self.assertContains(
+            response, 'You have activated mobile number in registration form,'
+            ' but you have not added a country calling code for this site.')
+
     def test_mobile_number_field_exists_in_registration_form(self):
         site = Site.objects.get(is_default_site=True)
         settings = SettingsProxy(site)
@@ -91,6 +116,12 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
         self.assertNotContains(response, 'Enter your mobile number')
 
         profile_settings.show_mobile_number_field = True
+        profile_settings.save()
+
+        response = self.client.get(reverse('molo.profiles:user_register'))
+        self.assertNotContains(response, 'Enter your mobile number')
+
+        profile_settings.country_code = '+27'
         profile_settings.save()
 
         response = self.client.get(reverse('molo.profiles:user_register'))
@@ -110,6 +141,24 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
         response = self.client.get(reverse('molo.profiles:user_register'))
         self.assertContains(response, 'Enter your email')
 
+    def test_mobile_number_field_is_optional(self):
+        site = Site.objects.get(is_default_site=True)
+        settings = SettingsProxy(site)
+        profile_settings = settings['profiles']['UserProfilesSettings']
+
+        profile_settings.show_mobile_number_field = True
+        profile_settings.mobile_number_required = False
+        profile_settings.country_code = '+27'
+        profile_settings.save()
+
+        response = self.client.post(reverse('molo.profiles:user_register'), {
+            'username': 'test',
+            'password': '1234',
+            'mobile_number': '',
+            'terms_and_conditions': True
+        })
+        self.assertEqual(response.status_code, 302)
+
     def test_mobile_number_field_is_required(self):
         site = Site.objects.get(is_default_site=True)
         settings = SettingsProxy(site)
@@ -117,6 +166,7 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
 
         profile_settings.show_mobile_number_field = True
         profile_settings.mobile_number_required = True
+        profile_settings.country_code = '+27'
         profile_settings.save()
 
         response = self.client.post(reverse('molo.profiles:user_register'), {
@@ -183,15 +233,8 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
 
         profile_settings.show_mobile_number_field = True
         profile_settings.mobile_number_required = True
+        profile_settings.country_code = '+27'
         profile_settings.save()
-
-        response = self.client.post(reverse('molo.profiles:user_register'), {
-            'username': 'test',
-            'password': '1234',
-            'mobile_number': '0785577743'
-        })
-        self.assertFormError(
-            response, 'form', 'mobile_number', ['Enter a valid phone number.'])
 
         response = self.client.post(reverse('molo.profiles:user_register'), {
             'username': 'test',
@@ -205,6 +248,13 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
             'username': 'test',
             'password': '1234',
             'mobile_number': '+2785577743'
+        })
+        self.assertFormError(
+            response, 'form', 'mobile_number', ['Enter a valid phone number.'])
+        response = self.client.post(reverse('molo.profiles:user_register'), {
+            'username': 'test',
+            'password': '1234',
+            'mobile_number': '+089885577743'
         })
         self.assertFormError(
             response, 'form', 'mobile_number', ['Enter a valid phone number.'])
@@ -227,6 +277,52 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
             response, 'form', 'email', ['Enter a valid email address.'])
 
     def test_valid_mobile_number(self):
+        site = Site.objects.get(is_default_site=True)
+        settings = SettingsProxy(site)
+        profile_settings = settings['profiles']['UserProfilesSettings']
+        profile_settings.show_mobile_number_field = True
+        profile_settings.mobile_number_required = True
+        profile_settings.country_code = '+27'
+        profile_settings.save()
+        self.client.post(reverse('molo.profiles:user_register'), {
+            'username': 'test',
+            'password': '1234',
+            'mobile_number': '0784500003',
+            'terms_and_conditions': True
+        })
+        self.assertEqual(UserProfile.objects.get().mobile_number,
+                         '+27784500003')
+
+    def test_valid_mobile_number_edit_profile(self):
+        site = Site.objects.get(is_default_site=True)
+        settings = SettingsProxy(site)
+        profile_settings = settings['profiles']['UserProfilesSettings']
+        profile_settings.show_mobile_number_field = True
+        profile_settings.mobile_number_required = True
+        profile_settings.country_code = '+27'
+        profile_settings.save()
+        self.client.post(reverse('molo.profiles:user_register'), {
+            'username': 'test',
+            'password': '1234',
+            'mobile_number': '0784500003',
+            'terms_and_conditions': True
+        })
+        self.assertEqual(UserProfile.objects.get().mobile_number,
+                         '+27784500003')
+        self.client.post(reverse('molo.profiles:edit_my_profile'), {
+            'mobile_number': '0784500004',
+        })
+        self.assertEqual(UserProfile.objects.get().mobile_number,
+                         '+27784500004')
+
+    def test_valid_mobile_number_with_plus(self):
+        site = Site.objects.get(is_default_site=True)
+        settings = SettingsProxy(site)
+        profile_settings = settings['profiles']['UserProfilesSettings']
+        profile_settings.show_mobile_number_field = True
+        profile_settings.mobile_number_required = True
+        profile_settings.country_code = '+27'
+        profile_settings.save()
         self.client.post(reverse('molo.profiles:user_register'), {
             'username': 'test',
             'password': '1234',
@@ -235,6 +331,33 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
         })
         self.assertEqual(UserProfile.objects.get().mobile_number,
                          '+27784500003')
+        self.client.post(reverse('molo.profiles:edit_my_profile'), {
+            'mobile_number': '0784500004',
+        })
+        self.assertEqual(UserProfile.objects.get().mobile_number,
+                         '+27784500004')
+
+    def test_valid_mobile_number_without_zero(self):
+        site = Site.objects.get(is_default_site=True)
+        settings = SettingsProxy(site)
+        profile_settings = settings['profiles']['UserProfilesSettings']
+        profile_settings.show_mobile_number_field = True
+        profile_settings.mobile_number_required = True
+        profile_settings.country_code = '+27'
+        profile_settings.save()
+        self.client.post(reverse('molo.profiles:user_register'), {
+            'username': 'test',
+            'password': '1234',
+            'mobile_number': '784500003',
+            'terms_and_conditions': True
+        })
+        self.assertEqual(UserProfile.objects.get().mobile_number,
+                         '+27784500003')
+        self.client.post(reverse('molo.profiles:edit_my_profile'), {
+            'mobile_number': '+27784500005',
+        })
+        self.assertEqual(UserProfile.objects.get().mobile_number,
+                         '+27784500005')
 
     def test_valid_email(self):
         site = Site.objects.get(is_default_site=True)
@@ -399,6 +522,45 @@ class RegistrationDone(TestCase, MoloTestCaseMixin):
 
 
 @override_settings(
+    ROOT_URLCONF='molo.profiles.tests.test_views')
+class TestTermsAndConditions(TestCase, MoloTestCaseMixin):
+    def setUp(self):
+        self.mk_main()
+        self.footer = FooterPage(
+            title='terms and conditions', slug='terms-and-conditions')
+        self.footer_index.add_child(instance=self.footer)
+
+    def test_terms_and_conditions_linked_to_terms_and_conditions_page(self):
+        response = self.client.get(reverse('molo.profiles:user_register'))
+
+        self.assertNotContains(
+            response,
+            '<a href="/footer-pages/terms-and-conditions/"'
+            ' for="id_terms_and_conditions" class="profiles__terms">'
+            'I accept the Terms and Conditions</a>')
+        self.assertContains(
+            response,
+            '<label for="id_terms_and_conditions"'
+            ' class="profiles__terms">'
+            'I accept the Terms and Conditions</label>')
+
+        site = Site.objects.get(is_default_site=True)
+        settings = SettingsProxy(site)
+        profile_settings = settings['profiles']['UserProfilesSettings']
+
+        profile_settings.terms_and_conditions = self.footer
+        profile_settings.save()
+
+        response = self.client.get(reverse('molo.profiles:user_register'))
+
+        self.assertContains(
+            response,
+            '<a href="/footer-pages/terms-and-conditions/"'
+            ' for="id_terms_and_conditions" class="profiles__terms">'
+            'I accept the Terms and Conditions</a>')
+
+
+@override_settings(
     ROOT_URLCONF='molo.profiles.tests.test_views',
     TEMPLATE_CONTEXT_PROCESSORS=settings.TEMPLATE_CONTEXT_PROCESSORS + [
         'molo.profiles.context_processors.get_profile_data',
@@ -496,6 +658,63 @@ class MyProfileEditTest(TestCase, MoloTestCaseMixin):
             response, reverse('molo.profiles:view_my_profile'))
         self.assertEqual(UserProfile.objects.get(user=self.user).user.email,
                          'example@foo.com')
+
+    def test_update_when_email_optional(self):
+        site = Site.objects.get(is_default_site=True)
+        settings = SettingsProxy(site)
+        profile_settings = settings['profiles']['UserProfilesSettings']
+
+        profile_settings.show_email_field = True
+        profile_settings.email_required = False
+        profile_settings.save()
+        # user removes their mobile number
+        response = self.client.post(reverse('molo.profiles:edit_my_profile'), {
+                                    'email': ''})
+        self.assertRedirects(
+            response, reverse('molo.profiles:view_my_profile'))
+
+    def test_update_when_email_required(self):
+        site = Site.objects.get(is_default_site=True)
+        settings = SettingsProxy(site)
+        profile_settings = settings['profiles']['UserProfilesSettings']
+
+        profile_settings.show_email_field = True
+        profile_settings.email_required = True
+        profile_settings.save()
+        # user removes their mobile number
+        response = self.client.post(reverse('molo.profiles:edit_my_profile'), {
+                                    'email': ''})
+        self.assertFormError(
+            response, 'form', 'email', ['This field is required.'])
+
+    def test_update_when_mobile_number_optional(self):
+        site = Site.objects.get(is_default_site=True)
+        settings = SettingsProxy(site)
+        profile_settings = settings['profiles']['UserProfilesSettings']
+
+        profile_settings.show_mobile_number_field = True
+        profile_settings.mobile_number_required = False
+        profile_settings.country_code = '+27'
+        profile_settings.save()
+        # user removes their mobile number
+        response = self.client.post(reverse('molo.profiles:edit_my_profile'), {
+                                    'mobile_number': ''})
+        self.assertRedirects(
+            response, reverse('molo.profiles:view_my_profile'))
+
+    def test_update_when_mobile_number_required(self):
+        site = Site.objects.get(is_default_site=True)
+        settings = SettingsProxy(site)
+        profile_settings = settings['profiles']['UserProfilesSettings']
+
+        profile_settings.show_mobile_number_field = True
+        profile_settings.mobile_number_required = True
+        profile_settings.country_code = '+27'
+        profile_settings.save()
+        response = self.client.post(reverse('molo.profiles:edit_my_profile'), {
+                                    'mobile_number': ''})
+        self.assertFormError(
+            response, 'form', 'mobile_number', ['This field is required.'])
 
 
 @override_settings(
@@ -854,3 +1073,62 @@ class ResetPasswordViewTest(TestCase, MoloTestCaseMixin):
         self.assertTrue(
             self.client.login(username="tester", password="1234")
         )
+
+
+@override_settings(
+    ROOT_URLCONF='molo.profiles.tests.test_views')
+class TestDeleteButtonRemoved(TestCase, MoloTestCaseMixin):
+
+    def setUp(self):
+        self.mk_main()
+        self.english = SiteLanguage.objects.create(locale='en')
+        self.login()
+
+        self.security_question_index = SecurityQuestionIndexPage(
+            title='Security Questions',
+            slug='security-questions')
+        self.main.add_child(instance=self.security_question_index)
+        self.security_question_index.save_revision().publish()
+
+    def test_delete_button_removed_for_sec_ques_index_page_in_main(self):
+        main_page = Main.objects.first()
+
+        response = self.client.get('/admin/pages/{0}/'
+                                   .format(str(main_page.pk)))
+        self.assertEquals(response.status_code, 200)
+
+        security_q_index_page_title = (
+            SecurityQuestionIndexPage.objects.first().title)
+
+        soup = BeautifulSoup(response.content, 'html.parser')
+        index_page_rows = soup.find_all('tbody')[0].find_all('tr')
+
+        for row in index_page_rows:
+            if row.h2.a.string == security_q_index_page_title:
+                self.assertTrue(row.find('a', string='Edit'))
+                self.assertFalse(row.find('a', string='Delete'))
+
+    def test_delete_button_removed_from_dropdown_menu_main(self):
+        security_q_index_page = SecurityQuestionIndexPage.objects.first()
+
+        response = self.client.get('/admin/pages/{0}/'
+                                   .format(str(security_q_index_page.pk)))
+        self.assertEquals(response.status_code, 200)
+
+        delete_link = ('<a href="/admin/pages/{0}/delete/" '
+                       'title="Delete this page" class="u-link '
+                       'is-live ">Delete</a>'
+                       .format(str(security_q_index_page.pk)))
+        self.assertNotContains(response, delete_link, html=True)
+
+    def test_delete_button_removed_in_edit_menu(self):
+        security_q_index_page = SecurityQuestionIndexPage.objects.first()
+
+        response = self.client.get('/admin/pages/{0}/edit/'
+                                   .format(str(security_q_index_page.pk)))
+        self.assertEquals(response.status_code, 200)
+
+        delete_button = ('<li><a href="/admin/pages/{0}/delete/" '
+                         'class="shortcut">Delete</a></li>'
+                         .format(str(security_q_index_page.pk)))
+        self.assertNotContains(response, delete_button, html=True)

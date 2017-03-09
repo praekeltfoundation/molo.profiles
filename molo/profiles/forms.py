@@ -108,7 +108,8 @@ class RegistrationForm(forms.Form):
         profile_settings = settings['profiles']['UserProfilesSettings']
         self.fields['mobile_number'].required = (
             profile_settings.mobile_number_required and
-            profile_settings.show_mobile_number_field)
+            profile_settings.show_mobile_number_field and
+            profile_settings.country_code)
         self.fields['email'].required = (
             profile_settings.email_required and
             profile_settings.show_email_field)
@@ -154,6 +155,23 @@ class RegistrationForm(forms.Form):
 
         return self.cleaned_data['username']
 
+    def is_valid(self):
+        if 'mobile_number' in self.data:
+            if not self.data['mobile_number'].startswith('+'):
+                site = Site.objects.get(is_default_site=True)
+                settings = SettingsProxy(site)
+                profile_settings = settings['profiles']['UserProfilesSettings']
+                number = self.data['mobile_number']
+                if number:
+                    if number.startswith('0'):
+                        number = number[1:]
+                    number = profile_settings.country_code + \
+                        number
+                self.data = self.data.copy()
+                self.data['mobile_number'] = number
+        valid = super(RegistrationForm, self).is_valid()
+        return valid
+
 
 class DateOfBirthForm(forms.Form):
     date_of_birth = forms.DateField(
@@ -177,6 +195,19 @@ class EditProfileForm(forms.ModelForm):
     mobile_number = PhoneNumberField(required=False)
     email = forms.EmailField(required=False)
 
+    def __init__(self, *args, **kwargs):
+        super(EditProfileForm, self).__init__(*args, **kwargs)
+        site = Site.objects.get(is_default_site=True)
+        settings = SettingsProxy(site)
+        profile_settings = settings['profiles']['UserProfilesSettings']
+        self.fields['mobile_number'].required = (
+            profile_settings.mobile_number_required and
+            profile_settings.show_mobile_number_field and
+            profile_settings.country_code)
+        self.fields['email'].required = (
+            profile_settings.email_required and
+            profile_settings.show_email_field)
+
     class Meta:
         model = UserProfile
         fields = ['alias', 'date_of_birth', 'mobile_number']
@@ -196,6 +227,23 @@ class EditProfileForm(forms.ModelForm):
             )
 
         return alias
+
+    def is_valid(self):
+        if 'mobile_number' in self.data:
+            if not self.data['mobile_number'].startswith('+'):
+                site = Site.objects.get(is_default_site=True)
+                settings = SettingsProxy(site)
+                profile_settings = settings['profiles']['UserProfilesSettings']
+                number = self.data['mobile_number']
+                if number:
+                    if number.startswith('0'):
+                        number = number[1:]
+                    number = profile_settings.country_code + \
+                        number
+                self.data = self.data.copy()
+                self.data['mobile_number'] = number
+        valid = super(EditProfileForm, self).is_valid()
+        return valid
 
 
 class ProfilePasswordChangeForm(forms.Form):
