@@ -160,7 +160,7 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
         })
         # assert that logging into a different site throws permission denied
         self.assertContains(
-            response, 'Your username and password does not match')
+            response, 'Your username and password do not match.')
 
     def test_logout(self):
         response = self.client.get('%s?next=%s' % (
