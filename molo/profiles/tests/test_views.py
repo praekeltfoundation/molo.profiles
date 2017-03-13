@@ -58,6 +58,18 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
             language_setting=self.language_setting2,
             locale='en',
             is_active=True)
+        self.security_index = SecurityQuestionIndexPage(
+            title='Security Questions',
+            slug='security_questions',
+        )
+        self.main.add_child(instance=self.security_index)
+        self.security_index.save()
+        self.question = SecurityQuestion(
+            title="How old are you?",
+            slug="how-old-are-you",
+        )
+        self.security_index.add_child(instance=self.question)
+        self.question.save()
 
     def test_register_view(self):
         response = self.client.get(reverse('molo.profiles:user_register'))
@@ -163,7 +175,6 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
     def test_warning_message_shown_in_wagtail_if_no_country_code(self):
         site = Site.objects.get(is_default_site=True)
         profile_settings = UserProfilesSettings.for_site(site)
-        profile_settings = settings['profiles']['UserProfilesSettings']
 
         profile_settings.show_mobile_number_field = True
         profile_settings.save()
@@ -515,12 +526,12 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
     def test_security_questions(self):
         site = Site.objects.get(is_default_site=True)
         profile_settings = UserProfilesSettings.for_site(site)
-        SecurityQuestion.objects.create(
+        sq = SecurityQuestion(
             title="What is your name?",
             slug="what-is-your-name",
-            path="0002",
-            depth=1,
         )
+        self.security_index.add_child(instance=sq)
+        sq.save()
         profile_settings.show_security_question_fields = True
         profile_settings.security_questions_required = True
         profile_settings.save()
@@ -573,10 +584,22 @@ class TestTermsAndConditions(TestCase, MoloTestCaseMixin):
         self.footer = FooterPage(
             title='terms and conditions', slug='terms-and-conditions')
         self.footer_index.add_child(instance=self.footer)
+        self.footer.save()
+        self.security_index = SecurityQuestionIndexPage(
+            title='Security Questions',
+            slug='security_questions',
+        )
+        self.main.add_child(instance=self.security_index)
+        self.security_index.save()
+        self.question = SecurityQuestion(
+            title="How old are you?",
+            slug="how-old-are-you",
+        )
+        self.security_index.add_child(instance=self.question)
+        self.question.save()
 
     def test_terms_and_conditions_linked_to_terms_and_conditions_page(self):
         response = self.client.get(reverse('molo.profiles:user_register'))
-
         self.assertNotContains(
             response,
             '<a href="/footer-pages/terms-and-conditions/"'
@@ -595,10 +618,9 @@ class TestTermsAndConditions(TestCase, MoloTestCaseMixin):
         profile_settings.save()
 
         response = self.client.get(reverse('molo.profiles:user_register'))
-
         self.assertContains(
             response,
-            '<a href="/footer-pages/terms-and-conditions/"'
+            '<a href="/footers-main-1/terms-and-conditions/"'
             ' for="id_terms_and_conditions" class="profiles__terms">'
             'I accept the Terms and Conditions</a>')
 
@@ -859,17 +881,22 @@ class ForgotPasswordViewTest(TestCase, MoloTestCaseMixin):
             locale='en',
             is_active=True)
 
-        # create a few security questions
-        q1 = SecurityQuestion.objects.create(
+        self.security_index = SecurityQuestionIndexPage(
+            title='Security Questions',
+            slug='security_questions',
+        )
+        self.main.add_child(instance=self.security_index)
+        self.security_index.save()
+        self.question = SecurityQuestion(
             title="How old are you?",
             slug="how-old-are-you",
-            path="0002",
-            depth=1,
         )
+        self.security_index.add_child(instance=self.question)
+        self.question.save()
 
         # create answers for this user
         self.a1 = SecurityAnswer.objects.create(
-            user=self.user.profile, question=q1, answer="20"
+            user=self.user.profile, question=self.question, answer="20"
         )
 
     def test_view(self):
@@ -952,7 +979,7 @@ class TranslatedSecurityQuestionsTest(TestCase, MoloTestCaseMixin):
 
         # Creates Main language
         self.main = Main.objects.all().first()
-        self.language_setting = Languages.objects.create(
+        self.language_setting, _ = Languages.objects.get_or_create(
             site_id=self.main.get_site().pk)
         self.english = SiteLanguageRelation.objects.create(
             language_setting=self.language_setting,
@@ -963,22 +990,26 @@ class TranslatedSecurityQuestionsTest(TestCase, MoloTestCaseMixin):
             locale='fr',
             is_active=True)
 
-        # create a few security questions
-        self.q1 = SecurityQuestion.objects.create(
+        self.security_index = SecurityQuestionIndexPage(
+            title='Security Questions',
+            slug='security_questions',
+        )
+        self.main.add_child(instance=self.security_index)
+        self.security_index.save()
+        self.q1 = SecurityQuestion(
             title="How old are you?",
             slug="how-old-are-you",
-            path="0002",
-            depth=1,
         )
+        self.security_index.add_child(instance=self.q1)
+        self.q1.save()
 
     def test_translated_question_appears_on_registration(self):
         # make translation for the security question
-        fr_question = SecurityQuestion.objects.create(
+        fr_question = SecurityQuestion(
             title="How old are you in french",
             slug="how-old-are-you-in-french",
-            path="0003",
-            depth=1,
         )
+        self.security_index.add_child(instance=fr_question)
         language_relation = fr_question.languages.first()
         language_relation.language = self.french
         language_relation.save()
@@ -1014,17 +1045,22 @@ class ResetPasswordViewTest(TestCase, MoloTestCaseMixin):
             locale='en',
             is_active=True)
 
-        # create a few security questions
-        q1 = SecurityQuestion.objects.create(
+        self.security_index = SecurityQuestionIndexPage(
+            title='Security Questions',
+            slug='security_questions',
+        )
+        self.main.add_child(instance=self.security_index)
+        self.security_index.save()
+        self.question = SecurityQuestion(
             title="How old are you?",
             slug="how-old-are-you",
-            path="0002",
-            depth=1,
         )
+        self.security_index.add_child(instance=self.question)
+        self.question.save()
 
         # create answers for this user
         self.a1 = SecurityAnswer.objects.create(
-            user=self.user.profile, question=q1, answer="20"
+            user=self.user.profile, question=self.question, answer="20"
         )
 
     def proceed_to_reset_password_page(self):
