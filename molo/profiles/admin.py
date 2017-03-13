@@ -63,6 +63,11 @@ class ProfileUserAdmin(UserAdmin):
             return obj.profile.date_of_birth
         return ''
 
+    def _site(self, obj, *args, **kwargs):
+        if hasattr(obj, 'profile') and obj.profile.site:
+            return obj.profile.site
+        return ''
+
 
 # Below here is for Wagtail Admin
 class FrontendUsersDateRangeFilter(DateRangeFilter):
@@ -95,10 +100,13 @@ class FrontendUsersModelAdmin(WagtailModelAdmin, ProfileUserAdmin):
     index_view_class = FrontendUsersAdminView
     add_to_settings_menu = True
     list_display = ('username', '_alias', '_mobile_number', '_date_of_birth',
-                    'email', 'date_joined', 'is_active')
+                    'email', 'date_joined', 'is_active', '_site')
 
     list_filter = (
         ('date_joined', FrontendUsersDateRangeFilter), 'is_active',
         CustomUsersListFilter)
 
     search_fields = ('username',)
+
+    def get_queryset(self, request):
+        return User.objects.filter(profile__site=request.site)

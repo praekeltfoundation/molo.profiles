@@ -14,7 +14,7 @@ install:
   - pip install -e . --cache-dir $HOME/.pip-cache/
 script:
   - flake8 molo
-  - molo scaffold testapp --include molo.profiles ^profiles/
+  - molo scaffold testapp
   - flake8 testapp
   - pip install -e testapp
   - py.test --cov=molo

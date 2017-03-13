@@ -2,9 +2,10 @@
 from django.test import TestCase, override_settings
 from django.contrib.auth.models import User
 from django.test.client import Client
+from django.core.urlresolvers import reverse
 from datetime import date
 from molo.core.tests.base import MoloTestCaseMixin
-
+from molo.core.models import Main, Languages, SiteLanguageRelation
 from molo.profiles.admin import ProfileUserAdmin, download_as_csv
 from molo.profiles.models import UserProfile
 
@@ -16,6 +17,13 @@ class ModelsTestCase(TestCase, MoloTestCaseMixin):
             email='tester@example.com',
             password='tester')
         self.mk_main()
+        self.main = Main.objects.all().first()
+        self.language_setting = Languages.objects.create(
+            site_id=self.main.get_site().pk)
+        self.english = SiteLanguageRelation.objects.create(
+            language_setting=self.language_setting,
+            locale='en',
+            is_active=True)
 
     def test_download_csv(self):
         profile = self.user.profile
@@ -69,13 +77,23 @@ class ModelsTestCase(TestCase, MoloTestCaseMixin):
         self.assertEquals(str(response), expected_output)
 
 
-class TestFrontendUsersAdminView(TestCase):
+class TestFrontendUsersAdminView(TestCase, MoloTestCaseMixin):
     def setUp(self):
-        self.user = User.objects.create_user(
-            username='tester',
-            email='tester@example.com',
-            password='0000',
-            is_staff=False)
+        self.mk_main()
+        self.main = Main.objects.all().first()
+        self.language_setting = Languages.objects.create(
+            site_id=self.main.get_site().pk)
+        self.english = SiteLanguageRelation.objects.create(
+            language_setting=self.language_setting,
+            locale='en',
+            is_active=True)
+        self.client.post(reverse('molo.profiles:user_register'), {
+            'username': 'testing1',
+            'password': '1234',
+            'terms_and_conditions': True
+
+        })
+        self.user = User.objects.get(username='testing1')
 
         self.superuser = User.objects.create_superuser(
             username='superuser',
@@ -105,8 +123,16 @@ class TestFrontendUsersAdminView(TestCase):
         self.assertEquals(response.status_code, 302)
 
 
-class TestAdminUserView(TestCase):
+class TestAdminUserView(TestCase, MoloTestCaseMixin):
     def setUp(self):
+        self.mk_main()
+        self.main = Main.objects.all().first()
+        self.language_setting = Languages.objects.create(
+            site_id=self.main.get_site().pk)
+        self.english = SiteLanguageRelation.objects.create(
+            language_setting=self.language_setting,
+            locale='en',
+            is_active=True)
         self.user = User.objects.create_user(
             username='tester',
             email='tester@example.com',
