@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('wagtailcore', '__latest__'),
-        ('core', '0013_add_site_to_profile'),
+        ('profiles', '0013_add_site_to_profile'),
     ]
 
     operations = [
