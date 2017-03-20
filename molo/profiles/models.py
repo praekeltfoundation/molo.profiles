@@ -85,6 +85,21 @@ class UserProfilesSettings(BaseSetting):
         related_name='+',
         help_text=_('Choose a footer page')
     )
+    activate = models.BooleanField(
+        default=False,
+        editable=True,
+        verbose_name=_("Activate"),
+    )
+    capture = models.BooleanField(
+        default=False,
+        editable=True,
+        verbose_name=_("Capture on registration"),
+    )
+    required_field = models.BooleanField(
+        default=False,
+        editable=True,
+        verbose_name=_("Required field"),
+    )
 
     panels = [
         MultiFieldPanel(
@@ -114,7 +129,42 @@ class UserProfilesSettings(BaseSetting):
             [
                 PageChooserPanel('terms_and_conditions'),
             ],
-            heading="Terms and Conditions on registration", )
+            heading="Terms and Conditions on registration", ),
+        MultiFieldPanel(
+            [
+                FieldPanel('activate'),
+                FieldPanel('capture'),
+                FieldPanel('required_field'),
+            ],
+            heading="Display Name", ),
+        MultiFieldPanel(
+            [
+                FieldPanel('activate'),
+                FieldPanel('capture'),
+                FieldPanel('required_field'),
+            ],
+            heading="Gender", ),
+        MultiFieldPanel(
+            [
+                FieldPanel('activate'),
+                FieldPanel('capture'),
+                FieldPanel('required_field'),
+            ],
+            heading="Date Of Birth", ),
+        MultiFieldPanel(
+            [
+                FieldPanel('activate'),
+                FieldPanel('capture'),
+                FieldPanel('required_field'),
+            ],
+            heading="Location", ),
+        MultiFieldPanel(
+            [
+                FieldPanel('activate'),
+                FieldPanel('capture'),
+                FieldPanel('required_field'),
+            ],
+            heading="Education Level", )
     ]
     # TODO: mobile_number_required field shouldn't be shown
     # if show_mobile_number_field is False
@@ -150,6 +200,18 @@ class UserProfile(models.Model):
     user = models.OneToOneField(User, related_name="profile", primary_key=True)
     date_of_birth = models.DateField(null=True)
     alias = models.CharField(
+        max_length=128,
+        blank=True,
+        null=True)
+    gender = models.CharField(
+        max_length=128,
+        blank=True,
+        null=True)
+    location = models.CharField(
+        max_length=128,
+        blank=True,
+        null=True)
+    education_level = models.CharField(
         max_length=128,
         blank=True,
         null=True)
