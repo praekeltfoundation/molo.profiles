@@ -85,20 +85,80 @@ class UserProfilesSettings(BaseSetting):
         related_name='+',
         help_text=_('Choose a footer page')
     )
-    activate = models.BooleanField(
+    activate_display_name = models.BooleanField(
         default=False,
         editable=True,
-        verbose_name=_("Activate"),
+        verbose_name=_("Activate Display Name"),
     )
-    capture = models.BooleanField(
+    capture_display_name = models.BooleanField(
         default=False,
         editable=True,
-        verbose_name=_("Capture on registration"),
+        verbose_name=_("Capture Display Name"),
     )
-    required_field = models.BooleanField(
+    display_name_required = models.BooleanField(
         default=False,
         editable=True,
-        verbose_name=_("Required field"),
+        verbose_name=_("Display Name Required"),
+    )
+    activate_gender = models.BooleanField(
+        default=False,
+        editable=True,
+        verbose_name=_("Activate Gender"),
+    )
+    capture_gender = models.BooleanField(
+        default=False,
+        editable=True,
+        verbose_name=_("Capture Gender"),
+    )
+    gender_required = models.BooleanField(
+        default=False,
+        editable=True,
+        verbose_name=_("Gender Required"),
+    )
+    activate_dob = models.BooleanField(
+        default=False,
+        editable=True,
+        verbose_name=_("Activate Date Of Birth"),
+    )
+    capture_dob = models.BooleanField(
+        default=False,
+        editable=True,
+        verbose_name=_("Capture Date Of Birth"),
+    )
+    dob_required = models.BooleanField(
+        default=False,
+        editable=True,
+        verbose_name=_("Date Of Birth Required"),
+    )
+    activate_location = models.BooleanField(
+        default=False,
+        editable=True,
+        verbose_name=_("Activate Location"),
+    )
+    capture_location = models.BooleanField(
+        default=False,
+        editable=True,
+        verbose_name=_("Capture Location"),
+    )
+    location_required = models.BooleanField(
+        default=False,
+        editable=True,
+        verbose_name=_("Location Required"),
+    )
+    activate_education_level = models.BooleanField(
+        default=False,
+        editable=True,
+        verbose_name=_("Activate Education Level"),
+    )
+    capture_education_level = models.BooleanField(
+        default=False,
+        editable=True,
+        verbose_name=_("Capture Education Level"),
+    )
+    activate_education_level_required = models.BooleanField(
+        default=False,
+        editable=True,
+        verbose_name=_("Education Level Required"),
     )
 
     panels = [
@@ -132,37 +192,37 @@ class UserProfilesSettings(BaseSetting):
             heading="Terms and Conditions on registration", ),
         MultiFieldPanel(
             [
-                FieldPanel('activate'),
-                FieldPanel('capture'),
-                FieldPanel('required_field'),
+                FieldPanel('activate_display_name'),
+                FieldPanel('capture_display_name'),
+                FieldPanel('display_name_required'),
             ],
             heading="Display Name", ),
         MultiFieldPanel(
             [
-                FieldPanel('activate'),
-                FieldPanel('capture'),
-                FieldPanel('required_field'),
+                FieldPanel('activate_gender'),
+                FieldPanel('capture_gender'),
+                FieldPanel('gender_required'),
             ],
             heading="Gender", ),
         MultiFieldPanel(
             [
-                FieldPanel('activate'),
-                FieldPanel('capture'),
-                FieldPanel('required_field'),
+                FieldPanel('activate_dob'),
+                FieldPanel('capture_dob'),
+                FieldPanel('dob_required'),
             ],
             heading="Date Of Birth", ),
         MultiFieldPanel(
             [
-                FieldPanel('activate'),
-                FieldPanel('capture'),
-                FieldPanel('required_field'),
+                FieldPanel('activate_location'),
+                FieldPanel('capture_location'),
+                FieldPanel('location_required'),
             ],
             heading="Location", ),
         MultiFieldPanel(
             [
-                FieldPanel('activate'),
-                FieldPanel('capture'),
-                FieldPanel('required_field'),
+                FieldPanel('activate_education_level'),
+                FieldPanel('capture_education_level'),
+                FieldPanel('activate_education_level_required'),
             ],
             heading="Education Level", )
     ]
