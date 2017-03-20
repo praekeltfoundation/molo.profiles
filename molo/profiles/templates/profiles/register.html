@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load i18n static core_tags wagtailsettings_tags %}
+{% load i18n static core_tags wagtailsettings_tags wagtailcore_tags %}
 {% get_settings %}
 
 {% block content %}
@@ -30,7 +30,7 @@
       <span class="input-hint">({% trans "e.g. 2086" %})</span>
     </fieldset>
 
-    {% if settings.profiles.UserProfilesSettings.show_mobile_number_field %}
+    {% if settings.profiles.UserProfilesSettings.show_mobile_number_field and settings.profiles.UserProfilesSettings.country_code %}
     <fieldset>
       <label for="mobile_number">{% trans "Enter your mobile number" %}</label>
       {{ form.mobile_number.errors}}
@@ -67,7 +67,11 @@
         </span>
       {% endif %}
       {{ form.terms_and_conditions }}
+      {% if settings.profiles.UserProfilesSettings.terms_and_conditions %}
+      <a href="{% pageurl settings.profiles.UserProfilesSettings.terms_and_conditions %}" for="id_terms_and_conditions" class="profiles__terms">{% trans "I accept the Terms and Conditions" %}</a>
+      {% else %}
       <label for="id_terms_and_conditions" class="profiles__terms">{% trans "I accept the Terms and Conditions" %}</label>
+      {% endif %}
     </fieldset>
 
     <input type="submit" value="{% trans "Register" %}"/>

@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from molo.profiles.forms import (
     ForgotPasswordForm, RegistrationForm, ProfilePasswordChangeForm)
 from molo.core.tests.base import MoloTestCaseMixin
-from molo.profiles.models import SecurityQuestion
+from molo.profiles.models import SecurityQuestion, SecurityQuestionIndexPage
 
 
 class RegisterTestCase(MoloTestCaseMixin, TestCase):
@@ -16,12 +16,18 @@ class RegisterTestCase(MoloTestCaseMixin, TestCase):
             email='tester@example.com',
             password='tester')
 
-        self.question = SecurityQuestion.objects.create(
+        self.security_index = SecurityQuestionIndexPage(
+            title='Security Questions',
+            slug='security_questions',
+        )
+        self.main.add_child(instance=self.security_index)
+        self.security_index.save()
+        self.question = SecurityQuestion(
             title="How old are you?",
             slug="how-old-are-you",
-            path="0002",
-            depth=1,
         )
+        self.security_index.add_child(instance=self.question)
+        self.question.save()
 
     def test_register_username_correct(self):
         form_data = {
@@ -116,16 +122,22 @@ class PasswordRecoveryTestCase(MoloTestCaseMixin, TestCase):
     def setUp(self):
         self.mk_main()
         self.user = User.objects.create_user(
-            username="tester",
-            email="tester@example.com",
-            password="tester")
+            username='tester',
+            email='tester@example.com',
+            password='tester')
 
-        self.question = SecurityQuestion.objects.create(
+        self.security_index = SecurityQuestionIndexPage(
+            title='Security Questions',
+            slug='security_questions',
+        )
+        self.main.add_child(instance=self.security_index)
+        self.security_index.save()
+        self.question = SecurityQuestion(
             title="How old are you?",
             slug="how-old-are-you",
-            path="0002",
-            depth=1,
         )
+        self.security_index.add_child(instance=self.question)
+        self.question.save()
 
     def test_username_and_security_answer(self):
         form_data = {

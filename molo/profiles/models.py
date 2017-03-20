@@ -5,12 +5,13 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
 
-from molo.core.models import TranslatablePageMixin
+
+from molo.core.models import TranslatablePageMixin, PreventDeleteMixin
 from phonenumber_field.modelfields import PhoneNumberField
-from wagtail.wagtailcore.models import Page
+from wagtail.wagtailcore.models import Page, Site
 from wagtail.contrib.settings.models import BaseSetting, register_setting
 from wagtail.wagtailadmin.edit_handlers import (
-    FieldPanel, MultiFieldPanel)
+    FieldPanel, MultiFieldPanel, PageChooserPanel)
 
 
 @register_setting
@@ -76,6 +77,14 @@ class UserProfilesSettings(BaseSetting):
         verbose_name=_("Max number of password recovery retries before "
                        "lockout")
     )
+    terms_and_conditions = models.ForeignKey(
+        'wagtailcore.Page',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='+',
+        help_text=_('Choose a footer page')
+    )
 
     panels = [
         MultiFieldPanel(
@@ -100,7 +109,12 @@ class UserProfilesSettings(BaseSetting):
                 FieldPanel("num_security_questions"),
                 FieldPanel("password_recovery_retries"),
             ],
-            heading="Security Question Settings", )
+            heading="Security Question Settings", ),
+        MultiFieldPanel(
+            [
+                PageChooserPanel('terms_and_conditions'),
+            ],
+            heading="Terms and Conditions on registration", )
     ]
     # TODO: mobile_number_required field shouldn't be shown
     # if show_mobile_number_field is False
@@ -122,8 +136,8 @@ SecurityQuestion.promote_panels = []
 SecurityQuestion.settings_panels = []
 
 
-class SecurityQuestionIndexPage(Page):
-    parent_page_types = []
+class SecurityQuestionIndexPage(Page, PreventDeleteMixin):
+    parent_page_types = ['core.Main']
     subpage_types = ["SecurityQuestion"]
 
 
@@ -151,6 +165,7 @@ class UserProfile(models.Model):
         SecurityQuestion,
         through="SecurityAnswer"
     )
+    site = models.ForeignKey(Site, blank=True, null=True)
 
 
 @receiver(post_save, sender=User)

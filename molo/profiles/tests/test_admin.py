@@ -2,9 +2,10 @@
 from django.test import TestCase, override_settings
 from django.contrib.auth.models import User
 from django.test.client import Client
+from django.core.urlresolvers import reverse
 from datetime import date
 from molo.core.tests.base import MoloTestCaseMixin
-
+from molo.core.models import Main, Languages, SiteLanguageRelation
 from molo.profiles.admin import ProfileUserAdmin, download_as_csv
 from molo.profiles.models import UserProfile
 
@@ -16,6 +17,13 @@ class ModelsTestCase(TestCase, MoloTestCaseMixin):
             email='tester@example.com',
             password='tester')
         self.mk_main()
+        self.main = Main.objects.all().first()
+        self.language_setting = Languages.objects.create(
+            site_id=self.main.get_site().pk)
+        self.english = SiteLanguageRelation.objects.create(
+            language_setting=self.language_setting,
+            locale='en',
+            is_active=True)
 
     def test_download_csv(self):
         profile = self.user.profile
@@ -69,8 +77,62 @@ class ModelsTestCase(TestCase, MoloTestCaseMixin):
         self.assertEquals(str(response), expected_output)
 
 
-class TestFrontendUsersAdminView(TestCase):
+class TestFrontendUsersAdminView(TestCase, MoloTestCaseMixin):
     def setUp(self):
+        self.mk_main()
+        self.main = Main.objects.all().first()
+        self.language_setting = Languages.objects.create(
+            site_id=self.main.get_site().pk)
+        self.english = SiteLanguageRelation.objects.create(
+            language_setting=self.language_setting,
+            locale='en',
+            is_active=True)
+        self.client.post(reverse('molo.profiles:user_register'), {
+            'username': 'testing1',
+            'password': '1234',
+            'terms_and_conditions': True
+
+        })
+        self.user = User.objects.get(username='testing1')
+
+        self.superuser = User.objects.create_superuser(
+            username='superuser',
+            email='admin@example.com',
+            password='0000',
+            is_staff=True)
+
+        self.client = Client()
+        self.client.login(username='superuser', password='0000')
+
+    def test_staff_users_are_not_shown(self):
+        response = self.client.get(
+            '/admin/auth/user/?usertype=frontend'
+        )
+        self.assertContains(response, self.user.username)
+        self.assertNotContains(response, self.superuser.email)
+
+    @override_settings(CELERY_ALWAYS_EAGER=True)
+    def test_export_csv_redirects(self):
+        profile = self.user.profile
+        profile.alias = 'The Alias'
+        profile.date_of_birth = date(1985, 1, 1)
+        profile.mobile_number = '+27784667723'
+        profile.save()
+        response = self.client.post('/admin/auth/user/')
+
+        self.assertEquals(response.status_code, 302)
+
+
+class TestAdminUserView(TestCase, MoloTestCaseMixin):
+    def setUp(self):
+        self.mk_main()
+        self.main = Main.objects.all().first()
+        self.language_setting = Languages.objects.create(
+            site_id=self.main.get_site().pk)
+        self.english = SiteLanguageRelation.objects.create(
+            language_setting=self.language_setting,
+            locale='en',
+            is_active=True)
         self.user = User.objects.create_user(
             username='tester',
             email='tester@example.com',
@@ -86,21 +148,9 @@ class TestFrontendUsersAdminView(TestCase):
         self.client = Client()
         self.client.login(username='superuser', password='0000')
 
-    def test_staff_users_are_not_shown(self):
+    def test_exclude_all_end_users(self):
         response = self.client.get(
-            '/admin/modeladmin/auth/user/'
+            '/admin/auth/user/?usertype=admin'
         )
-
-        self.assertContains(response, self.user.username)
-        self.assertNotContains(response, self.superuser.email)
-
-    @override_settings(CELERY_ALWAYS_EAGER=True)
-    def test_export_csv_redirects(self):
-        profile = self.user.profile
-        profile.alias = 'The Alias'
-        profile.date_of_birth = date(1985, 1, 1)
-        profile.mobile_number = '+27784667723'
-        profile.save()
-        response = self.client.post('/admin/modeladmin/auth/user/')
-
-        self.assertEquals(response.status_code, 302)
+        self.assertContains(response, self.superuser.username)
+        self.assertNotContains(response, self.user.username)
