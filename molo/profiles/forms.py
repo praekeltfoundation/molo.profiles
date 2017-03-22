@@ -8,6 +8,8 @@ from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
 
+from molo.profiles.constants import GENDERS
+
 from wagtail.wagtailcore.models import Site
 from wagtail.contrib.settings.context_processors import SettingsProxy
 
@@ -98,6 +100,29 @@ class RegistrationForm(forms.Form):
     email = forms.EmailField(required=False)
     mobile_number = PhoneNumberField(required=False)
     terms_and_conditions = forms.BooleanField(required=True)
+    alias = forms.CharField(
+        label=_("Display Name"),
+        required=False
+    )
+    date_of_birth = forms.DateField(
+        widget=SelectDateWidget(
+            years=list(reversed(range(1930, timezone.now().year + 1)))
+        ),
+        required=False
+    )
+    gender = forms.ChoiceField(
+        label=_("Gender"),
+        choices=GENDERS,
+        required=False
+    )
+    location = forms.CharField(
+        label=_("Location"),
+        required=False
+    )
+    education_level = forms.CharField(
+        label=_("Education Level"),
+        required=False
+    )
     next = forms.CharField(required=False)
 
     def __init__(self, *args, **kwargs):
@@ -113,6 +138,26 @@ class RegistrationForm(forms.Form):
         self.fields['email'].required = (
             profile_settings.email_required and
             profile_settings.show_email_field)
+        self.fields['alias'].required = (
+            profile_settings.activate_display_name and
+            profile_settings.capture_display_name and
+            profile_settings.display_name_required)
+        self.fields['date_of_birth'].required = (
+            profile_settings.activate_dob and
+            profile_settings.capture_dob and
+            profile_settings.dob_required)
+        self.fields['gender'].required = (
+            profile_settings.activate_gender and
+            profile_settings.capture_gender and
+            profile_settings.gender_required)
+        self.fields['location'].required = (
+            profile_settings.activate_location and
+            profile_settings.capture_location and
+            profile_settings.location_required)
+        self.fields['education_level'].required = (
+            profile_settings.activate_education_level and
+            profile_settings.capture_education_level and
+            profile_settings.activate_education_level_required)
 
         # Security questions fields are created dynamically.
         # This allows any number of security questions to be specified
@@ -171,6 +216,22 @@ class RegistrationForm(forms.Form):
                 self.data['mobile_number'] = number
         valid = super(RegistrationForm, self).is_valid()
         return valid
+
+    def clean_alias(self):
+        validation_msg_fragment = get_validation_msg_fragment()
+
+        alias = self.cleaned_data['alias']
+
+        if not validate_no_email_or_phone(alias):
+            raise forms.ValidationError(
+                _(
+                    "Sorry, but that is an invalid display name. "
+                    "Please don't use your %s in your display name."
+                    % validation_msg_fragment
+                )
+            )
+
+        return alias
 
 
 class DateOfBirthForm(forms.Form):

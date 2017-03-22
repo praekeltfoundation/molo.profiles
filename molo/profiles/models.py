@@ -92,7 +92,7 @@ class UserProfilesSettings(BaseSetting):
     capture_display_name = models.BooleanField(
         default=False,
         editable=True,
-        verbose_name=_("Capture Display Name"),
+        verbose_name=_("Capture On Registration"),
     )
     display_name_required = models.BooleanField(
         default=False,
@@ -107,7 +107,7 @@ class UserProfilesSettings(BaseSetting):
     capture_gender = models.BooleanField(
         default=False,
         editable=True,
-        verbose_name=_("Capture Gender"),
+        verbose_name=_("Capture On Registration"),
     )
     gender_required = models.BooleanField(
         default=False,
@@ -122,7 +122,7 @@ class UserProfilesSettings(BaseSetting):
     capture_dob = models.BooleanField(
         default=False,
         editable=True,
-        verbose_name=_("Capture Date Of Birth"),
+        verbose_name=_("Capture On Registration"),
     )
     dob_required = models.BooleanField(
         default=False,
@@ -137,7 +137,7 @@ class UserProfilesSettings(BaseSetting):
     capture_location = models.BooleanField(
         default=False,
         editable=True,
-        verbose_name=_("Capture Location"),
+        verbose_name=_("Capture On Registration"),
     )
     location_required = models.BooleanField(
         default=False,
@@ -152,7 +152,7 @@ class UserProfilesSettings(BaseSetting):
     capture_education_level = models.BooleanField(
         default=False,
         editable=True,
-        verbose_name=_("Capture Education Level"),
+        verbose_name=_("Capture On Registration"),
     )
     activate_education_level_required = models.BooleanField(
         default=False,
