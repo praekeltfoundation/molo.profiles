@@ -18,21 +18,71 @@
   <form method="post" action="{% url "molo.profiles:user_register" %}" class="profiles__form">
   {% csrf_token %}
     <fieldset>
-      <label for="id_username">{% trans "Choose a username" %}</label>
+      <label for="id_username">{% trans "Choose a username" %}</label><br>
       {{ form.username.errors}}
       {{ form.username }}
     </fieldset>
 
     <fieldset>
-      <label for="id_password">{% trans "Choose a 4-digit pin" %}</label>
+      <label for="id_password">{% trans "Choose a 4-digit pin" %}</label><br>
       {{ form.password.errors}}
       {{ form.password }}
       <span class="input-hint">({% trans "e.g. 2086" %})</span>
     </fieldset>
 
+    {% if settings.profiles.UserProfilesSettings.activate_display_name%}
+      {% if settings.profiles.UserProfilesSettings.capture_display_name %}
+    <fieldset>
+      <label for="alias">{% trans "Display Name" %}</label><br>
+      {{ form.alias.errors}}
+      {{ form.alias }}
+    </fieldset>
+      {% endif %}
+    {% endif %}
+
+    {% if settings.profiles.UserProfilesSettings.activate_dob %}
+      {% if settings.profiles.UserProfilesSettings.capture_dob %}
+    <fieldset>
+      <label for="date_of_birth">{% trans "Date Of Birth" %}</label><br>
+      {{ form.date_of_birth.errors}}
+      {{ form.date_of_birth }}
+    </fieldset>
+      {% endif %}
+    {% endif %}
+
+    {% if settings.profiles.UserProfilesSettings.activate_gender %}
+      {% if settings.profiles.UserProfilesSettings.capture_gender %}
+    <fieldset>
+      <label for="gender">{% trans "Gender" %}</label><br>
+      {{ form.gender.errors}}
+      {{ form.gender }}
+    </fieldset>
+      {% endif %}
+    {% endif %}
+
+    {% if settings.profiles.UserProfilesSettings.activate_location %}
+      {% if settings.profiles.UserProfilesSettings.capture_location %}
+    <fieldset>
+      <label for="location">{% trans "Location" %}</label><br>
+      {{ form.location.errors}}
+      {{ form.location }}
+    </fieldset>
+      {% endif %}
+    {% endif %}
+
+    {% if settings.profiles.UserProfilesSettings.activate_education_level %}
+      {% if settings.profiles.UserProfilesSettings.capture_education_level %}
+    <fieldset>
+      <label for="education_level">{% trans "Education Level" %}</label><br>
+      {{ form.education_level.errors}}
+      {{ form.education_level }}
+    </fieldset>
+      {% endif %}
+    {% endif %}
+
     {% if settings.profiles.UserProfilesSettings.show_mobile_number_field and settings.profiles.UserProfilesSettings.country_code %}
     <fieldset>
-      <label for="mobile_number">{% trans "Enter your mobile number" %}</label>
+      <label for="mobile_number">{% trans "Enter your mobile number" %}</label><br>
       {{ form.mobile_number.errors}}
       {{ form.mobile_number }}
       <span class="input-hint">{% trans "(e.g. 0900000013)" %}</span>
@@ -41,7 +91,7 @@
 
     {% if settings.profiles.UserProfilesSettings.show_email_field %}
     <fieldset>
-      <label for="id_email">{% trans "Enter your email address" %}</label>
+      <label for="id_email">{% trans "Enter your email address" %}</label><br>
       {{ form.email.errors}}
       {{ form.email }}
       <span class="input-hint">{% trans "(e.g. example@foo.com)" %}</span>
@@ -52,7 +102,7 @@
       {% for field in form %}
         {% if field in form.security_questions %}
           <fieldset>
-            <label for="id_email">{% trans field.label_tag %}</label>
+            <label for="id_email">{% trans field.label_tag %}</label><br>
             {{ field.errors}}
             {{ field }}
           </fieldset>
