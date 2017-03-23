@@ -281,6 +281,18 @@ class EditProfileForm(forms.ModelForm):
         ),
         required=False
     )
+    gender = forms.CharField(
+        label=_("Gender"),
+        required=False
+    )
+    location = forms.CharField(
+        label=_("Location"),
+        required=False
+    )
+    education_level = forms.CharField(
+        label=_("Education Level"),
+        required=False
+    )
     mobile_number = PhoneNumberField(required=False)
     email = forms.EmailField(required=False)
 
@@ -295,10 +307,31 @@ class EditProfileForm(forms.ModelForm):
         self.fields['email'].required = (
             profile_settings.email_required and
             profile_settings.show_email_field)
+        self.fields['alias'].required = (
+            profile_settings.activate_display_name and
+            profile_settings.capture_display_name_on_reg and
+            profile_settings.display_name_required)
+        self.fields['date_of_birth'].required = (
+            profile_settings.activate_dob and
+            profile_settings.capture_dob_on_reg and
+            profile_settings.dob_required)
+        self.fields['gender'].required = (
+            profile_settings.activate_gender and
+            profile_settings.capture_gender_on_reg and
+            profile_settings.gender_required)
+        self.fields['location'].required = (
+            profile_settings.activate_location and
+            profile_settings.capture_location_on_reg and
+            profile_settings.location_required)
+        self.fields['education_level'].required = (
+            profile_settings.activate_education_level and
+            profile_settings.capture_education_level_on_reg and
+            profile_settings.activate_education_level_required)
 
     class Meta:
         model = UserProfile
-        fields = ['alias', 'date_of_birth', 'mobile_number']
+        fields = ['alias', 'date_of_birth', 'mobile_number',
+                  'gender', 'location', 'education_level']
 
     def clean_alias(self):
         validation_msg_fragment = get_validation_msg_fragment()
