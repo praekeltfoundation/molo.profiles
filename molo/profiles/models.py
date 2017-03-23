@@ -90,7 +90,7 @@ class UserProfilesSettings(BaseSetting):
         editable=True,
         verbose_name=_("Activate Display Name"),
     )
-    capture_display_name = models.BooleanField(
+    capture_display_name_on_reg = models.BooleanField(
         default=False,
         editable=True,
         verbose_name=_("Capture On Registration"),
@@ -105,7 +105,7 @@ class UserProfilesSettings(BaseSetting):
         editable=True,
         verbose_name=_("Activate Gender"),
     )
-    capture_gender = models.BooleanField(
+    capture_gender_on_reg = models.BooleanField(
         default=False,
         editable=True,
         verbose_name=_("Capture On Registration"),
@@ -120,7 +120,7 @@ class UserProfilesSettings(BaseSetting):
         editable=True,
         verbose_name=_("Activate Date Of Birth"),
     )
-    capture_dob = models.BooleanField(
+    capture_dob_on_reg = models.BooleanField(
         default=False,
         editable=True,
         verbose_name=_("Capture On Registration"),
@@ -135,7 +135,7 @@ class UserProfilesSettings(BaseSetting):
         editable=True,
         verbose_name=_("Activate Location"),
     )
-    capture_location = models.BooleanField(
+    capture_location_on_reg = models.BooleanField(
         default=False,
         editable=True,
         verbose_name=_("Capture On Registration"),
@@ -150,7 +150,7 @@ class UserProfilesSettings(BaseSetting):
         editable=True,
         verbose_name=_("Activate Education Level"),
     )
-    capture_education_level = models.BooleanField(
+    capture_education_level_on_reg = models.BooleanField(
         default=False,
         editable=True,
         verbose_name=_("Capture On Registration"),
@@ -193,35 +193,35 @@ class UserProfilesSettings(BaseSetting):
         MultiFieldPanel(
             [
                 FieldPanel('activate_display_name'),
-                FieldPanel('capture_display_name'),
+                FieldPanel('capture_display_name_on_reg'),
                 FieldPanel('display_name_required'),
             ],
             heading="Display Name", ),
         MultiFieldPanel(
             [
                 FieldPanel('activate_gender'),
-                FieldPanel('capture_gender'),
+                FieldPanel('capture_gender_on_reg'),
                 FieldPanel('gender_required'),
             ],
             heading="Gender", ),
         MultiFieldPanel(
             [
                 FieldPanel('activate_dob'),
-                FieldPanel('capture_dob'),
+                FieldPanel('capture_dob_on_reg'),
                 FieldPanel('dob_required'),
             ],
             heading="Date Of Birth", ),
         MultiFieldPanel(
             [
                 FieldPanel('activate_location'),
-                FieldPanel('capture_location'),
+                FieldPanel('capture_location_on_reg'),
                 FieldPanel('location_required'),
             ],
             heading="Location", ),
         MultiFieldPanel(
             [
                 FieldPanel('activate_education_level'),
-                FieldPanel('capture_education_level'),
+                FieldPanel('capture_education_level_on_reg'),
                 FieldPanel('activate_education_level_required'),
             ],
             heading="Education Level", )

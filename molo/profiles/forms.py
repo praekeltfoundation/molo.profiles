@@ -8,8 +8,6 @@ from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
 
-from molo.profiles.constants import GENDERS
-
 from wagtail.wagtailcore.models import Site
 
 from molo.profiles.models import UserProfile, UserProfilesSettings
@@ -107,9 +105,8 @@ class RegistrationForm(forms.Form):
         ),
         required=False
     )
-    gender = forms.ChoiceField(
+    gender = forms.CharField(
         label=_("Gender"),
-        choices=GENDERS,
         required=False
     )
     location = forms.CharField(
@@ -136,23 +133,23 @@ class RegistrationForm(forms.Form):
             profile_settings.show_email_field)
         self.fields['alias'].required = (
             profile_settings.activate_display_name and
-            profile_settings.capture_display_name and
+            profile_settings.capture_display_name_on_reg and
             profile_settings.display_name_required)
         self.fields['date_of_birth'].required = (
             profile_settings.activate_dob and
-            profile_settings.capture_dob and
+            profile_settings.capture_dob_on_reg and
             profile_settings.dob_required)
         self.fields['gender'].required = (
             profile_settings.activate_gender and
-            profile_settings.capture_gender and
+            profile_settings.capture_gender_on_reg and
             profile_settings.gender_required)
         self.fields['location'].required = (
             profile_settings.activate_location and
-            profile_settings.capture_location and
+            profile_settings.capture_location_on_reg and
             profile_settings.location_required)
         self.fields['education_level'].required = (
             profile_settings.activate_education_level and
-            profile_settings.capture_education_level and
+            profile_settings.capture_education_level_on_reg and
             profile_settings.activate_education_level_required)
 
         # Security questions fields are created dynamically.
@@ -229,12 +226,48 @@ class RegistrationForm(forms.Form):
         return alias
 
 
-class DateOfBirthForm(forms.Form):
+class DoneForm(forms.Form):
     date_of_birth = forms.DateField(
         widget=SelectDateWidget(
             years=list(reversed(range(1930, timezone.now().year + 1)))
         )
     )
+    alias = forms.CharField(
+        label=_("Display Name"),
+        required=False
+    )
+    gender = forms.CharField(
+        label=_("Gender"),
+        required=False
+    )
+    location = forms.CharField(
+        label=_("Location"),
+        required=False
+    )
+    education_level = forms.CharField(
+        label=_("Education Level"),
+        required=False
+    )
+
+    def __init__(self, *args, **kwargs):
+        super(DoneForm, self).__init__(*args, **kwargs)
+        site = Site.objects.get(is_default_site=True)
+        profile_settings = UserProfilesSettings.for_site(site)
+        self.fields['date_of_birth'].required = (
+            profile_settings.activate_dob and
+            profile_settings.dob_required)
+        self.fields['alias'].required = (
+            profile_settings.activate_display_name and
+            profile_settings.display_name_required)
+        self.fields['gender'].required = (
+            profile_settings.activate_gender and
+            profile_settings.gender_required)
+        self.fields['location'].required = (
+            profile_settings.activate_location and
+            profile_settings.location_required)
+        self.fields['education_level'].required = (
+            profile_settings.activate_education_level and
+            profile_settings.activate_education_level_required)
 
 
 class EditProfileForm(forms.ModelForm):
