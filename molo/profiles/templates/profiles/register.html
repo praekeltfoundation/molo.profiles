@@ -41,7 +41,7 @@
     {% endif %}
 
     {% if settings.profiles.UserProfilesSettings.activate_dob %}
-      {% if settings.profiles.UserProfilesSettings.capture_dob %}
+      {% if settings.profiles.UserProfilesSettings.capture_dob_on_reg %}
     <fieldset>
       <label for="date_of_birth">{% trans "Select Date Of Birth" %}</label><br>
       {{ form.date_of_birth.errors}}
@@ -51,7 +51,7 @@
     {% endif %}
 
     {% if settings.profiles.UserProfilesSettings.activate_gender %}
-      {% if settings.profiles.UserProfilesSettings.capture_gender %}
+      {% if settings.profiles.UserProfilesSettings.capture_gender_on_reg %}
     <fieldset>
       <label for="gender">{% trans "Gender" %}</label><br>
       {{ form.gender.errors}}
@@ -61,7 +61,7 @@
     {% endif %}
 
     {% if settings.profiles.UserProfilesSettings.activate_location %}
-      {% if settings.profiles.UserProfilesSettings.capture_location %}
+      {% if settings.profiles.UserProfilesSettings.capture_location_on_reg %}
     <fieldset>
       <label for="location">{% trans "Location" %}</label><br>
       {{ form.location.errors}}
@@ -71,7 +71,7 @@
     {% endif %}
 
     {% if settings.profiles.UserProfilesSettings.activate_education_level %}
-      {% if settings.profiles.UserProfilesSettings.capture_education_level %}
+      {% if settings.profiles.UserProfilesSettings.capture_education_level_on_reg %}
     <fieldset>
       <label for="education_level">{% trans "Education Level" %}</label><br>
       {{ form.education_level.errors}}
