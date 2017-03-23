@@ -5,12 +5,14 @@
 {% block content %}
 <h1 class="heading heading--profiles">{% trans "Hello " %}{{ user.username }}</h1>
 <div class="profiles">
-
+  {% if settings.profiles.UserProfilesSettings.activate_display_name %}
     <fieldset>
       <label>{% trans "As you type your name comment will appear as:" %}</label>
       <p class="profile__alias">{{ user.profile.alias | default:" Anonymous " }}</p>
     </fieldset>
+    {% endif %}
 
+    {% if settings.profiles.UserProfilesSettings.activate_dob %}
     <fieldset>
       <label>{% trans "Date of Birth: " %}</label>
       <p class="profile__dob">
@@ -21,15 +23,34 @@
         {% endif %}
       </p>
     </fieldset>
+    {% endif %}
 
-    {% if settings.profiles.UserProfilesSettings.show_mobile_number_field and settings.profiles.UserProfilesSettings.country_code %}
+    {% if settings.profiles.UserProfilesSettings.activate_gender %}
+    <fieldset>
+      <label for="id_gender">{% trans "Gender:" %}</label>
+      <p class="profile__gender">{{ user.profile.gender | default:"Not set" }}</p>
+      {{ form.gender.errors }}
+      {{ form.gender }}
+    </fieldset>
+    {% endif %}
+
+    {% if settings.profiles.UserProfilesSettings.activate_location %}
   	<fieldset>
-  		<label for="id_mobile_number">{% trans "Mobile number:" %}</label>
-  		<p class="profile__mobile-number">{{ user.profile.mobile_number | default:"Not set" }}</p>
-  		{{ form.mobile_number.errors }}
-  		{{ form.mobile_number }}
+  		<label for="id_location">{% trans "Location:" %}</label>
+  		<p class="profile__location">{{ user.profile.location | default:"Not set" }}</p>
+  		{{ form.location.errors }}
+  		{{ form.location }}
   	</fieldset>
   	{% endif %}
+
+    {% if settings.profiles.UserProfilesSettings.activate_education_level %}
+    <fieldset>
+      <label for="education_level">{% trans "Education Level:" %}</label>
+      <p class="profile__leducation_level">{{ user.profile.education_level | default:"Not set" }}</p>
+      {{ form.education_level.errors }}
+      {{ form.education_level }}
+    </fieldset>
+    {% endif %}
 
   <fieldset>
     {% if settings.profiles.UserProfilesSettings.show_email_field %}
