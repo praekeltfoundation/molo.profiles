@@ -315,23 +315,18 @@ class EditProfileForm(forms.ModelForm):
             profile_settings.show_email_field)
         self.fields['alias'].required = (
             profile_settings.activate_display_name and
-            profile_settings.capture_display_name_on_reg and
             profile_settings.display_name_required)
         self.fields['date_of_birth'].required = (
             profile_settings.activate_dob and
-            profile_settings.capture_dob_on_reg and
             profile_settings.dob_required)
         self.fields['gender'].required = (
             profile_settings.activate_gender and
-            profile_settings.capture_gender_on_reg and
             profile_settings.gender_required)
         self.fields['location'].required = (
             profile_settings.activate_location and
-            profile_settings.capture_location_on_reg and
             profile_settings.location_required)
         self.fields['education_level'].required = (
             profile_settings.activate_education_level and
-            profile_settings.capture_education_level_on_reg and
             profile_settings.activate_education_level_required)
 
     class Meta:
