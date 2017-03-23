@@ -76,12 +76,16 @@ class RegistrationDone(FormView):
     """
     Enables updating of the user's date of birth
     """
-    form_class = forms.DateOfBirthForm
+    form_class = forms.DoneForm
     template_name = 'profiles/done.html'
 
     def form_valid(self, form):
         profile = self.request.user.profile
-        profile.date_of_birth = form.cleaned_data['date_of_birth']
+        profile.date_of_birth = form.cleaned_data["date_of_birth"]
+        profile.alias = form.cleaned_data["alias"]
+        profile.gender = form.cleaned_data["gender"]
+        profile.location = form.cleaned_data["location"]
+        profile.education_level = form.cleaned_data["education_level"]
         profile.save()
         return HttpResponseRedirect(form.cleaned_data.get('next', '/'))
 
