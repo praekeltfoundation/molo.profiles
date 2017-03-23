@@ -40,14 +40,16 @@
       {% if profile_settings.activate_location and not profile_settings.capture_location_on_reg %}
       <fieldset>
         <label for="location">{% trans "Location" %}</label><br>
-        <input class="form-control" {{ form.location.errors }}{{ form.location }}<br>
+        {{ form.location.errors }}
+        {{ form.location }}
       </fieldset>
       {% endif %}
 
       {% if profile_settings.activate_education_level and not profile_settings.capture_education_level_on_reg %}
       <fieldset>
         <label for="education_level">{% trans "Education Level" %}</label><br>
-        <input class="form-control" {{ form.education_level.errors }}{{ form.education_level }}<br>
+       {{ form.education_level.errors }}
+       {{ form.education_level }}
       </fieldset>
       {% endif %}
     <input type="submit" value="{% trans "Save" %}" />
