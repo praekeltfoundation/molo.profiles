@@ -21,6 +21,15 @@
       </p>
     </fieldset>
 
+    {% if settings.profiles.UserProfilesSettings.show_mobile_number_field and settings.profiles.UserProfilesSettings.country_code %}
+        <fieldset>
+       <label for="id_mobile_number">{% trans "Mobile number:" %}</label>
+       <p class="profile__mobile-number">{{ user.profile.mobile_number | default:"Not set" }}</p>
+       {{ form.mobile_number.errors }}
+       {{ form.mobile_number }}
+    </fieldset>
+    {% endif %}
+
     {% if settings.profiles.UserProfilesSettings.activate_gender %}
     <fieldset>
       <label for="id_gender">{% trans "Gender:" %}</label>
