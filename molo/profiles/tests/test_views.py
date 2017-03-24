@@ -982,6 +982,48 @@ class MyProfileEditTest(TestCase, MoloTestCaseMixin):
         self.assertEqual(UserProfile.objects.get(user=self.user).alias,
                          'foo')
 
+    def test_gender_field_exists_in_edit_form(self):
+        site = Site.objects.get(is_default_site=True)
+        profile_settings = UserProfilesSettings.for_site(site)
+
+        response = self.client.get(reverse('molo.profiles:edit_my_profile'))
+        self.assertNotContains(response, 'Update your gender:')
+
+        profile_settings.activate_gender = True
+        profile_settings.gender_required = True
+        profile_settings.save()
+
+        response = self.client.get(reverse('molo.profiles:edit_my_profile'))
+        self.assertContains(response, 'Update your gender:')
+
+    def test_location_field_exists_in_edit_form(self):
+        site = Site.objects.get(is_default_site=True)
+        profile_settings = UserProfilesSettings.for_site(site)
+
+        response = self.client.get(reverse('molo.profiles:edit_my_profile'))
+        self.assertNotContains(response, 'Update your Location:')
+
+        profile_settings.activate_location = True
+        profile_settings.location_required = True
+        profile_settings.save()
+
+        response = self.client.get(reverse('molo.profiles:edit_my_profile'))
+        self.assertContains(response, 'Update your Location:')
+
+    def test_education_level_field_exists_in_edit_form(self):
+        site = Site.objects.get(is_default_site=True)
+        profile_settings = UserProfilesSettings.for_site(site)
+
+        response = self.client.get(reverse('molo.profiles:edit_my_profile'))
+        self.assertNotContains(response, 'Update your Education Level:')
+
+        profile_settings.activate_education_level = True
+        profile_settings.activate_education_level_required = True
+        profile_settings.save()
+
+        response = self.client.get(reverse('molo.profiles:edit_my_profile'))
+        self.assertContains(response, 'Update your Education Level:')
+
     def test_email_showing_in_edit_view(self):
         site = Site.objects.get(is_default_site=True)
         settings = SettingsProxy(site)
@@ -1125,6 +1167,118 @@ class MyProfileEditTest(TestCase, MoloTestCaseMixin):
                                     'mobile_number': ''})
         self.assertFormError(
             response, 'form', 'mobile_number', ['This field is required.'])
+
+    def test_gender_field_is_required_on_edit_form(self):
+        site = Site.objects.get(is_default_site=True)
+        profile_settings = UserProfilesSettings.for_site(site)
+
+        profile_settings.activate_gender = True
+        profile_settings.gender_required = True
+        profile_settings.save()
+
+        response = self.client.post(reverse('molo.profiles:edit_my_profile'), {
+                                    'gender': ''})
+        self.assertFormError(
+            response, 'form', 'gender', ['This field is required.'])
+
+    def test_gender_not_required_on_edit_form(self):
+        site = Site.objects.get(is_default_site=True)
+        profile_settings = UserProfilesSettings.for_site(site)
+
+        profile_settings.activate_gender = True
+        profile_settings.gender_required = False
+        profile_settings.save()
+
+        response = self.client.post(reverse('molo.profiles:edit_my_profile'), {
+                                    'gender': ''})
+
+        self.assertRedirects(
+            response, reverse('molo.profiles:view_my_profile'))
+
+        response = self.client.post(reverse('molo.profiles:edit_my_profile'), {
+                                    'gender': 'male'})
+        response = self.client.get(reverse('molo.profiles:view_my_profile'))
+        self.assertContains(response, 'male')
+
+    def test_location_field_is_required_on_edit_form(self):
+        site = Site.objects.get(is_default_site=True)
+        profile_settings = UserProfilesSettings.for_site(site)
+
+        profile_settings.activate_location = True
+        profile_settings.location_required = True
+        profile_settings.save()
+
+        response = self.client.post(reverse('molo.profiles:edit_my_profile'), {
+                                    'location': ''})
+        self.assertFormError(
+            response, 'form', 'location', ['This field is required.'])
+
+    def test_location_not_required_on_edit_form(self):
+        site = Site.objects.get(is_default_site=True)
+        profile_settings = UserProfilesSettings.for_site(site)
+
+        profile_settings.activate_location = True
+        profile_settings.location_required = False
+        profile_settings.save()
+
+        response = self.client.post(reverse('molo.profiles:edit_my_profile'), {
+                                    'location': ''})
+
+        self.assertRedirects(
+            response, reverse('molo.profiles:view_my_profile'))
+
+        response = self.client.post(reverse('molo.profiles:edit_my_profile'), {
+                                    'location': 'mlazi'})
+        response = self.client.get(reverse('molo.profiles:view_my_profile'))
+        self.assertContains(response, 'mlazi')
+
+    def test_education_level_field_is_required_on_edit_form(self):
+        site = Site.objects.get(is_default_site=True)
+        profile_settings = UserProfilesSettings.for_site(site)
+
+        profile_settings.activate_education_level = True
+        profile_settings.activate_education_level_required = True
+        profile_settings.save()
+
+        response = self.client.post(reverse('molo.profiles:edit_my_profile'), {
+                                    'education_level': ''})
+        self.assertFormError(
+            response, 'form', 'education_level', ['This field is required.'])
+
+    def test_education_level_not_required_on_edit_form(self):
+        site = Site.objects.get(is_default_site=True)
+        profile_settings = UserProfilesSettings.for_site(site)
+
+        profile_settings.activate_education_level = True
+        profile_settings.activate_education_level_required = False
+        profile_settings.save()
+
+        response = self.client.post(reverse('molo.profiles:edit_my_profile'), {
+                                    'education_level': ''})
+
+        self.assertRedirects(
+            response, reverse('molo.profiles:view_my_profile'))
+
+        response = self.client.post(reverse('molo.profiles:edit_my_profile'), {
+                                    'education_level': 'level0'})
+        response = self.client.get(reverse('molo.profiles:view_my_profile'))
+        self.assertContains(response, 'level0')
+
+    def test_gender_required_location_not_required(self):
+        site = Site.objects.get(is_default_site=True)
+        profile_settings = UserProfilesSettings.for_site(site)
+        profile_settings.activate_location = True
+        profile_settings.activate_gender = True
+        profile_settings.gender_required = True
+        profile_settings.save()
+
+        response = self.client.post(reverse('molo.profiles:edit_my_profile'), {
+                                    'gender': 'male'})
+        self.assertRedirects(
+            response, reverse('molo.profiles:view_my_profile'))
+
+        response = self.client.get(reverse('molo.profiles:view_my_profile'))
+        self.assertContains(response, 'male')
 
 
 @override_settings(
