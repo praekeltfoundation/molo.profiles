@@ -666,7 +666,7 @@ class RegistrationDone(TestCase, MoloTestCaseMixin):
         self.client.login(username='tester', password='tester')
         self.mk_main()
 
-    def test_date_of_birth(self):
+    def test_date_of_birth_on_done(self):
         site = Site.objects.get(is_default_site=True)
         profile_settings = UserProfilesSettings.for_site(site)
 
@@ -682,7 +682,7 @@ class RegistrationDone(TestCase, MoloTestCaseMixin):
         user = User.objects.get(username='tester')
         self.assertEqual(user.profile.date_of_birth, date(2000, 1, 1))
 
-    def test_display_name(self):
+    def test_display_name_on_done(self):
         site = Site.objects.get(is_default_site=True)
         profile_settings = UserProfilesSettings.for_site(site)
 
@@ -698,7 +698,7 @@ class RegistrationDone(TestCase, MoloTestCaseMixin):
         user = User.objects.get(username='tester')
         self.assertEqual(user.profile.alias, ('foo'))
 
-    def test_gender(self):
+    def test_gender_on_done(self):
         site = Site.objects.get(is_default_site=True)
         profile_settings = UserProfilesSettings.for_site(site)
 
@@ -714,7 +714,7 @@ class RegistrationDone(TestCase, MoloTestCaseMixin):
         user = User.objects.get(username='tester')
         self.assertEqual(user.profile.gender, ('male'))
 
-    def test_location(self):
+    def test_location_on_done(self):
         site = Site.objects.get(is_default_site=True)
         profile_settings = UserProfilesSettings.for_site(site)
 
@@ -730,7 +730,7 @@ class RegistrationDone(TestCase, MoloTestCaseMixin):
         user = User.objects.get(username='tester')
         self.assertEqual(user.profile.location, ('mlazi'))
 
-    def test_education_level(self):
+    def test_education_level_on_done(self):
         site = Site.objects.get(is_default_site=True)
         profile_settings = UserProfilesSettings.for_site(site)
 
