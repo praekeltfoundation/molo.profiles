@@ -281,6 +281,26 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
         self.assertFormError(
             response, 'form', 'alias', ['This field is required.'])
 
+    def test_display_name_is_not_required(self):
+        site = Site.objects.get(is_default_site=True)
+        profile_settings = UserProfilesSettings.for_site(site)
+
+        profile_settings.activate_display_name = True
+        profile_settings.capture_display_name_on_reg = True
+        profile_settings.display_name_required = False
+        profile_settings.save()
+
+        response = self.client.post(reverse('molo.profiles:user_register'), {
+            'username': 'test',
+            'password': '1234',
+            'terms_and_conditions': True
+        })
+
+        # When successful
+        response = self.client.get(reverse('molo.profiles:registration_done'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Thank you for joining!')
+
     def test_date_of_birth_field_is_required(self):
         site = Site.objects.get(is_default_site=True)
         profile_settings = UserProfilesSettings.for_site(site)
@@ -297,6 +317,27 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
         })
         self.assertFormError(
             response, 'form', 'date_of_birth', ['This field is required.'])
+
+    def test_date_of_birth_field_not_required(self):
+        site = Site.objects.get(is_default_site=True)
+        profile_settings = UserProfilesSettings.for_site(site)
+
+        profile_settings.activate_location = True
+        profile_settings.capture_location_on_reg = True
+        profile_settings.dob_required = False
+        profile_settings.save()
+
+        response = self.client.post(reverse('molo.profiles:user_register'), {
+            'username': 'test',
+            'password': '1234',
+            'terms_and_conditions': True
+        })
+        self.assertEqual(response.status_code, 302)
+
+        # When successful
+        response = self.client.get(reverse('molo.profiles:registration_done'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Thank you for joining!')
 
     def test_gender_field_is_required(self):
         site = Site.objects.get(is_default_site=True)
@@ -315,6 +356,26 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
         self.assertFormError(
             response, 'form', 'gender', ['This field is required.'])
 
+    def test_gender_not_required(self):
+        site = Site.objects.get(is_default_site=True)
+        profile_settings = UserProfilesSettings.for_site(site)
+
+        profile_settings.activate_gender = True
+        profile_settings.capture_gender_on_reg = True
+        profile_settings.gender_required = False
+        profile_settings.save()
+
+        response = self.client.post(reverse('molo.profiles:user_register'), {
+            'username': 'test',
+            'password': '1234',
+            'terms_and_conditions': True
+        })
+
+        # When successful
+        response = self.client.get(reverse('molo.profiles:registration_done'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Thank you for joining!')
+
     def test_location_field_is_required(self):
         site = Site.objects.get(is_default_site=True)
         profile_settings = UserProfilesSettings.for_site(site)
@@ -332,6 +393,26 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
         self.assertFormError(
             response, 'form', 'location', ['This field is required.'])
 
+    def test_location_not_required(self):
+        site = Site.objects.get(is_default_site=True)
+        profile_settings = UserProfilesSettings.for_site(site)
+
+        profile_settings.activate_location = True
+        profile_settings.capture_location_on_reg = True
+        profile_settings.location_required = False
+        profile_settings.save()
+
+        response = self.client.post(reverse('molo.profiles:user_register'), {
+            'username': 'test',
+            'password': '1234',
+            'terms_and_conditions': True
+        })
+
+        # When successful
+        response = self.client.get(reverse('molo.profiles:registration_done'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Thank you for joining!')
+
     def test_education_level_field_is_required(self):
         site = Site.objects.get(is_default_site=True)
         profile_settings = UserProfilesSettings.for_site(site)
@@ -348,6 +429,26 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
         })
         self.assertFormError(
             response, 'form', 'education_level', ['This field is required.'])
+
+    def test_education_level_not_required(self):
+        site = Site.objects.get(is_default_site=True)
+        profile_settings = UserProfilesSettings.for_site(site)
+
+        profile_settings.activate_education_level = True
+        profile_settings.capture_education_level_on_reg = True
+        profile_settings.activate_education_level_required = False
+        profile_settings.save()
+
+        response = self.client.post(reverse('molo.profiles:user_register'), {
+            'username': 'test',
+            'password': '1234',
+            'terms_and_conditions': True
+        })
+
+        # When successful
+        response = self.client.get(reverse('molo.profiles:registration_done'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Thank you for joining!')
 
     def test_mobile_num_is_required_but_show_mobile_num_field_is_false(self):
         site = Site.objects.get(is_default_site=True)
@@ -674,6 +775,12 @@ class RegistrationDone(TestCase, MoloTestCaseMixin):
         profile_settings.capture_dob_on_reg = False
         profile_settings.save()
 
+        response = self.client.get(reverse('molo.profiles:registration_done'))
+        self.assertContains(response, '<p class="profiles__description">'
+                            'Let us know more about yourself '
+                            'to get access to exclusive content.</p>')
+        self.assertContains(response, 'Thank you for joining!')
+
         response = self.client.post(reverse(
             'molo.profiles:registration_done'), {
             'date_of_birth': '2000-01-01',
@@ -681,6 +788,9 @@ class RegistrationDone(TestCase, MoloTestCaseMixin):
         self.assertEqual(response.status_code, 302)
         user = User.objects.get(username='tester')
         self.assertEqual(user.profile.date_of_birth, date(2000, 1, 1))
+
+        response = self.client.get('/')
+        self.assertEqual(response.status_code, 200)
 
     def test_display_name_on_done(self):
         site = Site.objects.get(is_default_site=True)
@@ -690,6 +800,12 @@ class RegistrationDone(TestCase, MoloTestCaseMixin):
         profile_settings.capture_display_name_on_reg = False
         profile_settings.save()
 
+        response = self.client.get(reverse('molo.profiles:registration_done'))
+        self.assertContains(response, '<p class="profiles__description">'
+                            'Let us know more about yourself '
+                            'to get access to exclusive content.</p>')
+        self.assertContains(response, 'Thank you for joining!')
+
         response = self.client.post(reverse(
             'molo.profiles:registration_done'), {
             'alias': 'foo',
@@ -697,6 +813,9 @@ class RegistrationDone(TestCase, MoloTestCaseMixin):
         self.assertEqual(response.status_code, 302)
         user = User.objects.get(username='tester')
         self.assertEqual(user.profile.alias, ('foo'))
+
+        response = self.client.get('/')
+        self.assertEqual(response.status_code, 200)
 
     def test_gender_on_done(self):
         site = Site.objects.get(is_default_site=True)
@@ -706,6 +825,12 @@ class RegistrationDone(TestCase, MoloTestCaseMixin):
         profile_settings.capture_gender_on_reg = False
         profile_settings.save()
 
+        response = self.client.get(reverse('molo.profiles:registration_done'))
+        self.assertContains(response, '<p class="profiles__description">'
+                            'Let us know more about yourself '
+                            'to get access to exclusive content.</p>')
+        self.assertContains(response, 'Thank you for joining!')
+
         response = self.client.post(reverse(
             'molo.profiles:registration_done'), {
             'gender': 'male',
@@ -713,6 +838,9 @@ class RegistrationDone(TestCase, MoloTestCaseMixin):
         self.assertEqual(response.status_code, 302)
         user = User.objects.get(username='tester')
         self.assertEqual(user.profile.gender, ('male'))
+
+        response = self.client.get('/')
+        self.assertEqual(response.status_code, 200)
 
     def test_location_on_done(self):
         site = Site.objects.get(is_default_site=True)
@@ -722,6 +850,11 @@ class RegistrationDone(TestCase, MoloTestCaseMixin):
         profile_settings.capture_location_on_reg = False
         profile_settings.save()
 
+        response = self.client.get(reverse('molo.profiles:registration_done'))
+        self.assertContains(response, '<p class="profiles__description">'
+                            'Let us know more about yourself '
+                            'to get access to exclusive content.</p>')
+        self.assertContains(response, 'Thank you for joining!')
         response = self.client.post(reverse(
             'molo.profiles:registration_done'), {
             'location': 'mlazi',
@@ -729,6 +862,9 @@ class RegistrationDone(TestCase, MoloTestCaseMixin):
         self.assertEqual(response.status_code, 302)
         user = User.objects.get(username='tester')
         self.assertEqual(user.profile.location, ('mlazi'))
+
+        response = self.client.get('/')
+        self.assertEqual(response.status_code, 200)
 
     def test_education_level_on_done(self):
         site = Site.objects.get(is_default_site=True)
@@ -738,6 +874,11 @@ class RegistrationDone(TestCase, MoloTestCaseMixin):
         profile_settings.capture_education_level_on_reg = False
         profile_settings.save()
 
+        response = self.client.get(reverse('molo.profiles:registration_done'))
+        self.assertContains(response, '<p class="profiles__description">'
+                            'Let us know more about yourself '
+                            'to get access to exclusive content.</p>')
+        self.assertContains(response, 'Thank you for joining!')
         response = self.client.post(reverse(
             'molo.profiles:registration_done'), {
             'education_level': 'level 0',
@@ -745,6 +886,9 @@ class RegistrationDone(TestCase, MoloTestCaseMixin):
         self.assertEqual(response.status_code, 302)
         user = User.objects.get(username='tester')
         self.assertEqual(user.profile.education_level, ('level 0'))
+
+        response = self.client.get('/')
+        self.assertEqual(response.status_code, 200)
 
 
 @override_settings(
