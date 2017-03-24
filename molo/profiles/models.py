@@ -94,6 +94,9 @@ class UserProfilesSettings(BaseSetting):
         default=False,
         editable=True,
         verbose_name=_("Capture On Registration"),
+        help_text=_("If Display Name is activated, "
+                    "and Capture On Registration is not activated, "
+                    "The display name field will be captured on done page."),
     )
     display_name_required = models.BooleanField(
         default=False,
@@ -109,6 +112,9 @@ class UserProfilesSettings(BaseSetting):
         default=False,
         editable=True,
         verbose_name=_("Capture On Registration"),
+        help_text=_("If Gender is activated, "
+                    "and Capture On Registration is not activated, "
+                    "The Gender field will be captured on done page."),
     )
     gender_required = models.BooleanField(
         default=False,
@@ -124,6 +130,9 @@ class UserProfilesSettings(BaseSetting):
         default=False,
         editable=True,
         verbose_name=_("Capture On Registration"),
+        help_text=_("If Date Of Birth is activated, "
+                    "and Capture On Registration is not activated, "
+                    "The Date Of Birth field will be captured on done page."),
     )
     dob_required = models.BooleanField(
         default=False,
@@ -139,6 +148,9 @@ class UserProfilesSettings(BaseSetting):
         default=False,
         editable=True,
         verbose_name=_("Capture On Registration"),
+        help_text=_("If Location is activated, "
+                    "and Capture On Registration is not activated, "
+                    "The Location field will be captured on done page."),
     )
     location_required = models.BooleanField(
         default=False,
@@ -154,6 +166,10 @@ class UserProfilesSettings(BaseSetting):
         default=False,
         editable=True,
         verbose_name=_("Capture On Registration"),
+        help_text=_("If Education Level is activated, "
+                    "and Capture On Registration is not activated, "
+                    "The Education Level field will be captured "
+                    "on done page."),
     )
     activate_education_level_required = models.BooleanField(
         default=False,
