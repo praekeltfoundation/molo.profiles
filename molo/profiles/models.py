@@ -85,7 +85,7 @@ class UserProfilesSettings(BaseSetting):
         help_text=_('Choose a footer page')
     )
     activate_display_name = models.BooleanField(
-        default=False,
+        default=True,
         editable=True,
         verbose_name=_("Activate Display Name"),
     )
@@ -121,7 +121,7 @@ class UserProfilesSettings(BaseSetting):
         verbose_name=_("Gender Required"),
     )
     activate_dob = models.BooleanField(
-        default=False,
+        default=True,
         editable=True,
         verbose_name=_("Activate Date Of Birth"),
     )
