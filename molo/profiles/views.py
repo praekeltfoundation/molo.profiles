@@ -28,9 +28,19 @@ class RegistrationView(FormView):
     def form_valid(self, form):
         username = form.cleaned_data["username"]
         password = form.cleaned_data["password"]
+        alias = form.cleaned_data["alias"]
+        date_of_birth = form.cleaned_data["date_of_birth"]
+        gender = form.cleaned_data["gender"]
+        location = form.cleaned_data["location"]
+        education_level = form.cleaned_data["education_level"]
         mobile_number = form.cleaned_data["mobile_number"]
         user = User.objects.create_user(username=username, password=password)
         user.profile.mobile_number = mobile_number
+        user.profile.alias = alias
+        user.profile.date_of_birth = date_of_birth
+        user.profile.gender = gender
+        user.profile.location = location
+        user.profile.education_level = education_level
         user.profile.site = self.request.site
         if form.cleaned_data["email"]:
             user.email = form.cleaned_data["email"]
@@ -66,12 +76,16 @@ class RegistrationDone(FormView):
     """
     Enables updating of the user's date of birth
     """
-    form_class = forms.DateOfBirthForm
+    form_class = forms.DoneForm
     template_name = 'profiles/done.html'
 
     def form_valid(self, form):
         profile = self.request.user.profile
-        profile.date_of_birth = form.cleaned_data['date_of_birth']
+        profile.date_of_birth = form.cleaned_data["date_of_birth"]
+        profile.alias = form.cleaned_data["alias"]
+        profile.gender = form.cleaned_data["gender"]
+        profile.location = form.cleaned_data["location"]
+        profile.education_level = form.cleaned_data["education_level"]
         profile.save()
         return HttpResponseRedirect(form.cleaned_data.get('next', '/'))
 
