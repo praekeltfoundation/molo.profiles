@@ -113,19 +113,19 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
         profile_settings = settings['profiles']['UserProfilesSettings']
 
         response = self.client.get(reverse('molo.profiles:user_register'))
-        self.assertNotContains(response, 'Enter your mobile number')
+        self.assertNotContains(response, 'ENTER YOUR MOBILE NUMBER')
 
         profile_settings.show_mobile_number_field = True
         profile_settings.save()
 
         response = self.client.get(reverse('molo.profiles:user_register'))
-        self.assertNotContains(response, 'Enter your mobile number')
+        self.assertNotContains(response, 'ENTER YOUR MOBILE NUMBER')
 
         profile_settings.country_code = '+27'
         profile_settings.save()
 
         response = self.client.get(reverse('molo.profiles:user_register'))
-        self.assertContains(response, 'Enter your mobile number')
+        self.assertContains(response, 'ENTER YOUR MOBILE NUMBER')
 
     def test_email_field_exists_in_registration_form(self):
         site = Site.objects.get(is_default_site=True)
@@ -133,13 +133,13 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
         profile_settings = settings['profiles']['UserProfilesSettings']
 
         response = self.client.get(reverse('molo.profiles:user_register'))
-        self.assertNotContains(response, 'Enter your email')
+        self.assertNotContains(response, 'ENTER YOUR EMAIL ADDRESS')
 
         profile_settings.show_email_field = True
         profile_settings.save()
 
         response = self.client.get(reverse('molo.profiles:user_register'))
-        self.assertContains(response, 'Enter your email')
+        self.assertContains(response, 'ENTER YOUR EMAIL ADDRESS')
 
     def test_date_of_birth_field_exists_in_registration_form(self):
         site = Site.objects.get(is_default_site=True)
@@ -147,14 +147,14 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
         profile_settings = settings['profiles']['UserProfilesSettings']
 
         response = self.client.get(reverse('molo.profiles:user_register'))
-        self.assertNotContains(response, 'Select Date Of Birth')
+        self.assertNotContains(response, 'SELECT DATE OF BIRTH')
 
         profile_settings.activate_dob = True
         profile_settings.capture_dob_on_reg = True
         profile_settings.save()
 
         response = self.client.get(reverse('molo.profiles:user_register'))
-        self.assertContains(response, 'Select Date Of Birth')
+        self.assertContains(response, 'SELECT DATE OF BIRTH')
 
     def test_display_name_field_exists_in_registration_form(self):
         site = Site.objects.get(is_default_site=True)
@@ -162,14 +162,14 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
         profile_settings = settings['profiles']['UserProfilesSettings']
 
         response = self.client.get(reverse('molo.profiles:user_register'))
-        self.assertNotContains(response, 'Display Name')
+        self.assertNotContains(response, 'CHOOSE A DISPLAY NAME')
 
         profile_settings.activate_display_name = True
         profile_settings.capture_display_name_on_reg = True
         profile_settings.save()
 
         response = self.client.get(reverse('molo.profiles:user_register'))
-        self.assertContains(response, 'Display Name')
+        self.assertContains(response, 'CHOOSE A DISPLAY NAME')
 
     def test_gender_field_exists_in_registration_form(self):
         site = Site.objects.get(is_default_site=True)
@@ -177,14 +177,14 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
         profile_settings = settings['profiles']['UserProfilesSettings']
 
         response = self.client.get(reverse('molo.profiles:user_register'))
-        self.assertNotContains(response, 'Gender')
+        self.assertNotContains(response, 'I IDENTIFY MY GENDER AS:')
 
         profile_settings.activate_gender = True
         profile_settings.capture_gender_on_reg = True
         profile_settings.save()
 
         response = self.client.get(reverse('molo.profiles:user_register'))
-        self.assertContains(response, 'Gender')
+        self.assertContains(response, 'I IDENTIFY MY GENDER AS:')
 
     def test_location_field_exists_in_registration_form(self):
         site = Site.objects.get(is_default_site=True)
@@ -192,14 +192,14 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
         profile_settings = settings['profiles']['UserProfilesSettings']
 
         response = self.client.get(reverse('molo.profiles:user_register'))
-        self.assertNotContains(response, 'Location')
+        self.assertNotContains(response, 'WHERE DO YOU LIVE?')
 
         profile_settings.activate_location = True
         profile_settings.capture_location_on_reg = True
         profile_settings.save()
 
         response = self.client.get(reverse('molo.profiles:user_register'))
-        self.assertContains(response, 'Location')
+        self.assertContains(response, 'WHERE DO YOU LIVE?')
 
     def test_education_level_field_exists_in_registration_form(self):
         site = Site.objects.get(is_default_site=True)
@@ -207,14 +207,16 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
         profile_settings = settings['profiles']['UserProfilesSettings']
 
         response = self.client.get(reverse('molo.profiles:user_register'))
-        self.assertNotContains(response, 'Education Level')
+        self.assertNotContains(response, 'WHAT IS YOUR HIGHEST '
+                                         'LEVEL OF EDUCATION?')
 
         profile_settings.activate_education_level = True
         profile_settings.capture_education_level_on_reg = True
         profile_settings.save()
 
         response = self.client.get(reverse('molo.profiles:user_register'))
-        self.assertContains(response, 'Education Level')
+        self.assertContains(response, 'WHAT IS YOUR HIGHEST '
+                                      'LEVEL OF EDUCATION?')
 
     def test_mobile_number_field_is_optional(self):
         site = Site.objects.get(is_default_site=True)
@@ -1023,14 +1025,14 @@ class MyProfileEditTest(TestCase, MoloTestCaseMixin):
         profile_settings = settings['profiles']['UserProfilesSettings']
 
         response = self.client.get(reverse('molo.profiles:edit_my_profile'))
-        self.assertNotContains(response, 'Update your Location:')
+        self.assertNotContains(response, 'Update where you live:')
 
         profile_settings.activate_location = True
         profile_settings.location_required = True
         profile_settings.save()
 
         response = self.client.get(reverse('molo.profiles:edit_my_profile'))
-        self.assertContains(response, 'Update your Location:')
+        self.assertContains(response, 'Update where you live:')
 
     def test_education_level_field_exists_in_edit_form(self):
         site = Site.objects.get(is_default_site=True)

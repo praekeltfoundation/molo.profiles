@@ -8,9 +8,10 @@
 	{% csrf_token %}
 	{% if settings.profiles.UserProfilesSettings.activate_display_name %}
     <fieldset>
-      <label for="alias">{% trans "Update your Display Name:" %}</label><br>
+      <label for="alias">{% trans "Update your display name:" %}</label><br>
       {{ form.alias.errors}}
       {{ form.alias }}
+      <span class="input-hint">{% trans "We value your online security, therefore we hide your username and allow you to comment and interact with the site with a display name." %}</span>
     </fieldset>
     {% endif %}
 
@@ -27,14 +28,16 @@
       <label for="gender">{% trans "Update your gender:" %}</label><br>
       {{ form.gender.errors}}
       {{ form.gender }}
+      <span class="input-hint">{% trans "Only you will see this" %}</span>
     </fieldset>
     {% endif %}
 
     {% if settings.profiles.UserProfilesSettings.activate_location %}
     <fieldset>
-      <label for="location">{% trans "Update your Location:" %}</label><br>
+      <label for="location">{% trans "Update where you live:" %}</label><br>
       {{ form.location.errors}}
       {{ form.location }}
+      <span class="input-hint">{% trans "Only you will see this" %}</span>
     </fieldset>
     {% endif %}
 
@@ -43,6 +46,7 @@
       <label for="education_level">{% trans "Update your Education Level:" %}</label><br>
       {{ form.education_level.errors}}
       {{ form.education_level }}
+      <span class="input-hint">{% trans "Only you will see this" %}</span>
     </fieldset>
     {% endif %}
 
