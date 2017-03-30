@@ -1,6 +1,15 @@
 CHANGE LOG
 ==========
 
+3.1.0
+-----
+- Add additional fields for registration
+- Display Name
+- Gender
+- Date of birth
+- Location
+- Education level
+
 3.0.0
 -----
 - Add terms and conditions on registration
