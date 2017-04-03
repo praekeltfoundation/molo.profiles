@@ -73,19 +73,36 @@ class RegistrationView(FormView):
 
 
 class RegistrationDone(FormView):
-    """
-    Enables updating of the user's date of birth
-    """
     form_class = forms.DoneForm
     template_name = 'profiles/done.html'
 
     def form_valid(self, form):
         profile = self.request.user.profile
-        profile.date_of_birth = form.cleaned_data["date_of_birth"]
-        profile.alias = form.cleaned_data["alias"]
-        profile.gender = form.cleaned_data["gender"]
-        profile.location = form.cleaned_data["location"]
-        profile.education_level = form.cleaned_data["education_level"]
+        if (UserProfilesSettings.for_site(
+            self.request.site).activate_dob) and not (
+            UserProfilesSettings.for_site(
+                self.request.site).capture_dob_on_reg):
+                profile.date_of_birth = form.cleaned_data["date_of_birth"]
+        if (UserProfilesSettings.for_site(
+            self.request.site).activate_display_name) and not (
+            UserProfilesSettings.for_site(
+                self.request.site).capture_display_name_on_reg):
+                profile.alias = form.cleaned_data["alias"]
+        if (UserProfilesSettings.for_site(
+            self.request.site).activate_gender) and not (
+            UserProfilesSettings.for_site(
+                self.request.site).capture_gender_on_reg):
+                profile.gender = form.cleaned_data["gender"]
+        if (UserProfilesSettings.for_site(
+            self.request.site).activate_location) and not (
+            UserProfilesSettings.for_site(
+                self.request.site).capture_location_on_reg):
+                profile.location = form.cleaned_data["location"]
+        if (UserProfilesSettings.for_site(
+            self.request.site).activate_education_level) and not (
+            UserProfilesSettings.for_site(
+                self.request.site).capture_education_level_on_reg):
+                profile.education_level = form.cleaned_data["education_level"]
         profile.save()
         return HttpResponseRedirect(form.cleaned_data.get('next', '/'))
 
