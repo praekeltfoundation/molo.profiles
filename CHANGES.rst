@@ -1,6 +1,10 @@
 CHANGE LOG
 ==========
 
+3.1.1
+-----
+- Bug fixing on registration done page
+
 3.1.0
 -----
 - Add additional fields for registration
