@@ -90,25 +90,6 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
         response = self.client.get(reverse('molo.profiles:auth_login'))
         self.assertContains(response, 'Forgotten your password')
 
-    def test_login_success(self):
-        self.user = User.objects.create_user(
-            username='testing',
-            password='1234',
-            email='tester@example.com')
-
-        response = self.client.post(
-            reverse('molo.profiles:auth_login'),
-            data={'username': 'testing', 'password': '1234',
-                  'next': '/profiles/login-success/'},
-            follow=True)
-
-        self.assertEqual(response.status_code, 200)
-        self.assertRedirects(
-            response, reverse('molo.profiles:login_success'))
-
-        response = self.client.get(reverse('molo.profiles:login_success'))
-        self.assertContains(response, 'Login Successful!')
-
     def test_warning_message_shown_in_wagtail_if_no_country_code(self):
         site = Site.objects.get(is_default_site=True)
         settings = SettingsProxy(site)
@@ -993,6 +974,43 @@ class MyProfileViewTest(TestCase, MoloTestCaseMixin):
         response = self.client.get(reverse('molo.profiles:view_my_profile'))
         self.assertContains(response, 'tester')
         self.assertContains(response, 'The Alias')
+
+
+@override_settings(
+    ROOT_URLCONF='molo.profiles.tests.test_views', LOGIN_URL='/login/')
+class LoginTestView(TestCase, MoloTestCaseMixin):
+
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username='tester',
+            email='tester@example.com',
+            password='1234')
+        # Update the userprofile without touching (and caching) user.profile
+        UserProfile.objects.filter(user=self.user).update(alias='The Alias')
+        self.client = Client()
+        self.mk_main()
+
+    def test_login_success(self):
+        self.client.login(username='tester', password='1234')
+
+        response = self.client.get(reverse('molo.profiles:auth_login'))
+        self.assertContains(response, 'value="/profiles/login-success/"')
+
+        response = self.client.get(reverse('molo.profiles:login_success'))
+        self.assertContains(response, 'Login Successful!')
+
+    def test_login_success_redirects(self):
+        self.client.login(username='tester', password='1234')
+
+        response = self.client.post(
+            reverse('molo.profiles:auth_login'),
+            data={'username': 'tester', 'password': '1234',
+                  'next': '/profiles/login-success/'},
+            follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertRedirects(
+            response, reverse('molo.profiles:login_success'))
 
 
 @override_settings(
