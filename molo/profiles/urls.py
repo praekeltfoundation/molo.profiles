@@ -52,4 +52,11 @@ urlpatterns = [
         ),
         name="reset_password_success"
     ),
+    url(
+        r"^login-success/$",
+        TemplateView.as_view(
+            template_name="profiles/login_success.html"
+        ),
+        name="login_success"
+    ),
 ]
