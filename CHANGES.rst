@@ -1,6 +1,10 @@
 CHANGE LOG
 ==========
 
+3.2.1
+-----
+- Add version number
+
 3.2.0
 -----
 - Add a success page after user log in
