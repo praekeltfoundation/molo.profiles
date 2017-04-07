@@ -15,6 +15,7 @@ install:
 script:
   - flake8 molo
   - molo scaffold testapp --include molo.profiles ^profiles/
+  - cp molo/profiles/test_templates/login.html testapp/testapp/templates/registration/
   - flake8 testapp
   - pip install -e testapp
   - py.test --cov=molo
