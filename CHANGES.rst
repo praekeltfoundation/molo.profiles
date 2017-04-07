@@ -1,6 +1,10 @@
 CHANGE LOG
 ==========
 
+3.2.0
+-----
+- Add a success page after user log in
+
 3.1.1
 -----
 - Bug fixing on registration done page
