@@ -997,7 +997,7 @@ class LoginTestView(TestCase, MoloTestCaseMixin):
         self.assertContains(response, 'value="/profiles/login-success/"')
 
         response = self.client.get(reverse('molo.profiles:login_success'))
-        self.assertContains(response, 'Login Successful!')
+        self.assertContains(response, 'Welcome Back!')
 
     def test_login_success_redirects(self):
         self.client.login(username='tester', password='1234')
