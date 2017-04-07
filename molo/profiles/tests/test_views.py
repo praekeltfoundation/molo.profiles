@@ -91,6 +91,21 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
         self.assertContains(response, 'Forgotten your password')
 
     def test_login_success(self):
+        self.user = User.objects.create_user(
+            username='testing',
+            password='1234',
+            email='tester@example.com')
+
+        response = self.client.post(
+            reverse('molo.profiles:auth_login'),
+            data={'username': 'testing', 'password': '1234',
+                  'next': '/profiles/login-success/'},
+            follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertRedirects(
+            response, reverse('molo.profiles:login_success'))
+
         response = self.client.get(reverse('molo.profiles:login_success'))
         self.assertContains(response, 'Login Successful!')
 
