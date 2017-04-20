@@ -5,12 +5,15 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
 
-from molo.core.models import TranslatablePageMixin
+
+from molo.core.models import (
+    TranslatablePageMixin, PreventDeleteMixin, Main, index_pages_after_copy)
+from molo.core.utils import generate_slug
 from phonenumber_field.modelfields import PhoneNumberField
-from wagtail.wagtailcore.models import Page
+from wagtail.wagtailcore.models import Page, Site
 from wagtail.contrib.settings.models import BaseSetting, register_setting
 from wagtail.wagtailadmin.edit_handlers import (
-    FieldPanel, MultiFieldPanel)
+    FieldPanel, MultiFieldPanel, PageChooserPanel)
 
 
 @register_setting
@@ -76,6 +79,105 @@ class UserProfilesSettings(BaseSetting):
         verbose_name=_("Max number of password recovery retries before "
                        "lockout")
     )
+    terms_and_conditions = models.ForeignKey(
+        'wagtailcore.Page',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='+',
+        help_text=_('Choose a footer page')
+    )
+    activate_display_name = models.BooleanField(
+        default=True,
+        editable=True,
+        verbose_name=_("Activate Display Name"),
+    )
+    capture_display_name_on_reg = models.BooleanField(
+        default=False,
+        editable=True,
+        verbose_name=_("Capture On Registration"),
+        help_text=_("If Display Name is activated, "
+                    "and Capture On Registration is not activated, "
+                    "The display name field will be captured on done page."),
+    )
+    display_name_required = models.BooleanField(
+        default=False,
+        editable=True,
+        verbose_name=_("Display Name Required"),
+    )
+    activate_gender = models.BooleanField(
+        default=False,
+        editable=True,
+        verbose_name=_("Activate Gender"),
+    )
+    capture_gender_on_reg = models.BooleanField(
+        default=False,
+        editable=True,
+        verbose_name=_("Capture On Registration"),
+        help_text=_("If Gender is activated, "
+                    "and Capture On Registration is not activated, "
+                    "The Gender field will be captured on done page."),
+    )
+    gender_required = models.BooleanField(
+        default=False,
+        editable=True,
+        verbose_name=_("Gender Required"),
+    )
+    activate_dob = models.BooleanField(
+        default=True,
+        editable=True,
+        verbose_name=_("Activate Date Of Birth"),
+    )
+    capture_dob_on_reg = models.BooleanField(
+        default=False,
+        editable=True,
+        verbose_name=_("Capture On Registration"),
+        help_text=_("If Date Of Birth is activated, "
+                    "and Capture On Registration is not activated, "
+                    "The Date Of Birth field will be captured on done page."),
+    )
+    dob_required = models.BooleanField(
+        default=False,
+        editable=True,
+        verbose_name=_("Date Of Birth Required"),
+    )
+    activate_location = models.BooleanField(
+        default=False,
+        editable=True,
+        verbose_name=_("Activate Location"),
+    )
+    capture_location_on_reg = models.BooleanField(
+        default=False,
+        editable=True,
+        verbose_name=_("Capture On Registration"),
+        help_text=_("If Location is activated, "
+                    "and Capture On Registration is not activated, "
+                    "The Location field will be captured on done page."),
+    )
+    location_required = models.BooleanField(
+        default=False,
+        editable=True,
+        verbose_name=_("Location Required"),
+    )
+    activate_education_level = models.BooleanField(
+        default=False,
+        editable=True,
+        verbose_name=_("Activate Education Level"),
+    )
+    capture_education_level_on_reg = models.BooleanField(
+        default=False,
+        editable=True,
+        verbose_name=_("Capture On Registration"),
+        help_text=_("If Education Level is activated, "
+                    "and Capture On Registration is not activated, "
+                    "The Education Level field will be captured "
+                    "on done page."),
+    )
+    activate_education_level_required = models.BooleanField(
+        default=False,
+        editable=True,
+        verbose_name=_("Education Level Required"),
+    )
 
     panels = [
         MultiFieldPanel(
@@ -100,7 +202,47 @@ class UserProfilesSettings(BaseSetting):
                 FieldPanel("num_security_questions"),
                 FieldPanel("password_recovery_retries"),
             ],
-            heading="Security Question Settings", )
+            heading="Security Question Settings", ),
+        MultiFieldPanel(
+            [
+                PageChooserPanel('terms_and_conditions'),
+            ],
+            heading="Terms and Conditions on registration", ),
+        MultiFieldPanel(
+            [
+                FieldPanel('activate_display_name'),
+                FieldPanel('capture_display_name_on_reg'),
+                FieldPanel('display_name_required'),
+            ],
+            heading="Display Name", ),
+        MultiFieldPanel(
+            [
+                FieldPanel('activate_gender'),
+                FieldPanel('capture_gender_on_reg'),
+                FieldPanel('gender_required'),
+            ],
+            heading="Gender", ),
+        MultiFieldPanel(
+            [
+                FieldPanel('activate_dob'),
+                FieldPanel('capture_dob_on_reg'),
+                FieldPanel('dob_required'),
+            ],
+            heading="Date Of Birth", ),
+        MultiFieldPanel(
+            [
+                FieldPanel('activate_location'),
+                FieldPanel('capture_location_on_reg'),
+                FieldPanel('location_required'),
+            ],
+            heading="Location", ),
+        MultiFieldPanel(
+            [
+                FieldPanel('activate_education_level'),
+                FieldPanel('capture_education_level_on_reg'),
+                FieldPanel('activate_education_level_required'),
+            ],
+            heading="Education Level", )
     ]
     # TODO: mobile_number_required field shouldn't be shown
     # if show_mobile_number_field is False
@@ -122,9 +264,15 @@ SecurityQuestion.promote_panels = []
 SecurityQuestion.settings_panels = []
 
 
-class SecurityQuestionIndexPage(Page):
-    parent_page_types = []
+class SecurityQuestionIndexPage(Page, PreventDeleteMixin):
+    parent_page_types = ['core.Main']
     subpage_types = ["SecurityQuestion"]
+
+    def copy(self, *args, **kwargs):
+        site = kwargs['to'].get_site()
+        main = site.root_page
+        SecurityQuestionIndexPage.objects.child_of(main).delete()
+        super(SecurityQuestionIndexPage, self).copy(*args, **kwargs)
 
 
 SecurityQuestionIndexPage.content_panels = [
@@ -132,10 +280,33 @@ SecurityQuestionIndexPage.content_panels = [
 ]
 
 
+@receiver(index_pages_after_copy, sender=Main)
+def create_security_question_index_page(sender, instance, **kwargs):
+    if not instance.get_children().filter(
+            title='Security Questions').exists():
+        security_index = SecurityQuestionIndexPage(
+            title='Security Questions', slug=('security-questions-%s' % (
+                generate_slug(instance.title), )))
+        instance.add_child(instance=security_index)
+        security_index.save_revision().publish()
+
+
 class UserProfile(models.Model):
     user = models.OneToOneField(User, related_name="profile", primary_key=True)
     date_of_birth = models.DateField(null=True)
     alias = models.CharField(
+        max_length=128,
+        blank=True,
+        null=True)
+    gender = models.CharField(
+        max_length=128,
+        blank=True,
+        null=True)
+    location = models.CharField(
+        max_length=128,
+        blank=True,
+        null=True)
+    education_level = models.CharField(
         max_length=128,
         blank=True,
         null=True)
@@ -151,6 +322,7 @@ class UserProfile(models.Model):
         SecurityQuestion,
         through="SecurityAnswer"
     )
+    site = models.ForeignKey(Site, blank=True, null=True)
 
 
 @receiver(post_save, sender=User)

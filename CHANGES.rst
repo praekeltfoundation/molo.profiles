@@ -1,6 +1,68 @@
 CHANGE LOG
 ==========
 
+4.0.2-beta.3
+------------
+- Override copy method of security index page
+
+4.0.2-beta.2
+------------
+- ensure requirements for molo pinned to correct version
+
+4.0.1-beta.2
+------------
+- Link users to Site
+- Add multisite functionality to user profiles
+
+4.0.0-beta.2
+------------
+- Pre-release to support molo v5
+
+3.2.1
+-----
+- Add version number
+
+3.2.0
+-----
+- Add a success page after user log in
+
+3.1.1
+-----
+- Bug fixing on registration done page
+
+3.1.0
+-----
+- Add additional fields for registration
+- Display Name
+- Gender
+- Date of birth
+- Location
+- Education level
+
+3.0.0
+-----
+- Add terms and conditions on registration
+
+2.2.1
+-----
+- Updated minimum molo core dependency to 4.3.2
+
+2.2.0
+-----
+- Ensure that security question index page cannot be deleted
+
+2.1.3
+-----
+- Fix bug that allowed user's mobile number and email to be deleted when updated despite being required fields
+
+2.1.2
+-----
+- Use better python logic in forms
+
+2.1.1
+-----
+- Fixed bug forcing users to add mobile number when not required
+
 2.1.0
 -----
 - Update template to only show mobile number field if it's activated and has country calling code
