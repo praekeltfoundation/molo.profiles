@@ -1,22 +1,11 @@
 CHANGE LOG
 ==========
 
-4.0.2-beta.3
-------------
-- Override copy method of security index page
-
-4.0.2-beta.2
-------------
-- ensure requirements for molo pinned to correct version
-
-4.0.1-beta.2
-------------
+5.0.0
+-----
+- Molo core version 5 support
 - Link users to Site
 - Add multisite functionality to user profiles
-
-4.0.0-beta.2
-------------
-- Pre-release to support molo v5
 
 3.2.1
 -----
