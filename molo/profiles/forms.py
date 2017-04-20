@@ -252,8 +252,7 @@ class DoneForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super(DoneForm, self).__init__(*args, **kwargs)
         site = Site.objects.get(is_default_site=True)
-        settings = SettingsProxy(site)
-        profile_settings = settings['profiles']['UserProfilesSettings']
+        profile_settings = UserProfilesSettings.for_site(site)
         self.fields['date_of_birth'].required = (
             profile_settings.activate_dob and not
             profile_settings.capture_dob_on_reg and

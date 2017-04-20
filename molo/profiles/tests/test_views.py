@@ -160,7 +160,7 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
         })
         # assert that logging into a different site throws permission denied
         self.assertContains(
-            response, 'Your username and password does not match.')
+            response, 'Your username and password do not match.')
 
     def test_logout(self):
         response = self.client.get('%s?next=%s' % (
@@ -222,8 +222,7 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
 
     def test_date_of_birth_field_exists_in_registration_form(self):
         site = Site.objects.get(is_default_site=True)
-        settings = SettingsProxy(site)
-        profile_settings = settings['profiles']['UserProfilesSettings']
+        profile_settings = UserProfilesSettings.for_site(site)
 
         response = self.client.get(reverse('molo.profiles:user_register'))
         self.assertNotContains(response, 'SELECT DATE OF BIRTH')
@@ -237,8 +236,7 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
 
     def test_display_name_field_exists_in_registration_form(self):
         site = Site.objects.get(is_default_site=True)
-        settings = SettingsProxy(site)
-        profile_settings = settings['profiles']['UserProfilesSettings']
+        profile_settings = UserProfilesSettings.for_site(site)
 
         response = self.client.get(reverse('molo.profiles:user_register'))
         self.assertNotContains(response, 'CHOOSE A DISPLAY NAME')
@@ -252,8 +250,7 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
 
     def test_gender_field_exists_in_registration_form(self):
         site = Site.objects.get(is_default_site=True)
-        settings = SettingsProxy(site)
-        profile_settings = settings['profiles']['UserProfilesSettings']
+        profile_settings = UserProfilesSettings.for_site(site)
 
         response = self.client.get(reverse('molo.profiles:user_register'))
         self.assertNotContains(response, 'I IDENTIFY MY GENDER AS:')
@@ -267,8 +264,7 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
 
     def test_location_field_exists_in_registration_form(self):
         site = Site.objects.get(is_default_site=True)
-        settings = SettingsProxy(site)
-        profile_settings = settings['profiles']['UserProfilesSettings']
+        profile_settings = UserProfilesSettings.for_site(site)
 
         response = self.client.get(reverse('molo.profiles:user_register'))
         self.assertNotContains(response, 'WHERE DO YOU LIVE?')
@@ -282,8 +278,7 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
 
     def test_education_level_field_exists_in_registration_form(self):
         site = Site.objects.get(is_default_site=True)
-        settings = SettingsProxy(site)
-        profile_settings = settings['profiles']['UserProfilesSettings']
+        profile_settings = UserProfilesSettings.for_site(site)
 
         response = self.client.get(reverse('molo.profiles:user_register'))
         self.assertNotContains(response, 'WHAT IS YOUR HIGHEST '
@@ -349,8 +344,7 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
 
     def test_display_name_field_is_required(self):
         site = Site.objects.get(is_default_site=True)
-        settings = SettingsProxy(site)
-        profile_settings = settings['profiles']['UserProfilesSettings']
+        profile_settings = UserProfilesSettings.for_site(site)
 
         profile_settings.activate_display_name = True
         profile_settings.capture_display_name_on_reg = True
@@ -367,8 +361,7 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
 
     def test_display_name_is_not_required(self):
         site = Site.objects.get(is_default_site=True)
-        settings = SettingsProxy(site)
-        profile_settings = settings['profiles']['UserProfilesSettings']
+        profile_settings = UserProfilesSettings.for_site(site)
 
         profile_settings.activate_display_name = True
         profile_settings.capture_display_name_on_reg = True
@@ -388,8 +381,7 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
 
     def test_date_of_birth_field_is_required(self):
         site = Site.objects.get(is_default_site=True)
-        settings = SettingsProxy(site)
-        profile_settings = settings['profiles']['UserProfilesSettings']
+        profile_settings = UserProfilesSettings.for_site(site)
 
         profile_settings.activate_dob = True
         profile_settings.capture_dob_on_reg = True
@@ -406,8 +398,7 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
 
     def test_date_of_birth_field_not_required(self):
         site = Site.objects.get(is_default_site=True)
-        settings = SettingsProxy(site)
-        profile_settings = settings['profiles']['UserProfilesSettings']
+        profile_settings = UserProfilesSettings.for_site(site)
 
         profile_settings.activate_location = True
         profile_settings.capture_location_on_reg = True
@@ -428,8 +419,7 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
 
     def test_gender_field_is_required(self):
         site = Site.objects.get(is_default_site=True)
-        settings = SettingsProxy(site)
-        profile_settings = settings['profiles']['UserProfilesSettings']
+        profile_settings = UserProfilesSettings.for_site(site)
 
         profile_settings.activate_gender = True
         profile_settings.capture_gender_on_reg = True
@@ -446,8 +436,7 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
 
     def test_gender_not_required(self):
         site = Site.objects.get(is_default_site=True)
-        settings = SettingsProxy(site)
-        profile_settings = settings['profiles']['UserProfilesSettings']
+        profile_settings = UserProfilesSettings.for_site(site)
 
         profile_settings.activate_gender = True
         profile_settings.capture_gender_on_reg = True
@@ -467,8 +456,7 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
 
     def test_location_field_is_required(self):
         site = Site.objects.get(is_default_site=True)
-        settings = SettingsProxy(site)
-        profile_settings = settings['profiles']['UserProfilesSettings']
+        profile_settings = UserProfilesSettings.for_site(site)
 
         profile_settings.activate_location = True
         profile_settings.capture_location_on_reg = True
@@ -485,8 +473,7 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
 
     def test_location_not_required(self):
         site = Site.objects.get(is_default_site=True)
-        settings = SettingsProxy(site)
-        profile_settings = settings['profiles']['UserProfilesSettings']
+        profile_settings = UserProfilesSettings.for_site(site)
 
         profile_settings.activate_location = True
         profile_settings.capture_location_on_reg = True
@@ -506,8 +493,7 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
 
     def test_education_level_field_is_required(self):
         site = Site.objects.get(is_default_site=True)
-        settings = SettingsProxy(site)
-        profile_settings = settings['profiles']['UserProfilesSettings']
+        profile_settings = UserProfilesSettings.for_site(site)
 
         profile_settings.activate_education_level = True
         profile_settings.capture_education_level_on_reg = True
@@ -524,8 +510,7 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
 
     def test_education_level_not_required(self):
         site = Site.objects.get(is_default_site=True)
-        settings = SettingsProxy(site)
-        profile_settings = settings['profiles']['UserProfilesSettings']
+        profile_settings = UserProfilesSettings.for_site(site)
 
         profile_settings.activate_education_level = True
         profile_settings.capture_education_level_on_reg = True
@@ -841,8 +826,7 @@ class RegistrationDone(TestCase, MoloTestCaseMixin):
 
     def test_date_of_birth_on_done(self):
         site = Site.objects.get(is_default_site=True)
-        settings = SettingsProxy(site)
-        profile_settings = settings['profiles']['UserProfilesSettings']
+        profile_settings = UserProfilesSettings.for_site(site)
 
         profile_settings.activate_dob = True
         profile_settings.capture_dob_on_reg = False
@@ -867,8 +851,7 @@ class RegistrationDone(TestCase, MoloTestCaseMixin):
 
     def test_display_name_on_done(self):
         site = Site.objects.get(is_default_site=True)
-        settings = SettingsProxy(site)
-        profile_settings = settings['profiles']['UserProfilesSettings']
+        profile_settings = UserProfilesSettings.for_site(site)
 
         profile_settings.activate_display_name = True
         profile_settings.capture_display_name_on_reg = False
@@ -893,8 +876,7 @@ class RegistrationDone(TestCase, MoloTestCaseMixin):
 
     def test_gender_on_done(self):
         site = Site.objects.get(is_default_site=True)
-        settings = SettingsProxy(site)
-        profile_settings = settings['profiles']['UserProfilesSettings']
+        profile_settings = UserProfilesSettings.for_site(site)
 
         profile_settings.activate_gender = True
         profile_settings.capture_gender_on_reg = False
@@ -919,8 +901,7 @@ class RegistrationDone(TestCase, MoloTestCaseMixin):
 
     def test_location_on_done(self):
         site = Site.objects.get(is_default_site=True)
-        settings = SettingsProxy(site)
-        profile_settings = settings['profiles']['UserProfilesSettings']
+        profile_settings = UserProfilesSettings.for_site(site)
 
         profile_settings.activate_location = True
         profile_settings.capture_location_on_reg = False
@@ -944,8 +925,7 @@ class RegistrationDone(TestCase, MoloTestCaseMixin):
 
     def test_education_level_on_done(self):
         site = Site.objects.get(is_default_site=True)
-        settings = SettingsProxy(site)
-        profile_settings = settings['profiles']['UserProfilesSettings']
+        profile_settings = UserProfilesSettings.for_site(site)
 
         profile_settings.activate_education_level = True
         profile_settings.capture_education_level_on_reg = False
@@ -1108,8 +1088,7 @@ class MyProfileEditTest(TestCase, MoloTestCaseMixin):
 
     def test_gender_field_exists_in_edit_form(self):
         site = Site.objects.get(is_default_site=True)
-        settings = SettingsProxy(site)
-        profile_settings = settings['profiles']['UserProfilesSettings']
+        profile_settings = UserProfilesSettings.for_site(site)
 
         response = self.client.get(reverse('molo.profiles:edit_my_profile'))
         self.assertNotContains(response, 'Update your gender:')
@@ -1123,8 +1102,7 @@ class MyProfileEditTest(TestCase, MoloTestCaseMixin):
 
     def test_location_field_exists_in_edit_form(self):
         site = Site.objects.get(is_default_site=True)
-        settings = SettingsProxy(site)
-        profile_settings = settings['profiles']['UserProfilesSettings']
+        profile_settings = UserProfilesSettings.for_site(site)
 
         response = self.client.get(reverse('molo.profiles:edit_my_profile'))
         self.assertNotContains(response, 'Update where you live:')
@@ -1138,8 +1116,7 @@ class MyProfileEditTest(TestCase, MoloTestCaseMixin):
 
     def test_education_level_field_exists_in_edit_form(self):
         site = Site.objects.get(is_default_site=True)
-        settings = SettingsProxy(site)
-        profile_settings = settings['profiles']['UserProfilesSettings']
+        profile_settings = UserProfilesSettings.for_site(site)
 
         response = self.client.get(reverse('molo.profiles:edit_my_profile'))
         self.assertNotContains(response, 'Update your Education Level:')
@@ -1191,8 +1168,7 @@ class MyProfileEditTest(TestCase, MoloTestCaseMixin):
 
     def test_update_gender(self):
         site = Site.objects.get(is_default_site=True)
-        settings = SettingsProxy(site)
-        profile_settings = settings['profiles']['UserProfilesSettings']
+        profile_settings = UserProfilesSettings.for_site(site)
         profile_settings.activate_gender = True
         profile_settings.save()
 
@@ -1205,8 +1181,7 @@ class MyProfileEditTest(TestCase, MoloTestCaseMixin):
 
     def test_update_location(self):
         site = Site.objects.get(is_default_site=True)
-        settings = SettingsProxy(site)
-        profile_settings = settings['profiles']['UserProfilesSettings']
+        profile_settings = UserProfilesSettings.for_site(site)
         profile_settings.activate_location = True
         profile_settings.save()
 
@@ -1219,8 +1194,7 @@ class MyProfileEditTest(TestCase, MoloTestCaseMixin):
 
     def test_update_education_level(self):
         site = Site.objects.get(is_default_site=True)
-        settings = SettingsProxy(site)
-        profile_settings = settings['profiles']['UserProfilesSettings']
+        profile_settings = UserProfilesSettings.for_site(site)
         profile_settings.activate_education_level = True
         profile_settings.save()
 
@@ -1295,8 +1269,7 @@ class MyProfileEditTest(TestCase, MoloTestCaseMixin):
 
     def test_gender_field_is_required_on_edit_form(self):
         site = Site.objects.get(is_default_site=True)
-        settings = SettingsProxy(site)
-        profile_settings = settings['profiles']['UserProfilesSettings']
+        profile_settings = UserProfilesSettings.for_site(site)
 
         profile_settings.activate_gender = True
         profile_settings.gender_required = True
@@ -1309,8 +1282,7 @@ class MyProfileEditTest(TestCase, MoloTestCaseMixin):
 
     def test_gender_not_required_on_edit_form(self):
         site = Site.objects.get(is_default_site=True)
-        settings = SettingsProxy(site)
-        profile_settings = settings['profiles']['UserProfilesSettings']
+        profile_settings = UserProfilesSettings.for_site(site)
 
         profile_settings.activate_gender = True
         profile_settings.gender_required = False
@@ -1329,8 +1301,7 @@ class MyProfileEditTest(TestCase, MoloTestCaseMixin):
 
     def test_location_field_is_required_on_edit_form(self):
         site = Site.objects.get(is_default_site=True)
-        settings = SettingsProxy(site)
-        profile_settings = settings['profiles']['UserProfilesSettings']
+        profile_settings = UserProfilesSettings.for_site(site)
 
         profile_settings.activate_location = True
         profile_settings.location_required = True
@@ -1343,8 +1314,7 @@ class MyProfileEditTest(TestCase, MoloTestCaseMixin):
 
     def test_location_not_required_on_edit_form(self):
         site = Site.objects.get(is_default_site=True)
-        settings = SettingsProxy(site)
-        profile_settings = settings['profiles']['UserProfilesSettings']
+        profile_settings = UserProfilesSettings.for_site(site)
 
         profile_settings.activate_location = True
         profile_settings.location_required = False
@@ -1363,8 +1333,7 @@ class MyProfileEditTest(TestCase, MoloTestCaseMixin):
 
     def test_education_level_field_is_required_on_edit_form(self):
         site = Site.objects.get(is_default_site=True)
-        settings = SettingsProxy(site)
-        profile_settings = settings['profiles']['UserProfilesSettings']
+        profile_settings = UserProfilesSettings.for_site(site)
 
         profile_settings.activate_education_level = True
         profile_settings.activate_education_level_required = True
@@ -1377,8 +1346,7 @@ class MyProfileEditTest(TestCase, MoloTestCaseMixin):
 
     def test_education_level_not_required_on_edit_form(self):
         site = Site.objects.get(is_default_site=True)
-        settings = SettingsProxy(site)
-        profile_settings = settings['profiles']['UserProfilesSettings']
+        profile_settings = UserProfilesSettings.for_site(site)
 
         profile_settings.activate_education_level = True
         profile_settings.activate_education_level_required = False
@@ -1397,8 +1365,7 @@ class MyProfileEditTest(TestCase, MoloTestCaseMixin):
 
     def test_gender_required_location_not_required(self):
         site = Site.objects.get(is_default_site=True)
-        settings = SettingsProxy(site)
-        profile_settings = settings['profiles']['UserProfilesSettings']
+        profile_settings = UserProfilesSettings.for_site(site)
         profile_settings.activate_location = True
         profile_settings.activate_gender = True
         profile_settings.gender_required = True
