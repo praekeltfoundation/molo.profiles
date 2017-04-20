@@ -10,7 +10,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('wagtailcore', '0032_add_bulk_delete_page_permission'),
-        ('profiles', '0012_userprofilessettings_terms_and_conditions'),
+        ('profiles', '0013_add_location_gender_education_level_fields'),
     ]
 
     operations = [
