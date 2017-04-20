@@ -6,7 +6,9 @@ from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
 
 
-from molo.core.models import TranslatablePageMixin, PreventDeleteMixin
+from molo.core.models import (
+    TranslatablePageMixin, PreventDeleteMixin, Main, index_pages_after_copy)
+from molo.core.utils import generate_slug
 from phonenumber_field.modelfields import PhoneNumberField
 from wagtail.wagtailcore.models import Page, Site
 from wagtail.contrib.settings.models import BaseSetting, register_setting
@@ -266,10 +268,27 @@ class SecurityQuestionIndexPage(Page, PreventDeleteMixin):
     parent_page_types = ['core.Main']
     subpage_types = ["SecurityQuestion"]
 
+    def copy(self, *args, **kwargs):
+        site = kwargs['to'].get_site()
+        main = site.root_page
+        SecurityQuestionIndexPage.objects.child_of(main).delete()
+        super(SecurityQuestionIndexPage, self).copy(*args, **kwargs)
+
 
 SecurityQuestionIndexPage.content_panels = [
     FieldPanel('title', classname='full title'),
 ]
+
+
+@receiver(index_pages_after_copy, sender=Main)
+def create_security_question_index_page(sender, instance, **kwargs):
+    if not instance.get_children().filter(
+            title='Security Questions').exists():
+        security_index = SecurityQuestionIndexPage(
+            title='Security Questions', slug=('security-questions-%s' % (
+                generate_slug(instance.title), )))
+        instance.add_child(instance=security_index)
+        security_index.save_revision().publish()
 
 
 class UserProfile(models.Model):
