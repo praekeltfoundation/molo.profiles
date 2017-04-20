@@ -1,6 +1,10 @@
 CHANGE LOG
 ==========
 
+5.0.1
+-----
+- Pin molo.core to 5.0.0
+
 5.0.0
 -----
 - Molo core version 5 support
