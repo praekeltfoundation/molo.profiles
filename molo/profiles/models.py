@@ -5,9 +5,10 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
 
+
 from molo.core.models import TranslatablePageMixin, PreventDeleteMixin
 from phonenumber_field.modelfields import PhoneNumberField
-from wagtail.wagtailcore.models import Page
+from wagtail.wagtailcore.models import Page, Site
 from wagtail.contrib.settings.models import BaseSetting, register_setting
 from wagtail.wagtailadmin.edit_handlers import (
     FieldPanel, MultiFieldPanel, PageChooserPanel)
@@ -136,7 +137,7 @@ SecurityQuestion.settings_panels = []
 
 
 class SecurityQuestionIndexPage(Page, PreventDeleteMixin):
-    parent_page_types = []
+    parent_page_types = ['core.Main']
     subpage_types = ["SecurityQuestion"]
 
 
@@ -164,6 +165,7 @@ class UserProfile(models.Model):
         SecurityQuestion,
         through="SecurityAnswer"
     )
+    site = models.ForeignKey(Site, blank=True, null=True)
 
 
 @receiver(post_save, sender=User)

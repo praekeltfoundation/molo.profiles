@@ -31,6 +31,7 @@ class RegistrationView(FormView):
         mobile_number = form.cleaned_data["mobile_number"]
         user = User.objects.create_user(username=username, password=password)
         user.profile.mobile_number = mobile_number
+        user.profile.site = self.request.site
         if form.cleaned_data["email"]:
             user.email = form.cleaned_data["email"]
             user.save()
@@ -43,8 +44,8 @@ class RegistrationView(FormView):
                 question=question,
                 answer=answer
             )
-
-        authed_user = authenticate(username=username, password=password)
+        authed_user = authenticate(
+            request=self.request, username=username, password=password)
         login(self.request, authed_user)
         return HttpResponseRedirect(form.cleaned_data.get("next", "/"))
 

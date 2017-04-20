@@ -9,9 +9,8 @@ from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
 
 from wagtail.wagtailcore.models import Site
-from wagtail.contrib.settings.context_processors import SettingsProxy
 
-from molo.profiles.models import UserProfile
+from molo.profiles.models import UserProfile, UserProfilesSettings
 
 from phonenumber_field.formfields import PhoneNumberField
 
@@ -25,8 +24,7 @@ REGEX_EMAIL = settings.REGEX_EMAIL if hasattr(settings, 'REGEX_PHONE') else \
 
 def get_validation_msg_fragment():
     site = Site.objects.get(is_default_site=True)
-    settings = SettingsProxy(site)
-    profile_settings = settings['profiles']['UserProfilesSettings']
+    profile_settings = UserProfilesSettings.for_site(site)
 
     invalid_msg = ''
 
@@ -46,8 +44,7 @@ def get_validation_msg_fragment():
 
 def validate_no_email_or_phone(input):
     site = Site.objects.get(is_default_site=True)
-    settings = SettingsProxy(site)
-    profile_settings = settings['profiles']['UserProfilesSettings']
+    profile_settings = UserProfilesSettings.for_site(site)
 
     regexes = []
     if profile_settings.prevent_phone_number_in_username:
@@ -104,8 +101,7 @@ class RegistrationForm(forms.Form):
         questions = kwargs.pop("questions", [])
         super(RegistrationForm, self).__init__(*args, **kwargs)
         site = Site.objects.get(is_default_site=True)
-        settings = SettingsProxy(site)
-        profile_settings = settings['profiles']['UserProfilesSettings']
+        profile_settings = UserProfilesSettings.for_site(site)
         self.fields['mobile_number'].required = (
             profile_settings.mobile_number_required and
             profile_settings.show_mobile_number_field and
@@ -159,8 +155,7 @@ class RegistrationForm(forms.Form):
         if 'mobile_number' in self.data:
             if not self.data['mobile_number'].startswith('+'):
                 site = Site.objects.get(is_default_site=True)
-                settings = SettingsProxy(site)
-                profile_settings = settings['profiles']['UserProfilesSettings']
+                profile_settings = UserProfilesSettings.for_site(site)
                 number = self.data['mobile_number']
                 if number:
                     if number.startswith('0'):
@@ -198,8 +193,7 @@ class EditProfileForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(EditProfileForm, self).__init__(*args, **kwargs)
         site = Site.objects.get(is_default_site=True)
-        settings = SettingsProxy(site)
-        profile_settings = settings['profiles']['UserProfilesSettings']
+        profile_settings = UserProfilesSettings.for_site(site)
         self.fields['mobile_number'].required = (
             profile_settings.mobile_number_required and
             profile_settings.show_mobile_number_field and
@@ -232,8 +226,7 @@ class EditProfileForm(forms.ModelForm):
         if 'mobile_number' in self.data:
             if not self.data['mobile_number'].startswith('+'):
                 site = Site.objects.get(is_default_site=True)
-                settings = SettingsProxy(site)
-                profile_settings = settings['profiles']['UserProfilesSettings']
+                profile_settings = UserProfilesSettings.for_site(site)
                 number = self.data['mobile_number']
                 if number:
                     if number.startswith('0'):

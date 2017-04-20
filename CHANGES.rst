@@ -1,5 +1,15 @@
 CHANGE LOG
 ==========
+
+4.0.2-beta.2
+------------
+- ensure requirements for molo pinned to correct version
+
+4.0.1-beta.2
+------------
+- Link users to Site
+- Add multisite functionality to user profiles
+
 4.0.0-beta.2
 ------------
 - Pre-release to support molo v5
