@@ -1,4 +1,4 @@
-molo.core==5.0.1b1
+molo.core>=5.1.0b1
 celery<4.0
 django-phonenumber-field
 django-import-export
