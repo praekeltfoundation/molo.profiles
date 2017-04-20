@@ -1,5 +1,10 @@
 CHANGE LOG
 ==========
+
+4.0.2-beta.2
+------------
+- ensure requirements for molo pinned to correct version
+
 4.0.1-beta.2
 ------------
 - Link users to Site
