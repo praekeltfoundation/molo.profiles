@@ -1,6 +1,10 @@
 CHANGE LOG
 ==========
 
+4.0.2-beta.3
+------------
+- Override copy method of security index page
+
 4.0.2-beta.2
 ------------
 - ensure requirements for molo pinned to correct version
