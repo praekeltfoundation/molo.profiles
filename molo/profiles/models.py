@@ -249,6 +249,8 @@ class UserProfilesSettings(BaseSetting):
 
 
 class SecurityQuestion(TranslatablePageMixin, Page):
+    parent_page_types = ['SecurityQuestionIndexPage']
+    subpage_types = []
 
     class Meta:
         verbose_name = _("Security Question")
