@@ -1,6 +1,10 @@
 CHANGE LOG
 ==========
 
+5.0.2
+-----
+- Add page_types to security question's model
+
 5.0.1
 -----
 - Pin molo.core to 5.0.0
