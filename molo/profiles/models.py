@@ -331,6 +331,7 @@ class UserProfile(models.Model):
 def user_profile_handler(sender, instance, created, **kwargs):
     if created:
         profile = UserProfile(user=instance)
+        profile.site = Site.objects.get(is_default_site=True)
         profile.save()
 
 

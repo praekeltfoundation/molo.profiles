@@ -12,11 +12,11 @@ from molo.profiles.models import UserProfile
 
 class ModelsTestCase(TestCase, MoloTestCaseMixin):
     def setUp(self):
+        self.mk_main()
         self.user = User.objects.create_user(
             username='tester',
             email='tester@example.com',
             password='tester')
-        self.mk_main()
         self.main = Main.objects.all().first()
         self.language_setting = Languages.objects.create(
             site_id=self.main.get_site().pk)

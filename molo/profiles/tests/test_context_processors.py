@@ -10,13 +10,12 @@ from molo.core.tests.base import MoloTestCaseMixin
 class ContextProcessorsTest(TestCase, MoloTestCaseMixin):
 
     def setUp(self):
+        self.mk_main()
         self.factory = RequestFactory()
         self.user = User.objects.create_user(
             username='tester',
             email='tester@example.com',
             password='tester')
-
-        self.mk_main()
 
     def test_get_profile_data_authenticated_anonymous(self):
         request = self.factory.get('/')
