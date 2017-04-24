@@ -1,6 +1,10 @@
 CHANGE LOG
 ==========
 
+5.0.3
+-----
+- Add default site to admin users
+
 5.0.2
 -----
 - Add page_types to security question's model
