@@ -41,8 +41,8 @@ urlpatterns = patterns(
 class RegistrationViewTest(TestCase, MoloTestCaseMixin):
 
     def setUp(self):
-        self.client = Client()
         self.mk_main()
+        self.client = Client()
         self.main = Main.objects.all().first()
         self.language_setting = Languages.objects.create(
             site_id=self.main.get_site().pk)
@@ -816,13 +816,13 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
 class RegistrationDone(TestCase, MoloTestCaseMixin):
 
     def setUp(self):
+        self.mk_main()
         self.user = User.objects.create_user(
             username='tester',
             email='tester@example.com',
             password='tester')
         self.client = Client()
         self.client.login(username='tester', password='tester')
-        self.mk_main()
 
     def test_date_of_birth_on_done(self):
         site = Site.objects.get(is_default_site=True)
@@ -1005,6 +1005,7 @@ class TestTermsAndConditions(TestCase, MoloTestCaseMixin):
 class MyProfileViewTest(TestCase, MoloTestCaseMixin):
 
     def setUp(self):
+        self.mk_main()
         self.user = User.objects.create_user(
             username='tester',
             email='tester@example.com',
@@ -1012,7 +1013,6 @@ class MyProfileViewTest(TestCase, MoloTestCaseMixin):
         # Update the userprofile without touching (and caching) user.profile
         UserProfile.objects.filter(user=self.user).update(alias='The Alias')
         self.client = Client()
-        self.mk_main()
 
     def test_view(self):
         self.client.login(username='tester', password='tester')
@@ -1026,6 +1026,7 @@ class MyProfileViewTest(TestCase, MoloTestCaseMixin):
 class LoginTestView(TestCase, MoloTestCaseMixin):
 
     def setUp(self):
+        self.mk_main()
         self.user = User.objects.create_user(
             username='tester',
             email='tester@example.com',
@@ -1033,7 +1034,6 @@ class LoginTestView(TestCase, MoloTestCaseMixin):
         # Update the userprofile without touching (and caching) user.profile
         UserProfile.objects.filter(user=self.user).update(alias='The Alias')
         self.client = Client()
-        self.mk_main()
 
     def test_login_success(self):
         self.client.login(username='tester', password='1234')
@@ -1063,13 +1063,13 @@ class LoginTestView(TestCase, MoloTestCaseMixin):
 class MyProfileEditTest(TestCase, MoloTestCaseMixin):
 
     def setUp(self):
+        self.mk_main()
         self.user = User.objects.create_user(
             username='tester',
             email='tester@example.com',
             password='tester')
         self.client = Client()
         self.client.login(username='tester', password='tester')
-        self.mk_main()
 
     def test_view(self):
         response = self.client.get(reverse('molo.profiles:edit_my_profile'))
@@ -1385,13 +1385,13 @@ class MyProfileEditTest(TestCase, MoloTestCaseMixin):
 class ProfileDateOfBirthEditTest(MoloTestCaseMixin, TestCase):
 
     def setUp(self):
+        self.mk_main()
         self.user = User.objects.create_user(
             username='tester',
             email='tester@example.com',
             password='tester')
         self.client = Client()
         self.client.login(username='tester', password='tester')
-        self.mk_main()
 
     def test_view(self):
         response = self.client.get(
