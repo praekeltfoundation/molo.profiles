@@ -28,7 +28,7 @@ class FrontendUsersAdminView(IndexView):
             'is_active': is_active_exact
         }
 
-        arguments = {'profile__site': request.site}
+        arguments = {'profile__site': request.site.pk}
 
         for key, value in filter_list.items():
             if value:
