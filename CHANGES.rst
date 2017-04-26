@@ -1,6 +1,10 @@
 CHANGE LOG
 ==========
 
+5.0.4
+-----
+- Fix user export celery bug for site
+
 5.0.3
 -----
 - Add default site to admin users
