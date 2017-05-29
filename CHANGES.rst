@@ -1,6 +1,10 @@
 CHANGE LOG
 ==========
 
+5.1.0
+-----
+- ensure request is passed on to AuthenticationForm
+
 5.0.4
 -----
 - Fix user export celery bug for site
