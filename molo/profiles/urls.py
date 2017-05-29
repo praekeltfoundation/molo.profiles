@@ -1,4 +1,5 @@
 from molo.profiles import views
+from molo.profiles.forms import MoloAuthenticationForm
 
 from django.conf.urls import url
 from django.contrib.auth.decorators import login_required
@@ -8,7 +9,8 @@ from django.views.generic import TemplateView
 urlpatterns = [
     url(r'^logout/$', views.logout_page, name='auth_logout'),
     # If user is not login it will redirect to login page
-    url(r'^login/$', 'django.contrib.auth.views.login', name='auth_login'),
+    url(r'^login/$', 'django.contrib.auth.views.login',
+        {'authentication_form': MoloAuthenticationForm}, name='auth_login'),
     url(
         r'^register/$',
         views.RegistrationView.as_view(),
@@ -51,5 +53,12 @@ urlpatterns = [
             template_name="profiles/reset_password_success.html"
         ),
         name="reset_password_success"
+    ),
+    url(
+        r"^login-success/$",
+        TemplateView.as_view(
+            template_name="profiles/login_success.html"
+        ),
+        name="login_success"
     ),
 ]

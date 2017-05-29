@@ -1,18 +1,52 @@
 CHANGE LOG
 ==========
 
-4.0.2-beta.2
-------------
-- ensure requirements for molo pinned to correct version
+5.1.0
+-----
+- ensure request is passed on to AuthenticationForm
 
-4.0.1-beta.2
-------------
+5.0.4
+-----
+- Fix user export celery bug for site
+
+5.0.3
+-----
+- Add default site to admin users
+
+5.0.2
+-----
+- Add page_types to security question's model
+
+5.0.1
+-----
+- Pin molo.core to 5.0.0
+
+5.0.0
+-----
+- Molo core version 5 support
 - Link users to Site
 - Add multisite functionality to user profiles
 
-4.0.0-beta.2
-------------
-- Pre-release to support molo v5
+3.2.1
+-----
+- Add version number
+
+3.2.0
+-----
+- Add a success page after user log in
+
+3.1.1
+-----
+- Bug fixing on registration done page
+
+3.1.0
+-----
+- Add additional fields for registration
+- Display Name
+- Gender
+- Date of birth
+- Location
+- Education level
 
 3.0.0
 -----
