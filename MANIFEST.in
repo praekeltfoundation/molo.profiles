@@ -4,8 +4,8 @@ include VERSION
 include MANIFEST.in
 include requirements-dev.txt
 
-recursive-include molo/core/templates *
-recursive-include molo/core/test_templates *
+recursive-include molo/profiles/templates *
+recursive-include molo/profiles/test_templates *
 
 global-exclude __pycache__
 global-exclude *.py[co]

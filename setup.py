@@ -12,11 +12,11 @@ def read(*parts):
 
 
 install_requires = [
+    'molo.core<6.0.0,>=5.0.0',
     'celery<4.0',
     'django-daterange-filter',
     'django-import-export',
     'django-phonenumber-field',
-    'molo.core<6.0.0,>=5.0.0',
 ]
 
 setup(
