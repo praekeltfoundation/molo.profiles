@@ -1,25 +1,20 @@
 sudo: false
 language: python
 python:
-  - "2.7"
-cache:
-  directories:
-    - $HOME/.pip-cache/
+  - '2.7'
+cache: pip
+before_install:
+  - pip install --upgrade pip
 install:
-  - pip install twine
-  - pip install --upgrade pip --cache-dir $HOME/.pip-cache/
-  - pip install coveralls coverage --cache-dir $HOME/.pip-cache/
-  - pip install flake8 --cache-dir $HOME/.pip-cache/
-  - pip install -r requirements-dev.txt --cache-dir $HOME/.pip-cache/
-  - pip install -e . --cache-dir $HOME/.pip-cache/
+  - pip install -r requirements-dev.txt
+  - pip install coveralls
 script:
-  - flake8 molo
   - molo scaffold testapp
   - mkdir -p testapp/testapp/templates/registration/
   - cp molo/profiles/test_templates/login.html testapp/testapp/templates/registration/
-  - flake8 testapp
   - pip install -e testapp
   - py.test --cov=molo
+  - flake8 molo
 after_success:
   - coveralls
 deploy:
