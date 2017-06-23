@@ -2,6 +2,10 @@ include LICENSE
 include README.rst
 include VERSION
 include MANIFEST.in
-include requirements.txt
 include requirements-dev.txt
-recursive-include molo LICENSE VERSION *.py *.txt *.scss *.js *.html *.json *.yml *.yaml *.rst *.in *.sh
+
+recursive-include molo/core/templates *
+recursive-include molo/core/test_templates *
+
+global-exclude __pycache__
+global-exclude *.py[co]
