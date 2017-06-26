@@ -1,6 +1,5 @@
 from datetime import datetime, timedelta
 import random
-from itertools import izip
 from django.test import TestCase, override_settings
 from django.contrib.auth.models import User
 from molo.core.tests.base import MoloTestCaseMixin
@@ -63,8 +62,8 @@ class UserInfoTest(TestCase, MoloTestCaseMixin):
 
         # create the users
         count = 10
-        for join_datetime, login_datetime in izip(join_datetimes,
-                                                  login_datetimes):
+        for join_datetime, login_datetime in zip(join_datetimes,
+                                                 login_datetimes):
             user = User.objects.create_user(
                 username='tester' + str(count),
                 email='tester' + str(count) + '@example.com',
