@@ -1,4 +1,4 @@
-import csv
+import sys
 
 from django.contrib import admin
 from django.http import HttpResponse
@@ -10,6 +10,11 @@ from django.utils.translation import ugettext_lazy as _
 from daterange_filter.filter import DateRangeFilter
 from wagtail.contrib.modeladmin.options import ModelAdmin as WagtailModelAdmin
 from molo.profiles.admin_views import FrontendUsersAdminView
+
+if sys.version_info[0] < 3:
+    from backports import csv
+else:
+    import csv
 
 try:
     admin.site.unregister(User)
@@ -26,9 +31,6 @@ def download_as_csv(ProfileUserAdmin, request, queryset):
     field_names = user_model_fields + profile_fields
     writer.writerow(field_names)
     for obj in queryset:
-        if obj.profile.alias:
-            obj.profile.alias = obj.profile.alias.encode('utf-8')
-        obj.username = obj.username.encode('utf-8')
         obj.date_joined = obj.date_joined.strftime("%Y-%m-%d %H:%M")
         writer.writerow(
             [getattr(obj, field) for field in user_model_fields] +
