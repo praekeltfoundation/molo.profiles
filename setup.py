@@ -19,7 +19,7 @@ install_requires = [
     'django-import-export',
     'django-phonenumber-field',
 ]
-if sys.version_info < 3:
+if sys.version_info[0] < 3:
     install_requires.append('backports.csv')
 
 setup(
