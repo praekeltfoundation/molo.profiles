@@ -1,5 +1,6 @@
 import codecs
 import os
+import sys
 
 from setuptools import setup, find_packages
 
@@ -18,6 +19,8 @@ install_requires = [
     'django-import-export',
     'django-phonenumber-field',
 ]
+if sys.version_info[0] < 3:
+    install_requires.append('backports.csv')
 
 setup(
     name='molo.profiles',

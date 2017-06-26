@@ -1509,8 +1509,8 @@ class ForgotPasswordViewTest(TestCase, MoloTestCaseMixin):
         self.assertTrue(isinstance(form, ForgotPasswordForm))
 
     def test_unidentified_user_gets_error(self):
-        error_message = "The username and security question(s) combination " \
-                        "do not match."
+        error_message = b"The username and security question(s) combination " \
+                        b"do not match."
         response = self.client.post(
             reverse("molo.profiles:forgot_password"), {
                 "username": "bogus",
@@ -1520,8 +1520,8 @@ class ForgotPasswordViewTest(TestCase, MoloTestCaseMixin):
         self.failUnless(error_message in response.content)
 
     def test_suspended_user_gets_error(self):
-        error_message = "The username and security question(s) combination " \
-                        "do not match."
+        error_message = b"The username and security question(s) combination " \
+                        b"do not match."
         self.user.is_active = False
         self.user.save()
         response = self.client.post(
@@ -1535,8 +1535,8 @@ class ForgotPasswordViewTest(TestCase, MoloTestCaseMixin):
         self.user.save()
 
     def test_incorrect_security_answer_gets_error(self):
-        error_message = "The username and security question(s) combination " \
-                        "do not match."
+        error_message = b"The username and security question(s) combination " \
+                        b"do not match."
         response = self.client.post(
             reverse("molo.profiles:forgot_password"), {
                 "username": "tester",
@@ -1546,7 +1546,7 @@ class ForgotPasswordViewTest(TestCase, MoloTestCaseMixin):
         self.failUnless(error_message in response.content)
 
     def test_too_many_retries_result_in_error(self):
-        error_message = "Too many attempts"
+        error_message = b"Too many attempts"
         site = Site.objects.get(is_default_site=True)
         profile_settings = UserProfilesSettings.for_site(site)
 
@@ -1628,7 +1628,7 @@ class TranslatedSecurityQuestionsTest(TestCase, MoloTestCaseMixin):
         # is asked
         self.client.get('/locale/en/')
         response = self.client.get(reverse("molo.profiles:forgot_password"))
-        self.failIf("How old are you in french" in response.content)
+        self.failIf(b"How old are you in french" in response.content)
 
 
 class ResetPasswordViewTest(TestCase, MoloTestCaseMixin):

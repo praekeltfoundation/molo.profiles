@@ -1,13 +1,24 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+
+import cgi
+import sys
+from datetime import date
+
 from django.test import TestCase, override_settings
 from django.contrib.auth.models import User
 from django.test.client import Client
 from django.core.urlresolvers import reverse
-from datetime import date
+
 from molo.core.tests.base import MoloTestCaseMixin
 from molo.core.models import Main, Languages, SiteLanguageRelation
 from molo.profiles.admin import ProfileUserAdmin, download_as_csv
 from molo.profiles.models import UserProfile
+
+if sys.version_info[0] < 3:
+    from backports import csv
+else:
+    import csv
 
 
 class ModelsTestCase(TestCase, MoloTestCaseMixin):
@@ -25,6 +36,20 @@ class ModelsTestCase(TestCase, MoloTestCaseMixin):
             locale='en',
             is_active=True)
 
+    def assert_csv_download(self, response, filename, rows):
+        self.assertEquals(response.status_code, 200)
+
+        self.assertEquals(response['Content-Type'], 'text/csv')
+
+        disposition, params = cgi.parse_header(response['Content-Disposition'])
+        self.assertEquals(disposition, 'attachment')
+        self.assertEquals(params, {'filename': filename})
+
+        response_lines = response.content.decode('utf-8').split('\r\n')
+        self.assertEquals(response_lines.pop(), '')
+
+        self.assertEquals([row for row in csv.reader(response_lines)], rows)
+
     def test_download_csv(self):
         profile = self.user.profile
         profile.alias = 'The Alias'
@@ -34,13 +59,14 @@ class ModelsTestCase(TestCase, MoloTestCaseMixin):
         response = download_as_csv(ProfileUserAdmin(UserProfile, self.site),
                                    None,
                                    User.objects.all())
-        date = str(self.user.date_joined.strftime("%Y-%m-%d %H:%M"))
-        expected_output = ('Content-Type: text/csv\r\nContent-Disposition: '
-                           'attachment;filename=export.csv\r\n\r\nusername,'
-                           'email,first_name,last_name,is_staff,date_joined,'
-                           'alias,mobile_number\r\ntester,tester@example.com,'
-                           ',,False,' + date + ',The Alias,+27784667723\r\n')
-        self.assertEquals(str(response), expected_output)
+        date = self.user.date_joined.strftime("%Y-%m-%d %H:%M")
+
+        self.assert_csv_download(response, 'export.csv', [
+            ['username', 'email', 'first_name', 'last_name', 'is_staff',
+             'date_joined', 'alias', 'mobile_number'],
+            ['tester', 'tester@example.com', '', '', 'False', date,
+             'The Alias', '+27784667723'],
+        ])
 
     def test_download_csv_with_an_alias_contains_ascii_code(self):
         profile = self.user.profile
@@ -51,14 +77,14 @@ class ModelsTestCase(TestCase, MoloTestCaseMixin):
         response = download_as_csv(ProfileUserAdmin(UserProfile, self.site),
                                    None,
                                    User.objects.all())
-        date = str(self.user.date_joined.strftime("%Y-%m-%d %H:%M"))
-        expected_output = ('Content-Type: text/csv\r\nContent-Disposition: '
-                           'attachment;filename=export.csv\r\n\r\nusername,'
-                           'email,first_name,last_name,is_staff,date_joined,'
-                           'alias,mobile_number\r\ntester,tester@example.com,'
-                           ',,False,' + date + ',The Alias \xf0\x9f\x98\x81,'
-                           '+27784667723\r\n')
-        self.assertEquals(str(response), expected_output)
+        date = self.user.date_joined.strftime("%Y-%m-%d %H:%M")
+
+        self.assert_csv_download(response, 'export.csv', [
+            ['username', 'email', 'first_name', 'last_name', 'is_staff',
+             'date_joined', 'alias', 'mobile_number'],
+            ['tester', 'tester@example.com', '', '', 'False', date,
+             'The Alias 😁', '+27784667723'],
+        ])
 
     def test_download_csv_with_an_username_contains_ascii_code(self):
         self.user.username = '사이네'
@@ -67,14 +93,13 @@ class ModelsTestCase(TestCase, MoloTestCaseMixin):
         response = download_as_csv(ProfileUserAdmin(UserProfile, self.site),
                                    None,
                                    User.objects.all())
-        date = str(self.user.date_joined.strftime("%Y-%m-%d %H:%M"))
-        expected_output = ('Content-Type: text/csv\r\nContent-Disposition: '
-                           'attachment;filename=export.csv\r\n\r\nusername,'
-                           'email,first_name,last_name,is_staff,date_joined,'
-                           'alias,mobile_number\r\n\xec\x82\xac\xec\x9d\xb4'
-                           '\xeb\x84\xa4,tester@example.com,'
-                           ',,False,' + date + ',,\r\n')
-        self.assertEquals(str(response), expected_output)
+        date = self.user.date_joined.strftime("%Y-%m-%d %H:%M")
+
+        self.assert_csv_download(response, 'export.csv', [
+            ['username', 'email', 'first_name', 'last_name', 'is_staff',
+             'date_joined', 'alias', 'mobile_number'],
+            ['사이네', 'tester@example.com', '', '', 'False', date, '', ''],
+        ])
 
 
 class TestFrontendUsersAdminView(TestCase, MoloTestCaseMixin):
