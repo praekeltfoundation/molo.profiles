@@ -325,6 +325,7 @@ class UserProfile(models.Model):
         through="SecurityAnswer"
     )
     site = models.ForeignKey(Site, blank=True, null=True)
+    fcm_registration_token = models.CharField(max_length=256, null=True)
 
 
 @receiver(post_save, sender=User)
