@@ -3,6 +3,10 @@ CHANGE LOG
 
 5.1.0
 -----
+- add registration token on user profile for fcm
+
+5.1.0
+-----
 - ensure request is passed on to AuthenticationForm
 
 5.0.4
