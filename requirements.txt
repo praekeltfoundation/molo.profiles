@@ -1,5 +1,6 @@
-molo.core==5.0.1b1
+molo.core<6.0.0,>=5.0.0
 celery<4.0
 django-phonenumber-field
 django-import-export
 django-daterange-filter
+Unidecode==0.04.16

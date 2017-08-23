@@ -3,12 +3,13 @@ import random
 from itertools import izip
 from django.test import TestCase, override_settings
 from django.contrib.auth.models import User
+from molo.core.tests.base import MoloTestCaseMixin
 from molo.profiles import task
 import responses
 import json
 
 
-class UserInfoTest(TestCase):
+class UserInfoTest(TestCase, MoloTestCaseMixin):
 
     def setUp(self):
         '''
@@ -21,6 +22,7 @@ class UserInfoTest(TestCase):
             who joined longer than 24 hours ago
             and have not visited the site in the last 24 hours
         '''
+        self.mk_main()
         now = datetime.now()
 
         # create users that joined today

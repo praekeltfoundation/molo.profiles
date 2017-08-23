@@ -4,7 +4,9 @@ import re
 
 from django import forms
 from django.forms.extras.widgets import SelectDateWidget
+from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
+from django.contrib.auth.forms import AuthenticationForm
 from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
 
@@ -20,6 +22,27 @@ REGEX_PHONE = settings.REGEX_PHONE if hasattr(settings, 'REGEX_PHONE') else \
 
 REGEX_EMAIL = settings.REGEX_EMAIL if hasattr(settings, 'REGEX_PHONE') else \
     r'([\w\.-]+@[\w\.-]+)'
+
+
+class MoloAuthenticationForm(AuthenticationForm):
+    def clean(self):
+        username = self.cleaned_data.get('username')
+        password = self.cleaned_data.get('password')
+
+        if username and password:
+            self.user_cache = authenticate(request=self.request,
+                                           username=username,
+                                           password=password)
+            if self.user_cache is None:
+                raise forms.ValidationError(
+                    self.error_messages['invalid_login'],
+                    code='invalid_login',
+                    params={'username': self.username_field.verbose_name},
+                )
+            else:
+                self.confirm_login_allowed(self.user_cache)
+
+        return self.cleaned_data
 
 
 def get_validation_msg_fragment():
@@ -95,6 +118,28 @@ class RegistrationForm(forms.Form):
     email = forms.EmailField(required=False)
     mobile_number = PhoneNumberField(required=False)
     terms_and_conditions = forms.BooleanField(required=True)
+    alias = forms.CharField(
+        label=_("Display Name"),
+        required=False
+    )
+    date_of_birth = forms.DateField(
+        widget=SelectDateWidget(
+            years=list(reversed(range(1930, timezone.now().year + 1)))
+        ),
+        required=False
+    )
+    gender = forms.CharField(
+        label=_("Gender"),
+        required=False
+    )
+    location = forms.CharField(
+        label=_("Location"),
+        required=False
+    )
+    education_level = forms.CharField(
+        label=_("Education Level"),
+        required=False
+    )
     next = forms.CharField(required=False)
 
     def __init__(self, *args, **kwargs):
@@ -109,6 +154,26 @@ class RegistrationForm(forms.Form):
         self.fields['email'].required = (
             profile_settings.email_required and
             profile_settings.show_email_field)
+        self.fields['alias'].required = (
+            profile_settings.activate_display_name and
+            profile_settings.capture_display_name_on_reg and
+            profile_settings.display_name_required)
+        self.fields['date_of_birth'].required = (
+            profile_settings.activate_dob and
+            profile_settings.capture_dob_on_reg and
+            profile_settings.dob_required)
+        self.fields['gender'].required = (
+            profile_settings.activate_gender and
+            profile_settings.capture_gender_on_reg and
+            profile_settings.gender_required)
+        self.fields['location'].required = (
+            profile_settings.activate_location and
+            profile_settings.capture_location_on_reg and
+            profile_settings.location_required)
+        self.fields['education_level'].required = (
+            profile_settings.activate_education_level and
+            profile_settings.capture_education_level_on_reg and
+            profile_settings.activate_education_level_required)
 
         # Security questions fields are created dynamically.
         # This allows any number of security questions to be specified
@@ -167,13 +232,70 @@ class RegistrationForm(forms.Form):
         valid = super(RegistrationForm, self).is_valid()
         return valid
 
+    def clean_alias(self):
+        validation_msg_fragment = get_validation_msg_fragment()
 
-class DateOfBirthForm(forms.Form):
+        alias = self.cleaned_data['alias']
+
+        if not validate_no_email_or_phone(alias):
+            raise forms.ValidationError(
+                _(
+                    "Sorry, but that is an invalid display name. "
+                    "Please don't use your %s in your display name."
+                    % validation_msg_fragment
+                )
+            )
+
+        return alias
+
+
+class DoneForm(forms.Form):
     date_of_birth = forms.DateField(
         widget=SelectDateWidget(
             years=list(reversed(range(1930, timezone.now().year + 1)))
         )
     )
+    alias = forms.CharField(
+        label=_("Display Name"),
+        required=False
+    )
+    gender = forms.CharField(
+        label=_("Gender"),
+        required=False
+    )
+    location = forms.CharField(
+        label=_("Location"),
+        required=False
+    )
+    education_level = forms.CharField(
+        label=_("Education Level"),
+        required=False
+    )
+
+    def __init__(self, *args, **kwargs):
+        super(DoneForm, self).__init__(*args, **kwargs)
+        site = Site.objects.get(is_default_site=True)
+        profile_settings = UserProfilesSettings.for_site(site)
+        self.fields['date_of_birth'].required = (
+            profile_settings.activate_dob and not
+            profile_settings.capture_dob_on_reg and
+            profile_settings.dob_required)
+        self.fields['alias'].required = (
+            profile_settings.activate_display_name and not
+            profile_settings.capture_display_name_on_reg and
+            profile_settings.display_name_required)
+        self.fields['gender'].required = (
+            profile_settings.activate_gender and not
+            profile_settings.capture_gender_on_reg and
+            profile_settings.gender_required)
+        self.fields['location'].required = (
+            profile_settings.activate_location and not
+            profile_settings.capture_location_on_reg and
+            profile_settings.location_required)
+        self.fields['education_level'].required = (
+            profile_settings.activate_education_level and not
+            profile_settings.capture_education_level_on_reg and
+            profile_settings.activate_education_level_required)
 
 
 class EditProfileForm(forms.ModelForm):
@@ -185,6 +307,18 @@ class EditProfileForm(forms.ModelForm):
         widget=SelectDateWidget(
             years=list(reversed(range(1930, timezone.now().year + 1)))
         ),
+        required=False
+    )
+    gender = forms.CharField(
+        label=_("Gender"),
+        required=False
+    )
+    location = forms.CharField(
+        label=_("Location"),
+        required=False
+    )
+    education_level = forms.CharField(
+        label=_("Education Level"),
         required=False
     )
     mobile_number = PhoneNumberField(required=False)
@@ -201,10 +335,26 @@ class EditProfileForm(forms.ModelForm):
         self.fields['email'].required = (
             profile_settings.email_required and
             profile_settings.show_email_field)
+        self.fields['alias'].required = (
+            profile_settings.activate_display_name and
+            profile_settings.display_name_required)
+        self.fields['date_of_birth'].required = (
+            profile_settings.activate_dob and
+            profile_settings.dob_required)
+        self.fields['gender'].required = (
+            profile_settings.activate_gender and
+            profile_settings.gender_required)
+        self.fields['location'].required = (
+            profile_settings.activate_location and
+            profile_settings.location_required)
+        self.fields['education_level'].required = (
+            profile_settings.activate_education_level and
+            profile_settings.activate_education_level_required)
 
     class Meta:
         model = UserProfile
-        fields = ['alias', 'date_of_birth', 'mobile_number']
+        fields = ['alias', 'date_of_birth', 'mobile_number',
+                  'gender', 'location', 'education_level']
 
     def clean_alias(self):
         validation_msg_fragment = get_validation_msg_fragment()
