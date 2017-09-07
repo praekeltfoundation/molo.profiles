@@ -24,6 +24,7 @@ class ModelsTestCase(TestCase, MoloTestCaseMixin):
             language_setting=self.language_setting,
             locale='en',
             is_active=True)
+        self.mk_main2()
 
     def test_download_csv(self):
         profile = self.user.profile
@@ -75,6 +76,55 @@ class ModelsTestCase(TestCase, MoloTestCaseMixin):
                            '\xeb\x84\xa4,tester@example.com,'
                            ',,False,' + date + ',,\r\n')
         self.assertEquals(str(response), expected_output)
+
+    def test_successful_login_for_migrated_users(self):
+        user = User.objects.create_user(
+            username='1_newuser',
+            email='newuser@example.com',
+            password='newuser')
+        user.profile.migrated_username = 'newuser'
+        user.profile.save()
+
+        response = self.client.post('/profiles/login/?next=/', {
+            'username': 'newuser',
+            'password': 'newuser',
+        })
+        self.assertRedirects(response, '/')
+
+        client = Client(HTTP_HOST=self.site2.hostname)
+
+        response = client.post('/profiles/login/?next=/', {
+            'username': 'newuser',
+            'password': 'newuser',
+        })
+        self.assertContains(
+            response,
+            'Your username and password does not match. Please try again.')
+
+    def test_successful_login_for_migrated_users_in_site_2(self):
+        user = User.objects.create_user(
+            username='2_newuser',
+            email='newuser@example.com',
+            password='newuser')
+        user.profile.migrated_username = 'newuser'
+        user.profile.site = self.site2
+        user.profile.save()
+
+        response = self.client.post('/profiles/login/?next=/', {
+            'username': 'newuser',
+            'password': 'newuser',
+        })
+        self.assertContains(
+            response,
+            'Your username and password does not match. Please try again.')
+
+        client = Client(HTTP_HOST=self.site2.hostname)
+
+        response = client.post('/profiles/login/?next=/', {
+            'username': 'newuser',
+            'password': 'newuser',
+        })
+        self.assertRedirects(response, '/')
 
 
 class TestFrontendUsersAdminView(TestCase, MoloTestCaseMixin):

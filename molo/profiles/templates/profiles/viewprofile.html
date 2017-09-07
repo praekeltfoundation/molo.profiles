@@ -3,7 +3,7 @@
 {% get_settings %}
 
 {% block content %}
-<h1 class="heading heading--profiles">{% trans "Hello " %}{{ user.username }}</h1>
+<h1 class="heading heading--profiles">{% trans "Hello " %}{{ user.profile.migrated_username|default:user.username }}</h1>
 <div class="profiles">
     <fieldset>
       <label>{% trans "As you type your name comment will appear as:" %}</label>
