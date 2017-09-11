@@ -99,7 +99,7 @@ class ModelsTestCase(TestCase, MoloTestCaseMixin):
         })
         self.assertContains(
             response,
-            'Your username and password does not match. Please try again.')
+            'Your username and password do not match. Please try again.')
 
     def test_successful_login_for_migrated_users_in_site_2(self):
         user = User.objects.create_user(
@@ -116,7 +116,7 @@ class ModelsTestCase(TestCase, MoloTestCaseMixin):
         })
         self.assertContains(
             response,
-            'Your username and password does not match. Please try again.')
+            'Your username and password do not match. Please try again.')
 
         client = Client(HTTP_HOST=self.site2.hostname)
 

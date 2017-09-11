@@ -1509,8 +1509,8 @@ class ForgotPasswordViewTest(TestCase, MoloTestCaseMixin):
         self.assertTrue(isinstance(form, ForgotPasswordForm))
 
     def test_unidentified_user_gets_error(self):
-        error_message = "The username and security question(s) combination " \
-                        "do not match."
+        error_message = ("The username that you entered appears to be invalid."
+                         " Please try again.")
         response = self.client.post(
             reverse("molo.profiles:forgot_password"), {
                 "username": "bogus",
@@ -1546,7 +1546,8 @@ class ForgotPasswordViewTest(TestCase, MoloTestCaseMixin):
         self.failUnless(error_message in response.content)
 
     def test_too_many_retries_result_in_error(self):
-        error_message = "Too many attempts"
+        error_message = ("The username that you entered appears to be invalid."
+                         " Please try again.")
         site = Site.objects.get(is_default_site=True)
         profile_settings = UserProfilesSettings.for_site(site)
 
@@ -1558,7 +1559,6 @@ class ForgotPasswordViewTest(TestCase, MoloTestCaseMixin):
                     "question_0": "20",
                 }
             )
-
         self.failUnless(error_message in response.content)
 
     def test_correct_username_and_answer_results_in_redirect(self):
@@ -1682,7 +1682,6 @@ class ResetPasswordViewTest(TestCase, MoloTestCaseMixin):
                 "question_0": "20",
             }
         )
-
         self.assertRedirects(response, expected_redirect_url)
 
         return expected_token, expected_redirect_url
@@ -1697,7 +1696,6 @@ class ResetPasswordViewTest(TestCase, MoloTestCaseMixin):
             "password": "1234",
             "confirm_password": "4321"
         })
-
         self.assertContains(response, "The two PINs that you entered do not "
                                       "match. Please try again.")
 
