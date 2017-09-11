@@ -4,10 +4,12 @@ from django.contrib.auth.models import User
 from django.test.client import Client
 from django.core.urlresolvers import reverse
 from datetime import date
+from collections import OrderedDict
 from molo.core.tests.base import MoloTestCaseMixin
 from molo.core.models import Main, Languages, SiteLanguageRelation
 from molo.profiles.admin import ProfileUserAdmin, download_as_csv
-from molo.profiles.models import UserProfile
+from molo.profiles.models import UserProfile, SecurityQuestion, SecurityAnswer
+from molo.profiles.admin import MergedCMSUserResource
 
 
 class ModelsTestCase(TestCase, MoloTestCaseMixin):
@@ -125,6 +127,38 @@ class ModelsTestCase(TestCase, MoloTestCaseMixin):
             'password': 'newuser',
         })
         self.assertRedirects(response, '/')
+
+    def test_import_creates_security_questions_and_creates_answers(self):
+        self.assertEquals(SecurityQuestion.objects.count(), 0)
+        self.assertEquals(SecurityAnswer.objects.count(), 0)
+        resource = MergedCMSUserResource()
+        data = OrderedDict(
+            [('security_question_answers',
+                [['Who am I?',
+                    'pbkdf2_sha256$24000$WwoRrb5eO3SG$fghoNMPmIGhakF/L'
+                    '3uulZ37Ly9LNvR0UpFuhvjf7zQM='], [
+                    'What is my name?',
+                    'pbkdf2_sha256$24000$bfuPwkO3ZBtY$rRtO3H'
+                    'BV6wlwsaGsa+04PDn+0maZxBgbXJl6PwQIoVQ='], [
+                    'Say Whaaaat?',
+                    'pbkdf2_sha256$24000$DmvPwpVz13Qh$VvW/dRDHmRE7Vk45'
+                    'Ax4H6RwFje4yVt1ofZwbLaG7a80=']]), (
+                'username', '3_3_codieroelf2'), ('first_name', ''),
+                ('last_name', ''), ('migrated_username', '3_codieroelf2'),
+                ('gender', ''), ('is_active', '1'), ('site', '1'),
+                ('alias', ''), ('date_of_birth', ''),
+                ('mobile_number', ''),
+                ('password',
+                    'pbkdf2_sha256$24000$wOf9Zt3RBDlS$v61vMnq7pDJEz3'
+                    'vV/UP8cBL7PFCCCcDFTCH0FS2XVq0='), ('email', ''),
+                ('date_joined', '2017-09-07 08:43:18')])
+        resource.import_obj(obj=User(), data=data, dry_run=True)
+        self.assertEquals(SecurityQuestion.objects.count(), 3)
+        self.assertEquals(SecurityAnswer.objects.count(), 3)
+        questions = SecurityQuestion.objects.all()
+        for question in questions:
+            self.assertTrue(SecurityAnswer.objects.filter(
+                question=question).exists())
 
 
 class TestFrontendUsersAdminView(TestCase, MoloTestCaseMixin):

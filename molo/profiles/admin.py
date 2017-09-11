@@ -202,7 +202,7 @@ class MergedCMSUserResource(ModelResource):
         if field.attribute == 'profile__security_question_answers':
             site = Site.objects.get(pk=data.get('site'))
             security_index = SecurityQuestionIndexPage.objects.descendant_of(
-                site.root_page)
+                site.root_page).first()
             for x in data['security_question_answers']:
                 # create the security question if it doesn't already exist
                 sq = SecurityQuestion.objects.filter(title=x[0])
@@ -227,7 +227,6 @@ class MergedCMSUserResource(ModelResource):
         if data.get('site'):
             obj.profile.site = Site.objects.get(pk=data.get('site'))
             obj.profile.save()
-
         super(MergedCMSUserResource, self).import_obj(obj, data, dry_run)
 
     def after_save_instance(self, instance, using_transactions, dry_run):
