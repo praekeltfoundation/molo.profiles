@@ -187,12 +187,20 @@ class ForgotPasswordView(FormView):
 
         username = form.cleaned_data["username"]
         try:
-            user = User.objects.get_by_natural_key(username)
+            user = User.objects.get(
+                profile__migrated_username=username,
+                profile__site=self.request.site)
+            username = user.username
         except User.DoesNotExist:
-            # add non_field_error
-            form.add_error(None, _(error_message))
-            self.request.session["forgot_password_attempts"] -= 1
-            return self.render_to_response({'form': form})
+            try:
+                user = User.objects.get(
+                    username=username, profile__site=self.request.site)
+            except User.DoesNotExist:
+                self.request.session['forgot_password_attempts'] += 1
+                form.add_error('username',
+                               _('The username that you entered appears to be '
+                                 'invalid. Please try again.'))
+                return self.render_to_response({'form': form})
 
         if not user.is_active:
             # add non_field_error
