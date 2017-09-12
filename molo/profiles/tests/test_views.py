@@ -1546,8 +1546,7 @@ class ForgotPasswordViewTest(TestCase, MoloTestCaseMixin):
         self.failUnless(error_message in response.content)
 
     def test_too_many_retries_result_in_error(self):
-        error_message = ("The username that you entered appears to be invalid."
-                         " Please try again.")
+        error_message = ("Too many attempts")
         site = Site.objects.get(is_default_site=True)
         profile_settings = UserProfilesSettings.for_site(site)
 
@@ -1555,8 +1554,8 @@ class ForgotPasswordViewTest(TestCase, MoloTestCaseMixin):
         for i in range(profile_settings.password_recovery_retries + 5):
             response = self.client.post(
                 reverse("molo.profiles:forgot_password"), {
-                    "username": "bogus",
-                    "question_0": "20",
+                    "username": self.user.username,
+                    "question_0": "200",
                 }
             )
         self.failUnless(error_message in response.content)
