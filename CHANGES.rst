@@ -1,7 +1,11 @@
 CHANGE LOG
 ==========
 
-5.1.0
+5.3.0
+-----
+- add import export functionality for users and security questions
+
+5.2.0
 -----
 - add registration token on user profile for fcm
 
