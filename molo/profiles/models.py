@@ -370,6 +370,6 @@ class SecurityAnswer(models.Model):
 
     def save(self, is_import=False, *args, **kwargs):
         # checks if this save is coming from an import so we don't hash a hash
-        if not(is_import and self.id):
+        if not is_import and not self.id:
             self.set_answer(self.answer)
         super(SecurityAnswer, self).save(*args, **kwargs)

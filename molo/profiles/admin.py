@@ -137,7 +137,7 @@ class TzDateTimeWidget(DateTimeWidget):
         return super(TzDateTimeWidget, self).render(value, obj)
 
 
-class MergedCMSUserResource(ModelResource):
+class MultiSiteUserResource(ModelResource):
     date_of_birth = Field(
         'profile__date_of_birth', 'date_of_birth', widget=DateWidget())
     alias = Field('profile__alias', 'alias')
@@ -176,7 +176,7 @@ class MergedCMSUserResource(ModelResource):
     def export(self, queryset=None, *args, **kwargs):
         qs = self._meta.model.objects.exclude(
             Q(is_staff=True) | Q(is_superuser=True))
-        return super(MergedCMSUserResource, self).export(
+        return super(MultiSiteUserResource, self).export(
             qs, *args, **kwargs)
 
     def get_prefixed_username(self, data):
@@ -191,7 +191,7 @@ class MergedCMSUserResource(ModelResource):
         # Disable updating - we don't want to mistakenly override existing data
         if not User.objects.filter(
                 username=self.get_prefixed_username(row)).exists():
-            return super(MergedCMSUserResource, self).import_row(
+            return super(MultiSiteUserResource, self).import_row(
                 row, instance_loader, *args, **kwargs)
 
         row_result = self.get_row_result_class()()
@@ -219,7 +219,7 @@ class MergedCMSUserResource(ModelResource):
                 # save separately so that we can pass in is_import
                 answer.save(is_import=True)
         else:
-            super(MergedCMSUserResource, self).import_field(field, obj, data)
+            super(MultiSiteUserResource, self).import_field(field, obj, data)
 
     def import_obj(self, obj, data, dry_run):
         self.import_field(self.fields['username'], obj, data)
@@ -227,7 +227,7 @@ class MergedCMSUserResource(ModelResource):
         if data.get('site'):
             obj.profile.site = Site.objects.get(pk=data.get('site'))
             obj.profile.save()
-        super(MergedCMSUserResource, self).import_obj(obj, data, dry_run)
+        super(MultiSiteUserResource, self).import_obj(obj, data, dry_run)
 
     def after_save_instance(self, instance, using_transactions, dry_run):
         # Save related models
@@ -236,7 +236,7 @@ class MergedCMSUserResource(ModelResource):
 
 @admin.register(User)
 class ProfilesUserAdmin(ImportExportModelAdmin, ProfileUserAdmin):
-    resource_class = MergedCMSUserResource
+    resource_class = MultiSiteUserResource
     inlines = (UserProfileInlineModelAdmin, UserProfileInlineModelAdmin)
     list_display = ProfileUserAdmin.list_display
     actions = ProfileUserAdmin.actions

@@ -9,7 +9,7 @@ from molo.core.tests.base import MoloTestCaseMixin
 from molo.core.models import Main, Languages, SiteLanguageRelation
 from molo.profiles.admin import ProfileUserAdmin, download_as_csv
 from molo.profiles.models import UserProfile, SecurityQuestion, SecurityAnswer
-from molo.profiles.admin import MergedCMSUserResource
+from molo.profiles.admin import MultiSiteUserResource
 
 
 class ModelsTestCase(TestCase, MoloTestCaseMixin):
@@ -128,30 +128,74 @@ class ModelsTestCase(TestCase, MoloTestCaseMixin):
         })
         self.assertRedirects(response, '/')
 
+    def test_importing_does_not_override_existing_data(self):
+        user = User.objects.create_user(
+            username='2_newuser',
+            email='newuser@example.com',
+            password='newuser')
+        user.profile.migrated_username = 'newuser'
+        user.profile.site = self.site2
+        user.profile.save()
+        self.assertEquals(User.objects.count(), 2)
+        data = OrderedDict(
+            [('security_question_answers',
+              []),
+             ('username', user.username),
+             ('first_name', ''),
+             ('last_name', ''),
+             ('migrated_username', user.profile.migrated_username),
+             ('gender', ''),
+             ('is_active', '1'),
+             ('site', '1'),
+             ('alias', ''),
+             ('date_of_birth', ''),
+             ('mobile_number', ''),
+             ('password', user.password),
+             ('email', user.email),
+             ('date_joined', user.date_joined)
+             ]
+        )
+        resource = MultiSiteUserResource()
+        result = resource.import_row(row=data, instance_loader=None)
+        self.assertEquals(result.IMPORT_TYPE_SKIP, u'skip')
+        self.assertEquals(User.objects.count(), 2)
+
     def test_import_creates_security_questions_and_creates_answers(self):
         self.assertEquals(SecurityQuestion.objects.count(), 0)
         self.assertEquals(SecurityAnswer.objects.count(), 0)
-        resource = MergedCMSUserResource()
+        resource = MultiSiteUserResource()
+        hash_1 = ('pbkdf2_sha256$24000$WwoRrb5eO3SG$fghoNMPmIGhakF/L'
+                  '3uulZ37Ly9LNvR0UpFuhvjf7zQM=')
+        hash_2 = ('pbkdf2_sha256$24000$bfuPwkO3ZBtY$rRtO3H'
+                  'BV6wlwsaGsa+04PDn+0maZxBgbXJl6PwQIoVQ=')
+        hash_3 = ('pbkdf2_sha256$24000$DmvPwpVz13Qh$VvW/dRDHmRE7Vk45'
+                  'Ax4H6RwFje4yVt1ofZwbLaG7a80=')
+        hash_4 = ('pbkdf2_sha256$24000$wOf9Zt3RBDlS$v61vMnq7pDJEz3'
+                  'vV/UP8cBL7PFCCCcDFTCH0FS2XVq0=')
+
         data = OrderedDict(
             [('security_question_answers',
-                [['Who am I?',
-                    'pbkdf2_sha256$24000$WwoRrb5eO3SG$fghoNMPmIGhakF/L'
-                    '3uulZ37Ly9LNvR0UpFuhvjf7zQM='], [
-                    'What is my name?',
-                    'pbkdf2_sha256$24000$bfuPwkO3ZBtY$rRtO3H'
-                    'BV6wlwsaGsa+04PDn+0maZxBgbXJl6PwQIoVQ='], [
-                    'Say Whaaaat?',
-                    'pbkdf2_sha256$24000$DmvPwpVz13Qh$VvW/dRDHmRE7Vk45'
-                    'Ax4H6RwFje4yVt1ofZwbLaG7a80=']]), (
-                'username', '3_3_codieroelf2'), ('first_name', ''),
-                ('last_name', ''), ('migrated_username', '3_codieroelf2'),
-                ('gender', ''), ('is_active', '1'), ('site', '1'),
-                ('alias', ''), ('date_of_birth', ''),
-                ('mobile_number', ''),
-                ('password',
-                    'pbkdf2_sha256$24000$wOf9Zt3RBDlS$v61vMnq7pDJEz3'
-                    'vV/UP8cBL7PFCCCcDFTCH0FS2XVq0='), ('email', ''),
-                ('date_joined', '2017-09-07 08:43:18')])
+              [
+                  ['Who am I?', hash_1],
+                  ['What is my name?', hash_2],
+                  ['Say Whaaaat?', hash_3]
+              ]),
+             ('username', '3_3_codieroelf2'),
+             ('first_name', ''),
+             ('last_name', ''),
+             ('migrated_username', '3_codieroelf2'),
+             ('gender', ''),
+             ('is_active', '1'),
+             ('site', '1'),
+             ('alias', ''),
+             ('date_of_birth', ''),
+             ('mobile_number', ''),
+             ('password', hash_4),
+             ('email', ''),
+             ('date_joined', '2017-09-07 08:43:18')
+             ]
+        )
+
         resource.import_obj(obj=User(), data=data, dry_run=True)
         self.assertEquals(SecurityQuestion.objects.count(), 3)
         self.assertEquals(SecurityAnswer.objects.count(), 3)
