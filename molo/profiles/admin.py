@@ -180,9 +180,8 @@ class MultiSiteUserResource(ModelResource):
             qs, *args, **kwargs)
 
     def get_prefixed_username(self, data):
-        return '%s_%s' % (
-            data['site'], data['username']
-        ) if data.get('site') else data['username']
+        return '{}_{}'.format(data['site'], data['username']) \
+            if data.get('site') else data['username']
 
     def before_import_row(self, row, **kwargs):
         row['username'] = self.get_prefixed_username(row)
