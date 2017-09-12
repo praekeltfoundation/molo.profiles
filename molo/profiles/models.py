@@ -328,7 +328,7 @@ class UserProfile(models.Model):
     site = models.ForeignKey(Site, blank=True, null=True)
     migrated_username = models.CharField(
         _('migrated_username'),
-        max_length=30,
+        max_length=40,
         validators=[
             validators.RegexValidator(
                 r'^[\w.@+-]+$',

@@ -16,6 +16,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='userprofile',
             name='migrated_username',
-            field=models.CharField(blank=True, max_length=30, null=True, validators=[django.core.validators.RegexValidator(b'^[\\w.@+-]+$', 'Enter a valid username. This value may contain only letters, numbers and @/./+/-/_ characters.')], verbose_name='migrated_username'),
+            field=models.CharField(blank=True, max_length=40, null=True, validators=[django.core.validators.RegexValidator(b'^[\\w.@+-]+$', 'Enter a valid username. This value may contain only letters, numbers and @/./+/-/_ characters.')], verbose_name='migrated_username'),
         ),
     ]
