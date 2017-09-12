@@ -8,7 +8,8 @@ from collections import OrderedDict
 from molo.core.tests.base import MoloTestCaseMixin
 from molo.core.models import Main, Languages, SiteLanguageRelation
 from molo.profiles.admin import ProfileUserAdmin, download_as_csv
-from molo.profiles.models import UserProfile, SecurityQuestion, SecurityAnswer
+from molo.profiles.models import (
+    UserProfile, SecurityQuestion, SecurityAnswer, SecurityQuestionIndexPage)
 from molo.profiles.admin import MultiSiteUserResource
 
 
@@ -127,6 +128,39 @@ class ModelsTestCase(TestCase, MoloTestCaseMixin):
             'password': 'newuser',
         })
         self.assertRedirects(response, '/')
+
+    def test_security_question_dehydrate_method(self):
+        user = User.objects.create_user(
+            username='2_newuser',
+            email='newuser@example.com',
+            password='newuser')
+        user.profile.migrated_username = 'newuser'
+        user.profile.site = self.site2
+        user.profile.save()
+
+        self.security_index = SecurityQuestionIndexPage(
+            title='Security Questions',
+            slug='security_questions',
+        )
+        self.main.add_child(instance=self.security_index)
+        self.security_index.save()
+        self.question = SecurityQuestion(
+            title="How old are you?",
+            slug="how-old-are-you",
+        )
+        self.security_index.add_child(instance=self.question)
+        self.question.save()
+
+        # create answers for this user
+        self.a1 = SecurityAnswer.objects.create(
+            user=user.profile, question=self.question, answer="20"
+        )
+        resource = MultiSiteUserResource()
+        result = resource.dehydrate_security_question_answers(user)
+
+        # it should return a tuple of the question title and answer hash
+        expected_result = [(self.question.title, self.a1.answer)]
+        self.assertEquals(result, expected_result)
 
     def test_importing_does_not_override_existing_data(self):
         user = User.objects.create_user(
