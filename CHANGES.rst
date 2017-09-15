@@ -1,6 +1,10 @@
 CHANGE LOG
 ==========
 
+5.3.1
+-----
+- Bug Fix: Create security questions under correct index
+
 5.3.0
 -----
 - add import export functionality for users and security questions
