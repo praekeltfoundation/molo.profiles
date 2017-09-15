@@ -204,7 +204,8 @@ class MultiSiteUserResource(ModelResource):
                 site.root_page).first()
             for x in data['security_question_answers']:
                 # create the security question if it doesn't already exist
-                sq = SecurityQuestion.objects.filter(title=x[0])
+                sq = SecurityQuestion.objects.descendant_of(
+                    security_index).filter(title=x[0])
                 if not sq.exists():
                     sq = SecurityQuestion(title=x[0])
                     security_index.add_child(instance=sq)
