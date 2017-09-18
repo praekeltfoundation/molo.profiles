@@ -1,6 +1,10 @@
 CHANGE LOG
 ==========
 
+5.3.2
+-----
+- Bug Fix: Add null check in backend for CAS
+
 5.3.1
 -----
 - Bug Fix: Create security questions under correct index
