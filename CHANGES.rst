@@ -1,6 +1,26 @@
 CHANGE LOG
 ==========
 
+5.3.2
+-----
+- Bug Fix: Add null check in backend for CAS
+
+5.3.1
+-----
+- Bug Fix: Create security questions under correct index
+
+5.3.0
+-----
+- add import export functionality for users and security questions
+
+5.2.0
+-----
+- add registration token on user profile for fcm
+
+5.1.0
+-----
+- ensure request is passed on to AuthenticationForm
+
 5.0.4
 -----
 - Fix user export celery bug for site

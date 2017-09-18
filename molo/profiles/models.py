@@ -1,5 +1,6 @@
 from django.contrib.auth import hashers
 from django.contrib.auth.models import User
+from django.core import validators
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -325,6 +326,19 @@ class UserProfile(models.Model):
         through="SecurityAnswer"
     )
     site = models.ForeignKey(Site, blank=True, null=True)
+    migrated_username = models.CharField(
+        _('migrated_username'),
+        max_length=40,
+        validators=[
+            validators.RegexValidator(
+                r'^[\w.@+-]+$',
+                _('Enter a valid username. This value may contain only '
+                  'letters, numbers ' 'and @/./+/-/_ characters.')
+            ),
+        ],
+        null=True, blank=True
+    )
+    fcm_registration_token = models.CharField(max_length=256, null=True)
 
 
 @receiver(post_save, sender=User)
@@ -354,7 +368,8 @@ class SecurityAnswer(models.Model):
             setter
         )
 
-    def save(self, *args, **kwargs):
-        if not self.id:
+    def save(self, is_import=False, *args, **kwargs):
+        # checks if this save is coming from an import so we don't hash a hash
+        if not is_import and not self.id:
             self.set_answer(self.answer)
         super(SecurityAnswer, self).save(*args, **kwargs)

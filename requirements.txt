@@ -3,3 +3,4 @@ celery<4.0
 django-phonenumber-field
 django-import-export
 django-daterange-filter
+Unidecode==0.04.16
