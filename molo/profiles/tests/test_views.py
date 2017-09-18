@@ -1619,6 +1619,7 @@ class TranslatedSecurityQuestionsTest(TestCase, MoloTestCaseMixin):
         PageTranslation.objects.get_or_create(
             page=self.q1, translated_page=fr_question)
 
+        self.q1.save_revision().publish()
         self.client.get('/locale/fr/')
         response = self.client.get(reverse("molo.profiles:forgot_password"))
         self.assertContains(response, "How old are you in french")
