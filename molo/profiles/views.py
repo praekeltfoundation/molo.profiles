@@ -70,6 +70,7 @@ class RegistrationView(FormView):
         self.translated_questions = get_pages(
             request, self.questions, self.request.LANGUAGE_CODE)
         kwargs["questions"] = self.translated_questions
+        kwargs["request"] = self.request
         return kwargs
 
 
@@ -106,6 +107,11 @@ class RegistrationDone(FormView):
                 profile.education_level = form.cleaned_data["education_level"]
         profile.save()
         return HttpResponseRedirect(form.cleaned_data.get('next', '/'))
+
+    def get_form_kwargs(self):
+        kwargs = super(RegistrationDone, self).get_form_kwargs()
+        kwargs["request"] = self.request
+        return kwargs
 
 
 def logout_page(request):
@@ -144,6 +150,11 @@ class MyProfileEdit(UpdateView):
 
     def get_object(self, queryset=None):
         return self.request.user.profile
+
+    def get_form_kwargs(self):
+        kwargs = super(MyProfileEdit, self).get_form_kwargs()
+        kwargs["request"] = self.request
+        return kwargs
 
 
 class ProfilePasswordChangeView(FormView):
