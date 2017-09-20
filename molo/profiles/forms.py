@@ -144,9 +144,13 @@ class RegistrationForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         questions = kwargs.pop("questions", [])
+        request = kwargs.pop("request", [])
         super(RegistrationForm, self).__init__(*args, **kwargs)
-        site = Site.objects.get(is_default_site=True)
-        profile_settings = UserProfilesSettings.for_site(site)
+        if not request:
+            site = Site.objects.get(is_default_site=True)
+            profile_settings = UserProfilesSettings.for_site(site)
+        else:
+            profile_settings = UserProfilesSettings.for_site(request.site)
         self.fields['mobile_number'].required = (
             profile_settings.mobile_number_required and
             profile_settings.show_mobile_number_field and
@@ -273,9 +277,13 @@ class DoneForm(forms.Form):
     )
 
     def __init__(self, *args, **kwargs):
+        request = kwargs.pop("request", [])
         super(DoneForm, self).__init__(*args, **kwargs)
-        site = Site.objects.get(is_default_site=True)
-        profile_settings = UserProfilesSettings.for_site(site)
+        if not request:
+            site = Site.objects.get(is_default_site=True)
+            profile_settings = UserProfilesSettings.for_site(site)
+        else:
+            profile_settings = UserProfilesSettings.for_site(request.site)
         self.fields['date_of_birth'].required = (
             profile_settings.activate_dob and not
             profile_settings.capture_dob_on_reg and
@@ -325,9 +333,13 @@ class EditProfileForm(forms.ModelForm):
     email = forms.EmailField(required=False)
 
     def __init__(self, *args, **kwargs):
+        request = kwargs.pop("request", [])
         super(EditProfileForm, self).__init__(*args, **kwargs)
-        site = Site.objects.get(is_default_site=True)
-        profile_settings = UserProfilesSettings.for_site(site)
+        if not request:
+            site = Site.objects.get(is_default_site=True)
+            profile_settings = UserProfilesSettings.for_site(site)
+        else:
+            profile_settings = UserProfilesSettings.for_site(request.site)
         self.fields['mobile_number'].required = (
             profile_settings.mobile_number_required and
             profile_settings.show_mobile_number_field and
