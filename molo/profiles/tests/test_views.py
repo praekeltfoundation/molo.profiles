@@ -62,8 +62,14 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
             title='Security Questions',
             slug='security_questions',
         )
+        self.security_index2 = SecurityQuestionIndexPage(
+            title='Security Questions',
+            slug='security_questions_2',
+        )
         self.main.add_child(instance=self.security_index)
         self.security_index.save()
+        self.main2.add_child(instance=self.security_index2)
+        self.security_index2.save()
         self.question = SecurityQuestion(
             title="How old are you?",
             slug="how-old-are-you",
@@ -189,8 +195,7 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
             ' but you have not added a country calling code for this site.')
 
     def test_mobile_number_field_exists_in_registration_form(self):
-        site = Site.objects.get(is_default_site=True)
-        profile_settings = UserProfilesSettings.for_site(site)
+        profile_settings = UserProfilesSettings.for_site(self.main.get_site())
 
         response = self.client.get(reverse('molo.profiles:user_register'))
         self.assertNotContains(response, 'ENTER YOUR MOBILE NUMBER')
@@ -206,6 +211,11 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
 
         response = self.client.get(reverse('molo.profiles:user_register'))
         self.assertContains(response, 'ENTER YOUR MOBILE NUMBER')
+
+        # check that it does not show for site 2
+        client = Client(HTTP_HOST=self.site2.hostname)
+        response = client.get(reverse('molo.profiles:user_register'))
+        self.assertNotContains(response, 'ENTER YOUR MOBILE NUMBER')
 
     def test_email_field_exists_in_registration_form(self):
         site = Site.objects.get(is_default_site=True)
@@ -782,8 +792,8 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
         self.assertContains(response, expected_validation_message)
 
     def test_security_questions(self):
-        site = Site.objects.get(is_default_site=True)
-        profile_settings = UserProfilesSettings.for_site(site)
+        # setup for site 1
+        profile_settings = UserProfilesSettings.for_site(self.main.get_site())
         sq = SecurityQuestion(
             title="What is your name?",
             slug="what-is-your-name",
@@ -794,11 +804,43 @@ class RegistrationViewTest(TestCase, MoloTestCaseMixin):
         profile_settings.security_questions_required = True
         profile_settings.save()
 
+        # setup for site 2
+        profile_settings2 = UserProfilesSettings.for_site(
+            self.main2.get_site())
+        sq2 = SecurityQuestion(
+            title="Who are you?",
+            slug="who-are-you",
+        )
+        self.security_index2.add_child(instance=sq2)
+        sq2.save()
+        profile_settings2.show_security_question_fields = True
+        profile_settings2.security_questions_required = True
+        profile_settings2.save()
+
         response = self.client.get(reverse('molo.profiles:user_register'))
         self.assertContains(response, "What is your name")
+        self.assertNotContains(response, "Who are you")
 
         # register with security questions
         response = self.client.post(
+            reverse("molo.profiles:user_register"),
+            {
+                "username": "tester",
+                "password": "0000",
+                "question_0": "answer",
+                'terms_and_conditions': True
+            },
+            follow=True
+        )
+        self.assertEqual(response.status_code, 200)
+
+        client = Client(HTTP_HOST=self.site2.hostname)
+        response = client.get(reverse('molo.profiles:user_register'))
+        self.assertNotContains(response, "What is your name")
+        self.assertContains(response, "Who are you")
+
+        # register with security questions
+        response = client.post(
             reverse("molo.profiles:user_register"),
             {
                 "username": "tester",
@@ -817,6 +859,7 @@ class RegistrationDone(TestCase, MoloTestCaseMixin):
 
     def setUp(self):
         self.mk_main()
+        self.mk_main2()
         self.user = User.objects.create_user(
             username='tester',
             email='tester@example.com',
@@ -848,6 +891,21 @@ class RegistrationDone(TestCase, MoloTestCaseMixin):
 
         response = self.client.get('/')
         self.assertEqual(response.status_code, 200)
+
+        # test not required for site 2
+        profile_settings2 = UserProfilesSettings.for_site(
+            self.main2.get_site())
+        profile_settings2.activate_dob = False
+        profile_settings2.save()
+        client = Client(HTTP_HOST=self.main2.get_site().hostname)
+        client.post('/profiles/register/', {
+            'username': 'testing2',
+            'password': '1234',
+            'terms_and_conditions': True
+
+        })
+        response = client.get(reverse('molo.profiles:registration_done'))
+        self.assertNotContains(response, "SELECT DATE OF BIRTH")
 
     def test_display_name_on_done(self):
         site = Site.objects.get(is_default_site=True)
@@ -1064,6 +1122,7 @@ class MyProfileEditTest(TestCase, MoloTestCaseMixin):
 
     def setUp(self):
         self.mk_main()
+        self.mk_main2()
         self.user = User.objects.create_user(
             username='tester',
             email='tester@example.com',
@@ -1087,9 +1146,7 @@ class MyProfileEditTest(TestCase, MoloTestCaseMixin):
                          'foo')
 
     def test_gender_field_exists_in_edit_form(self):
-        site = Site.objects.get(is_default_site=True)
-        profile_settings = UserProfilesSettings.for_site(site)
-
+        profile_settings = UserProfilesSettings.for_site(self.main.get_site())
         response = self.client.get(reverse('molo.profiles:edit_my_profile'))
         self.assertNotContains(response, 'Update your gender:')
 
@@ -1099,6 +1156,16 @@ class MyProfileEditTest(TestCase, MoloTestCaseMixin):
 
         response = self.client.get(reverse('molo.profiles:edit_my_profile'))
         self.assertContains(response, 'Update your gender:')
+
+        client = Client(HTTP_HOST=self.main2.get_site().hostname)
+        client.post('/profiles/register/', {
+            'username': 'testing2',
+            'password': '1234',
+            'terms_and_conditions': True
+
+        })
+        response = client.get(reverse('molo.profiles:edit_my_profile'))
+        self.assertNotContains(response, 'Update your gender:')
 
     def test_location_field_exists_in_edit_form(self):
         site = Site.objects.get(is_default_site=True)
@@ -1619,6 +1686,7 @@ class TranslatedSecurityQuestionsTest(TestCase, MoloTestCaseMixin):
         PageTranslation.objects.get_or_create(
             page=self.q1, translated_page=fr_question)
 
+        self.q1.save_revision().publish()
         self.client.get('/locale/fr/')
         response = self.client.get(reverse("molo.profiles:forgot_password"))
         self.assertContains(response, "How old are you in french")
