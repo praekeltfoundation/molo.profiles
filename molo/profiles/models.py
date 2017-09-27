@@ -326,6 +326,9 @@ class UserProfile(models.Model):
         through="SecurityAnswer"
     )
     site = models.ForeignKey(Site, blank=True, null=True)
+    admin_sites = models.ManyToManyField(
+        Site, related_name='admin_sites'
+    )
     migrated_username = models.CharField(
         _('migrated_username'),
         max_length=40,
@@ -340,6 +343,10 @@ class UserProfile(models.Model):
     )
     fcm_registration_token = models.CharField(max_length=256, null=True)
 
+    panels = [
+        FieldPanel('admin_sites',),
+    ]
+
 
 @receiver(post_save, sender=User)
 def user_profile_handler(sender, instance, created, **kwargs):
@@ -347,6 +354,12 @@ def user_profile_handler(sender, instance, created, **kwargs):
         profile = UserProfile(user=instance)
         profile.site = Site.objects.get(is_default_site=True)
         profile.save()
+
+
+@receiver(post_save, sender=UserProfile)
+def user_profile_save(sender, instance, created, **kwargs):
+    print 'we just saved'
+    print instance.admin_sites.all()
 
 
 class SecurityAnswer(models.Model):
