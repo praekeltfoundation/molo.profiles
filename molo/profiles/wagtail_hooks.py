@@ -30,7 +30,8 @@ class AccessErrorMessage(SummaryItem):
 
 @hooks.register('construct_homepage_panels')
 def add_access_error_message_panel(request, panels):
-    if UserProfile.objects.filter(user=request.user).exists() and not request.user.is_superuser:
+    if UserProfile.objects.filter(user=request.user).exists() and \
+            not request.user.is_superuser:
         if not request.user.profile.admin_sites.filter(
                 pk=request.site.pk).exists():
             panels[:] = [AccessErrorMessage(request)]

@@ -356,12 +356,6 @@ def user_profile_handler(sender, instance, created, **kwargs):
         profile.save()
 
 
-@receiver(post_save, sender=UserProfile)
-def user_profile_save(sender, instance, created, **kwargs):
-    print 'we just saved'
-    print instance.admin_sites.all()
-
-
 class SecurityAnswer(models.Model):
     user = models.ForeignKey(UserProfile)
     question = models.ForeignKey(SecurityQuestion)
