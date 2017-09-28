@@ -131,7 +131,7 @@ class FrontendUsersModelAdmin(WagtailModelAdmin, ProfileUserAdmin):
 
 class UserProfileModelAdmin(WagtailModelAdmin, ProfileUserAdmin):
     model = UserProfile
-    menu_label = 'Permissions'
+    menu_label = 'Site Permissions'
     menu_icon = 'user'
     menu_order = 600
     index_view_class = FrontendUsersAdminView
