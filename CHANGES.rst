@@ -1,6 +1,10 @@
 CHANGE LOG
 ==========
 
+5.4.0
+-----
+- Add site permissions to admin users
+
 5.3.3
 -----
 - Bug Fix: Filter Security Questions by site
