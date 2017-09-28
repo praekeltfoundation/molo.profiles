@@ -129,6 +129,21 @@ class FrontendUsersModelAdmin(WagtailModelAdmin, ProfileUserAdmin):
         return User.objects.filter(profile__site=request.site)
 
 
+class UserProfileModelAdmin(WagtailModelAdmin, ProfileUserAdmin):
+    model = UserProfile
+    menu_label = 'Site Permissions'
+    menu_icon = 'user'
+    menu_order = 600
+    index_view_class = FrontendUsersAdminView
+    add_to_settings_menu = True
+    list_display = ('user',)
+
+    search_fields = ('user',)
+
+    def get_queryset(self, request):
+        return UserProfile.objects.all()
+
+
 class TzDateTimeWidget(DateTimeWidget):
 
     def render(self, value, obj):
