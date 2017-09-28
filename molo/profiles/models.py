@@ -326,6 +326,9 @@ class UserProfile(models.Model):
         through="SecurityAnswer"
     )
     site = models.ForeignKey(Site, blank=True, null=True)
+    admin_sites = models.ManyToManyField(
+        Site, related_name='admin_sites'
+    )
     migrated_username = models.CharField(
         _('migrated_username'),
         max_length=40,
@@ -339,6 +342,10 @@ class UserProfile(models.Model):
         null=True, blank=True
     )
     fcm_registration_token = models.CharField(max_length=256, null=True)
+
+    panels = [
+        FieldPanel('admin_sites',),
+    ]
 
 
 @receiver(post_save, sender=User)

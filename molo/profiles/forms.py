@@ -5,17 +5,17 @@ import re
 from django import forms
 from django.forms.extras.widgets import SelectDateWidget
 from django.contrib.auth import authenticate
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import AuthenticationForm
 from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
 
 from wagtail.wagtailcore.models import Site
-
 from molo.profiles.models import UserProfile, UserProfilesSettings
 
 from phonenumber_field.formfields import PhoneNumberField
 
+User = get_user_model()
 
 REGEX_PHONE = settings.REGEX_PHONE if hasattr(settings, 'REGEX_PHONE') else \
     r'.*?(\(?\d{3})? ?[\.-]? ?\d{3} ?[\.-]? ?\d{4}.*?'
