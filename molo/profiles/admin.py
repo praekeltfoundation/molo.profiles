@@ -138,7 +138,7 @@ class UserProfileModelAdmin(WagtailModelAdmin, ProfileUserAdmin):
     add_to_settings_menu = True
     list_display = ('user',)
 
-    search_fields = ('user',)
+    search_fields = ('user__username',)
 
     def get_queryset(self, request):
         return UserProfile.objects.all()
