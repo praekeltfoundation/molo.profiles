@@ -59,6 +59,12 @@ class PermissionsTestCase(TestCase, MoloTestCaseMixin):
         self.client.login(username='username', password='password')
         response = self.client.get('/admin/')
         self.assertContains(response, 'You do not have access to this site.')
+
+        # it should not show any pages for users with no access
+        self.assertTrue(self.main.get_descendants().count() > 0)
+        response = self.client.get('/admin/pages/%s/' % self.main.pk)
+        self.assertContains(
+            response, 'No pages have been created at this location')
         self.admin_user.profile.admin_sites.add(self.site)
         response = self.client.get('/admin/')
         self.assertNotContains(
