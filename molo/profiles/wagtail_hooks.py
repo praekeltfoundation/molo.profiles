@@ -3,7 +3,6 @@ from molo.profiles.models import UserProfilesSettings, UserProfile
 from wagtail.contrib.modeladmin.options import modeladmin_register
 from wagtail.wagtailadmin.site_summary import SummaryItem
 from wagtail.wagtailcore import hooks
-from django.contrib.auth.models import User
 
 
 class ProfileWarningMessagee(SummaryItem):
@@ -35,28 +34,3 @@ def add_access_error_message_panel(request, panels):
         if not request.user.profile.admin_sites.filter(
                 pk=request.site.pk).exists():
             panels[:] = [AccessErrorMessage(request)]
-
-
-@hooks.register('construct_explorer_page_queryset')
-def show_pages_only_if_user_has_access(parent_page, pages, request):
-    if not (request.user.is_superuser or
-            request.user.profile.admin_sites.filter(
-                pk=request.site.pk).exists()):
-        return pages.none()
-    return pages
-
-
-@hooks.register('construct_main_menu')
-def show_explorer_only_to_users_have_access(request, menu_items):
-    if (request.user.is_superuser or
-        (User.objects.filter(pk=request.user.pk, groups__name__in=[
-            'Moderators', 'Editors', 'Wagtail Login Only']).exists() and
-         request.user.profile.admin_sites.filter(
-            pk=request.site.pk).exists())):
-        return menu_items
-    if (User.objects.filter(pk=request.user.pk, groups__name__in=[
-            'Comment Moderator', 'Expert', 'Wagtail Login Only']).exists() and
-            request.user.profile.admin_sites.filter(
-                pk=request.site.pk).exists()):
-        menu_items[:] = [
-            item for item in menu_items if item.name != 'explorer']
