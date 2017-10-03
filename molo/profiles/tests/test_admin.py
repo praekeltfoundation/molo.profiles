@@ -59,6 +59,7 @@ class PermissionsTestCase(TestCase, MoloTestCaseMixin):
         self.client.login(username='username', password='password')
         response = self.client.get('/admin/')
         self.assertContains(response, 'You do not have access to this site.')
+
         self.admin_user.profile.admin_sites.add(self.site)
         response = self.client.get('/admin/')
         self.assertNotContains(

@@ -1,6 +1,10 @@
 CHANGE LOG
 ==========
 
+5.4.1
+-----
+- Bug Fix: enable search via username on permissions
+
 5.4.0
 -----
 - Add site permissions to admin users
