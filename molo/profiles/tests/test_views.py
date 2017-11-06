@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from datetime import date
+from datetime import date, datetime
 
 from django.conf.urls import patterns, url, include
 from django.conf import settings
@@ -1636,6 +1636,132 @@ class ForgotPasswordViewTest(TestCase, MoloTestCaseMixin):
             follow=True
         )
         self.assertContains(response, "Reset PIN")
+
+    def test_user_with_no_security_questions(self):
+        # register without security questions
+        response = self.client.post(
+            reverse("molo.profiles:user_register"),
+            {
+                "username": "tester",
+                "password": "0000",
+                'terms_and_conditions': True
+            },
+            follow=True
+        )
+        profile_settings = UserProfilesSettings.for_site(self.main.get_site())
+        sq = SecurityQuestion(
+            title="What is your name?",
+            slug="what-is-your-name",
+        )
+        self.security_index.add_child(instance=sq)
+        sq.save()
+
+        sq2 = SecurityQuestion(
+            title="What is your pet name?",
+            slug="what-is-your-pet-name",
+        )
+        self.security_index.add_child(instance=sq2)
+        sq2.save()
+
+        profile_settings.show_security_question_fields = True
+        profile_settings.security_questions_required = False
+        profile_settings.save()
+
+        response = self.client.post(
+            reverse("molo.profiles:forgot_password"), {
+                "username": "tester",
+                "question_0": "saeed",
+                "question_1": "pishy",
+            }
+        )
+        self.assertContains(
+            response,
+            "There are no security questions"
+            " stored against your profile.")
+
+
+class SecurityQuestionsTest(TestCase, MoloTestCaseMixin):
+
+    def setUp(self):
+        self.mk_main()
+        self.client = Client()
+        self.questions_section = self.mk_section(
+            self.section_index, title='Security Questions')
+
+        # Creates Main language
+        self.main = Main.objects.all().first()
+        self.language_setting, _ = Languages.objects.get_or_create(
+            site_id=self.main.get_site().pk)
+        self.english = SiteLanguageRelation.objects.create(
+            language_setting=self.language_setting,
+            locale='en',
+            is_active=True)
+        self.french = SiteLanguageRelation.objects.create(
+            language_setting=self.language_setting,
+            locale='fr',
+            is_active=True)
+
+        self.security_index = SecurityQuestionIndexPage(
+            title='Security Questions',
+            slug='security_questions',
+        )
+        self.main.add_child(instance=self.security_index)
+        self.security_index.save()
+
+        self.q1 = SecurityQuestion(
+            title="How old are you?",
+            slug="how-old-are-you",
+        )
+        self.security_index.add_child(instance=self.q1)
+        self.q1.save()
+
+        self.q2 = SecurityQuestion(
+            title="What is your name?",
+            slug="what-is-your-name",
+            latest_revision_created_at=datetime.now()
+        )
+        self.security_index.add_child(instance=self.q2)
+        self.q2.save()
+        profile_settings = UserProfilesSettings.for_site(self.main.get_site())
+        profile_settings.show_security_question_fields = True
+        profile_settings.save()
+
+    def test_deleting_security_question(self):
+        User.objects.create_superuser(
+            username='testuser', password='password', email='test@email.com')
+        self.client.login(username='testuser', password='password')
+
+        # delete a security question that doesn't have answer linked to
+        response = self.client.post(
+            reverse('wagtailadmin_pages:delete', args=(self.q2.id, )))
+        # Check that the security question is gone
+        self.assertFalse(
+            SecurityQuestion.objects.filter(
+                slug='what-is-your-name').exists())
+
+        response = self.client.post(
+            reverse("molo.profiles:user_register"),
+            {
+                "username": "tester",
+                "password": "0000",
+                "question_0": "20",
+                'terms_and_conditions': True
+            },
+            follow=True
+        )
+        self.client.login(username='testuser', password='password')
+        # delete a security question that has a security answer linked to
+        response = self.client.post(
+            reverse('wagtailadmin_pages:delete', args=(self.q1.id, )))
+
+        self.assertContains(response, "Users have used")
+        self.assertContains(
+            response, "<strong>%s</strong>" % self.q1.title, html=True)
+
+        # Check that the security question exists
+        self.assertTrue(
+            SecurityQuestion.objects.filter(
+                slug='how-old-are-you').exists())
 
 
 class TranslatedSecurityQuestionsTest(TestCase, MoloTestCaseMixin):

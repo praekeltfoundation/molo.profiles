@@ -1,5 +1,7 @@
+from django.shortcuts import render
 from molo.profiles.admin import FrontendUsersModelAdmin, UserProfileModelAdmin
-from molo.profiles.models import UserProfilesSettings, UserProfile
+from molo.profiles.models import (
+    UserProfilesSettings, UserProfile, SecurityAnswer)
 from wagtail.contrib.modeladmin.options import modeladmin_register
 from wagtail.wagtailadmin.site_summary import SummaryItem
 from wagtail.wagtailcore import hooks
@@ -34,3 +36,13 @@ def add_access_error_message_panel(request, panels):
         if not request.user.profile.admin_sites.filter(
                 pk=request.site.pk).exists():
             panels[:] = [AccessErrorMessage(request)]
+
+
+@hooks.register('before_delete_page')
+def before_delete_security_question(request, page):
+    if SecurityAnswer.objects.filter(question_id=page.id):
+        return render(
+            request, 'admin/security_question_delete_warrning.html', {
+                'page': page,
+                'parent_id': page.get_parent().id
+            })
