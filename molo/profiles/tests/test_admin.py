@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.test import TestCase, override_settings
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group, Permission
+from django.contrib.contenttypes.models import ContentType
 from django.test.client import Client
 from django.core.urlresolvers import reverse
 from datetime import date
@@ -11,6 +12,58 @@ from molo.profiles.admin import ProfileUserAdmin, download_as_csv
 from molo.profiles.models import (
     SecurityQuestion, SecurityAnswer, SecurityQuestionIndexPage, UserProfile)
 from molo.profiles.admin import MultiSiteUserResource
+
+
+class PermissionsTestCase(TestCase, MoloTestCaseMixin):
+    def setUp(self):
+        self.mk_main()
+        self.user = User.objects.create_user(
+            username='tester',
+            email='tester@example.com',
+            password='tester')
+        self.main = Main.objects.all().first()
+        self.language_setting = Languages.objects.create(
+            site_id=self.main.get_site().pk)
+        self.english = SiteLanguageRelation.objects.create(
+            language_setting=self.language_setting,
+            locale='en',
+            is_active=True)
+        self.mk_main2()
+        self.client = Client()
+
+        self.wagtail_login_only_group, _created = Group.objects.get_or_create(
+            name='Wagtail Login Only')
+
+        wagtailadmin_content_type, created = ContentType.objects.get_or_create(
+            app_label='wagtailadmin',
+            model='admin'
+        )
+
+        # Create admin permission
+        admin_permission, created = Permission.objects.get_or_create(
+            content_type=wagtailadmin_content_type,
+            codename='access_admin',
+            name='Can access Wagtail admin'
+        )
+
+        # add the wagtail login permissions to group
+        access_admin = Permission.objects.get(codename='access_admin')
+        self.wagtail_login_only_group.permissions.add(access_admin)
+
+        self.admin_user = User.objects.create_user(
+            username='username', password='password', email='login@email.com')
+        self.admin_user.groups.add(self.wagtail_login_only_group)
+
+    def test_staff_user_unable_to_log_in_main_without_permission(self):
+        # it should not allow you to log into site one
+        self.client.login(username='username', password='password')
+        response = self.client.get('/admin/')
+        self.assertContains(response, 'You do not have access to this site.')
+
+        self.admin_user.profile.admin_sites.add(self.site)
+        response = self.client.get('/admin/')
+        self.assertNotContains(
+            response, 'You do not have access to this site.')
 
 
 class ModelsTestCase(TestCase, MoloTestCaseMixin):

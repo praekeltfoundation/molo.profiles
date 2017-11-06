@@ -61,7 +61,8 @@ class RegistrationView(FormView):
 
     def get_form_kwargs(self):
         kwargs = super(RegistrationView, self).get_form_kwargs()
-        self.questions = SecurityQuestion.objects.live().filter(
+        self.questions = SecurityQuestion.objects.descendant_of(
+            self.request.site.root_page).live().filter(
             languages__language__is_main_language=True)
 
         # create context dictionary with request for get_pages()
@@ -69,6 +70,7 @@ class RegistrationView(FormView):
         self.translated_questions = get_pages(
             request, self.questions, self.request.LANGUAGE_CODE)
         kwargs["questions"] = self.translated_questions
+        kwargs["request"] = self.request
         return kwargs
 
 
@@ -105,6 +107,11 @@ class RegistrationDone(FormView):
                 profile.education_level = form.cleaned_data["education_level"]
         profile.save()
         return HttpResponseRedirect(form.cleaned_data.get('next', '/'))
+
+    def get_form_kwargs(self):
+        kwargs = super(RegistrationDone, self).get_form_kwargs()
+        kwargs["request"] = self.request
+        return kwargs
 
 
 def logout_page(request):
@@ -143,6 +150,11 @@ class MyProfileEdit(UpdateView):
 
     def get_object(self, queryset=None):
         return self.request.user.profile
+
+    def get_form_kwargs(self):
+        kwargs = super(MyProfileEdit, self).get_form_kwargs()
+        kwargs["request"] = self.request
+        return kwargs
 
 
 class ProfilePasswordChangeView(FormView):
@@ -211,14 +223,19 @@ class ForgotPasswordView(FormView):
         # check security question answers
         answer_checks = []
         for i in range(profile_settings.num_security_questions):
-                user_answer = form.cleaned_data["question_%s" % (i,)]
+            user_answer = form.cleaned_data["question_%s" % (i,)]
+            try:
                 saved_answer = user.profile.securityanswer_set.get(
                     user=user.profile,
                     question=self.security_questions[i]
                 )
-                answer_checks.append(
-                    saved_answer.check_answer(user_answer)
-                )
+                answer_checks.append(saved_answer.check_answer(user_answer))
+            except SecurityAnswer.DoesNotExist:
+                form.add_error(
+                    None,
+                    _("There are no security questions "
+                      "stored against your profile."))
+                return self.render_to_response({'form': form})
 
         # redirect to reset password page if username and security
         # questions were matched
@@ -242,7 +259,8 @@ class ForgotPasswordView(FormView):
         # all the questions the user has answered
         kwargs = super(ForgotPasswordView, self).get_form_kwargs()
         profile_settings = UserProfilesSettings.for_site(self.request.site)
-        self.security_questions = SecurityQuestion.objects.live().filter(
+        self.security_questions = SecurityQuestion.objects.descendant_of(
+            self.request.site.root_page).live().filter(
             languages__language__is_main_language=True
         ).order_by("?")
 
