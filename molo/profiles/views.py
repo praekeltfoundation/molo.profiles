@@ -223,14 +223,19 @@ class ForgotPasswordView(FormView):
         # check security question answers
         answer_checks = []
         for i in range(profile_settings.num_security_questions):
-                user_answer = form.cleaned_data["question_%s" % (i,)]
+            user_answer = form.cleaned_data["question_%s" % (i,)]
+            try:
                 saved_answer = user.profile.securityanswer_set.get(
                     user=user.profile,
                     question=self.security_questions[i]
                 )
-                answer_checks.append(
-                    saved_answer.check_answer(user_answer)
-                )
+                answer_checks.append(saved_answer.check_answer(user_answer))
+            except SecurityAnswer.DoesNotExist:
+                form.add_error(
+                    None,
+                    _("There are no security questions "
+                      "stored against your profile."))
+                return self.render_to_response({'form': form})
 
         # redirect to reset password page if username and security
         # questions were matched
