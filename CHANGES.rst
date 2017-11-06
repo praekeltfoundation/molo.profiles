@@ -1,6 +1,11 @@
 CHANGE LOG
 ==========
 
+5.4.2
+-----
+- Bug Fix: show an error on frontend if the user did answer the security question on registration when they try to reset their password
+- Won't be able to delete a security question when users have used it
+
 5.4.1
 -----
 - Bug Fix: enable search via username on permissions
