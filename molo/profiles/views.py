@@ -49,11 +49,12 @@ class RegistrationView(FormView):
 
         for index, question in enumerate(self.questions):
             answer = form.cleaned_data["question_%s" % index]
-            SecurityAnswer.objects.create(
-                user=user.profile,
-                question=question,
-                answer=answer
-            )
+            if answer:
+                SecurityAnswer.objects.create(
+                    user=user.profile,
+                    question=question,
+                    answer=answer
+                )
         authed_user = authenticate(
             request=self.request, username=username, password=password)
         login(self.request, authed_user)

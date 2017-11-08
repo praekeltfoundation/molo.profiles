@@ -1642,7 +1642,7 @@ class ForgotPasswordViewTest(TestCase, MoloTestCaseMixin):
         response = self.client.post(
             reverse("molo.profiles:user_register"),
             {
-                "username": "tester",
+                "username": "newuser",
                 "password": "0000",
                 'terms_and_conditions': True
             },
@@ -1669,7 +1669,7 @@ class ForgotPasswordViewTest(TestCase, MoloTestCaseMixin):
 
         response = self.client.post(
             reverse("molo.profiles:forgot_password"), {
-                "username": "tester",
+                "username": "newuser",
                 "question_0": "saeed",
                 "question_1": "pishy",
             }
