@@ -1,6 +1,10 @@
 CHANGE LOG
 ==========
 
+5.4.3
+-----
+- Remove randomizing the questions
+
 5.4.2
 -----
 - Bug Fix: show an error on frontend if the user did answer the security question on registration when they try to reset their password
