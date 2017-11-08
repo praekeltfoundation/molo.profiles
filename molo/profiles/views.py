@@ -262,7 +262,7 @@ class ForgotPasswordView(FormView):
         self.security_questions = SecurityQuestion.objects.descendant_of(
             self.request.site.root_page).live().filter(
             languages__language__is_main_language=True
-        ).order_by("?")
+        )
 
         # create context dictionary with request for get_pages()
         request = {"request": self.request}
